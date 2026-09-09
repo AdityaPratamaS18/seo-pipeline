@@ -105,29 +105,35 @@ comparable.
 
 ## Install
 
-In Claude Code:
+Works with any coding agent, or none. See [AGENTS.md](AGENTS.md) for the operating manual.
+
+```bash
+git clone https://github.com/AdityaPratamaS18/seo-pipeline.git
+pip install jsonschema beautifulsoup4 pillow certifi
+export PATH="$PWD/seo-pipeline/bin:$PATH"
+
+export DATAFORSEO_LOGIN=you@example.com     # stage 1 only
+export DATAFORSEO_PASSWORD=...
+```
+
+In Claude Code you can install it as a plugin instead of cloning, which puts the three skills
+on the model automatically:
 
 ```
 /plugin marketplace add AdityaPratamaS18/seo-pipeline
 /plugin install seo-pipeline@humandspark
 ```
 
-Then the dependencies and, for stage 1 only, a DataForSEO account:
+Either way, work from the site's own folder, not from the clone:
 
 ```bash
-pip install jsonschema beautifulsoup4 pillow certifi
-
-export DATAFORSEO_LOGIN=you@example.com
-export DATAFORSEO_PASSWORD=...
+mkdir -p ~/sites/mysite && cd ~/sites/mysite
+seo doctor
+seo init --domain mysite.com --competitors rival.com,other.com
 ```
 
-`seo doctor` tells you what is still missing.
-
-To run it from a clone instead of installing it, add the `bin` directory to your PATH:
-
-```bash
-export PATH="$PWD/bin:$PATH"
-```
+`seo init` writes an `AGENTS.md` into that folder, so whichever agent you point at it knows the
+workflow and the gates without being told.
 
 Then, from your site repo:
 

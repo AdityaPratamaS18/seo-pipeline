@@ -87,5 +87,36 @@ check(not sentinels({"a": "we had to do this todo list thing"}),
 check(sentinels({"a": "TODO: answer this"}), "a leading TODO: is")
 check(sentinels({"a": "  todo something"}), "leading whitespace and lowercase still match")
 
+print("\nAGENTS.md  (the file a non-Claude-Code agent actually reads)")
+import os, subprocess, tempfile                                   # noqa: E402
+from stages.init import AGENTS, MARKER                            # noqa: E402
+
+check(MARKER in AGENTS, "the block is marked, so it can be appended exactly once")
+for rule in ("confirmed_at", "brief.evidence", "seo status", "GATE 1"):
+    check(rule in AGENTS, f"it carries the {rule} rule")
+check("plugin" not in AGENTS.lower(),
+      "it assumes no plugin system, because Codex and Cursor have none")
+
+SEO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin", "seo")
+with tempfile.TemporaryDirectory() as d:
+    run = lambda: subprocess.run([SEO, "init", "--domain", "x.com", "--force"],
+                                 cwd=d, capture_output=True, text=True).stdout
+    run()
+    first = open(os.path.join(d, "AGENTS.md")).read()
+    check(first.startswith(MARKER), "written when the folder has none")
+    run()
+    check(open(os.path.join(d, "AGENTS.md")).read() == first,
+          "a second run does not duplicate it")
+
+with tempfile.TemporaryDirectory() as d:
+    open(os.path.join(d, "AGENTS.md"), "w").write("# Mine\n\nMy rules.\n")
+    subprocess.run([SEO, "init", "--domain", "x.com"], cwd=d, capture_output=True)
+    got = open(os.path.join(d, "AGENTS.md")).read()
+    check(got.startswith("# Mine"), "an existing AGENTS.md is never clobbered")
+    check(MARKER in got, "and the pipeline section is appended to it")
+    subprocess.run([SEO, "init", "--domain", "x.com", "--force"], cwd=d, capture_output=True)
+    check(open(os.path.join(d, "AGENTS.md")).read().count(MARKER) == 1,
+          "appended once, however many times init runs")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)

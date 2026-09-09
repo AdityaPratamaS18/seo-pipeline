@@ -58,6 +58,54 @@ SEEDS = """# Seed queries for `seo serp --from-file seeds.txt`
 """
 
 
+MARKER = "<!-- seo-pipeline -->"
+
+AGENTS = MARKER + """
+# SEO pipeline, for whatever agent is working in this folder
+
+Run `seo status` first. It reads the files here and prints the single next command. Trust it
+over your memory of the conversation. `seo` with no arguments lists every command.
+
+Each stage writes a file the next one reads, and there are four points where **a person**, not
+you, says yes.
+
+```
+seo context --domain {domain}       read the live site
+   GATE 1  a person answers every TODO in context/business.json, then sets meta.confirmed_at
+seo serp "kw" "kw" ...              real search results for 10 to 12 seed queries
+seo competitors serps/*.json        who actually ranks
+seo pull <domains>                  their keywords, narrowed to the page that ranked
+seo keywords keywords/dataset.csv   cluster them
+   GATE 2  a person approves keywords/clusters.json
+seo plan                            one brief per page
+   GATE 3  seo review build, a person decides, seo review apply decisions.json
+seo write prompt <slug>             the complete instruction for one page
+seo media <slug>                    images
+seo check                           every checker
+   GATE 4  a person reads what the checks flagged
+seo publish <slug>                  one page a day
+```
+
+## Rules
+
+- **Never set `confirmed_at` yourself.** Tell the person what to look at. A gate you pass on
+  their behalf has done nothing, and every page inherits the guess.
+- **The brief settles everything.** Run `seo write prompt <slug>` and follow it exactly. Do not
+  research, restructure, or add sections.
+- **A missing field in a brief is a planning bug.** Say so and stop. Fixing it in one draft
+  leaves the same hole in the rest of the batch.
+- **`brief.evidence` is the complete set of facts a page may assert.** Never estimate, round or
+  infer a number. If a fact is missing, write without it and say what was missing.
+- **A check that examined zero units failed.** It did not pass.
+- **A file containing `TODO:` cannot be confirmed.** `validate.py` rejects it.
+
+Only `seo serp` and `seo pull` cost money. Both check the balance before spending.
+
+Full detail lives in the tool's own `AGENTS.md`, `README.md` and `skills/*/SKILL.md`, all plain
+markdown.
+"""
+
+
 def now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -219,6 +267,19 @@ def main():
     else:
         shutil.copyfile(DEFAULT_VOICE, voice)
         print(f"  voice     {voice}, copied from the default. Rewrite it, it is yours")
+
+    body = AGENTS.replace("{domain}", domain)
+    if not os.path.exists("AGENTS.md"):
+        open("AGENTS.md", "w").write(body.lstrip("\n"))
+        print("  agents    AGENTS.md, so any coding agent working here knows the workflow")
+    elif MARKER not in open("AGENTS.md").read():
+        # Append rather than overwrite: this file is often the user's own, and
+        # a tool that clobbers it is a tool nobody runs twice.
+        with open("AGENTS.md", "a") as f:
+            f.write("\n\n---\n" + body)
+        print("  agents    appended the pipeline section to your existing AGENTS.md")
+    else:
+        print("  agents    AGENTS.md already covers the pipeline, left alone")
 
     if not os.path.exists("seeds.txt"):
         open("seeds.txt", "w").write(SEEDS)
