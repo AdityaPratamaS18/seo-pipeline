@@ -154,7 +154,7 @@
       {
         "heading": "Why writing it down is the step people skip",
         "level": 2,
-        "purpose": "The capture gap, and the natural place Doot fits without a pitch.",
+        "purpose": "The capture gap, and the natural place Plainday fits without a pitch.",
         "must_cover": [
           "the thought is lost before it is captured"
         ],
@@ -182,7 +182,7 @@
     ],
     "cta": {
       "placement": "end_and_contextual",
-      "url": "https://app.dootit.com/signup",
+      "url": "https://app.plainday.example.com/signup",
       "label": "Try the web app free"
     }
   },

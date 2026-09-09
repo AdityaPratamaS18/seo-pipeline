@@ -4,18 +4,18 @@
     "generated_at": "2026-09-08T09:12:00Z",
     "generated_by": "seo context v0.1",
     "sources": [
-      "doot-site/README.md",
-      "doot-site/package.json",
-      "doot-site/src/app/page.tsx",
-      "doot-site/src/app/adhd/page.tsx",
-      "https://dootit.com/"
+      "plainday-site/README.md",
+      "plainday-site/package.json",
+      "plainday-site/src/app/page.tsx",
+      "plainday-site/src/app/adhd/page.tsx",
+      "https://plainday.example.com/"
     ],
     "confirmed_at": "2026-09-08T09:40:00Z",
     "confirmed_by": "Aditya Pratap Singh"
   },
   "identity": {
-    "name": "Doot",
-    "domain": "dootit.com",
+    "name": "Plainday",
+    "domain": "plainday.example.com",
     "one_liner": "AI task manager for ADHD and messy minds: brain dump in plain English, get back tasks with dates, priorities and lists.",
     "category": "task manager",
     "business_model": "prosumer_saas",
@@ -37,7 +37,7 @@
         "does": "Takes one messy paragraph, typed or spoken, and returns separate tasks.",
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/",
+          "ref": "https://plainday.example.com/",
           "retrieved_at": "2026-09-08T09:12:00Z"
         }
       },
@@ -46,7 +46,7 @@
         "does": "Reads 'next Tuesday' or 'end of the month' and sets a real due date.",
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/",
+          "ref": "https://plainday.example.com/",
           "retrieved_at": "2026-09-08T09:12:00Z"
         }
       },
@@ -55,7 +55,7 @@
         "does": "Groups tasks by priority without the user configuring anything.",
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/",
+          "ref": "https://plainday.example.com/",
           "retrieved_at": "2026-09-08T09:12:00Z"
         }
       },
@@ -80,7 +80,7 @@
     "tiers": [
       {
         "name": "Monthly",
-        "price": 8.99,
+        "price": 12.0,
         "currency": "USD",
         "period": "month",
         "includes": [
@@ -88,13 +88,13 @@
         ],
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/ FAQ: How much does doot cost?",
+          "ref": "https://plainday.example.com/ FAQ: How much does plainday cost?",
           "retrieved_at": "2026-09-08T14:20:00Z"
         }
       },
       {
         "name": "Lifetime",
-        "price": 19.99,
+        "price": 96.0,
         "currency": "USD",
         "period": "one_time",
         "includes": [
@@ -103,7 +103,7 @@
         ],
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/ FAQ: How much does doot cost?",
+          "ref": "https://plainday.example.com/ FAQ: How much does plainday cost?",
           "retrieved_at": "2026-09-08T14:20:00Z"
         }
       }
@@ -152,7 +152,7 @@
         "claim": "Accepts one messy paragraph and returns many tasks, rather than one task per line.",
         "source": {
           "type": "site",
-          "ref": "https://dootit.com/",
+          "ref": "https://plainday.example.com/",
           "retrieved_at": "2026-09-08T09:12:00Z"
         }
       },
@@ -227,13 +227,13 @@
     ],
     "do_not_claim": [
       "any medical or therapeutic benefit",
-      "that Doot treats, diagnoses or assesses ADHD",
+      "that Plainday treats, diagnoses or assesses ADHD",
       "outcomes such as guaranteed productivity gains"
     ]
   },
   "tech": {
     "stack": "next_app_router",
-    "repo_path": "~/Documents/Claude-code/doot/doot-site",
+    "repo_path": "~/Documents/Claude-code/plainday/plainday-site",
     "content_format": "tsx",
     "url_prefix": "/",
     "public_dir": "public",
