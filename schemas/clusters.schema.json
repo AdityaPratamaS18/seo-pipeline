@@ -4,188 +4,441 @@
   "title": "Keyword clusters",
   "description": "The output of `seo keywords`, run once a quarter rather than once per page. Keywords are grouped by SERP OVERLAP (two keywords belong together if the same URLs rank for both), which is reproducible from data, unlike semantic grouping. Each cluster also records what KIND of page ranks for it, so the planner and writer never have to guess the format.",
   "type": "object",
-  "required": ["meta", "clusters"],
+  "required": [
+    "meta",
+    "clusters"
+  ],
   "additionalProperties": false,
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["schema_version", "generated_at", "expires_at", "method", "providers", "competitors_analysed", "dataset"],
+      "required": [
+        "schema_version",
+        "generated_at",
+        "expires_at",
+        "method",
+        "providers",
+        "competitors_analysed",
+        "dataset"
+      ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": { "const": "1.0" },
-        "generated_at": { "type": "string", "format": "date-time" },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
         "expires_at": {
-          "type": "string", "format": "date-time",
+          "type": "string",
+          "format": "date-time",
           "description": "Typically 90 days out. The planner REFUSES to build briefs from expired clusters rather than quietly using stale data."
         },
-        "confirmed_at": { "type": ["string", "null"], "format": "date-time",
-          "description": "GATE 2. Null means these clusters are not approved and the planner must refuse them." },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "GATE 2. Null means these clusters are not approved and the planner must refuse them."
+        },
         "method": {
           "type": "object",
-          "required": ["clustering", "overlap_threshold", "difficulty_ceiling"],
+          "required": [
+            "clustering",
+            "overlap_threshold",
+            "difficulty_ceiling"
+          ],
           "additionalProperties": false,
           "properties": {
-            "clustering": { "const": "serp_overlap" },
+            "clustering": {
+              "const": "serp_overlap"
+            },
             "overlap_threshold": {
-              "type": "integer", "minimum": 2, "maximum": 10, "default": 3,
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 10,
+              "default": 3,
               "description": "How many shared URLs in the top 10 put two keywords in one cluster. 3 is the industry-standard default."
             },
-            "difficulty_ceiling": { "type": "integer", "minimum": 0, "maximum": 100 },
-            "min_volume": { "type": "integer", "minimum": 0, "default": 10 },
-            "location": { "type": "string", "description": "e.g. 2840 for United States" },
-            "language": { "type": "string", "default": "en" }
+            "difficulty_ceiling": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "min_volume": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 10
+            },
+            "location": {
+              "type": "string",
+              "description": "e.g. 2840 for United States"
+            },
+            "language": {
+              "type": "string",
+              "default": "en"
+            }
           }
         },
-        "providers": { "type": "array", "minItems": 1, "items": { "enum": ["dataforseo_labs", "ubersuggest", "gsc", "manual"] } },
+        "providers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "dataforseo_labs",
+              "ubersuggest",
+              "gsc",
+              "manual"
+            ]
+          }
+        },
         "competitors_analysed": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["domain", "keywords_pulled"],
+            "required": [
+              "domain",
+              "keywords_pulled"
+            ],
             "additionalProperties": false,
             "properties": {
-              "domain": { "type": "string" },
-              "keywords_pulled": { "type": "integer", "minimum": 0 },
-              "discovered_by": { "enum": ["serp_overlap", "stated_by_owner"], "default": "serp_overlap" }
+              "domain": {
+                "type": "string"
+              },
+              "keywords_pulled": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "discovered_by": {
+                "enum": [
+                  "serp_overlap",
+                  "stated_by_owner"
+                ],
+                "default": "serp_overlap"
+              }
             }
           }
         },
         "dataset": {
           "type": "object",
-          "required": ["rows_raw", "rows_qualified", "path"],
+          "required": [
+            "rows_raw",
+            "rows_qualified",
+            "path"
+          ],
           "additionalProperties": false,
           "properties": {
-            "rows_raw": { "type": "integer", "minimum": 1,
-              "description": "Must be non-zero. A run that pulled nothing has to fail loudly, not produce zero clusters and a green tick." },
-            "rows_qualified": { "type": "integer", "minimum": 0 },
-            "path": { "type": "string", "default": "keywords/dataset.csv" }
+            "rows_raw": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Must be non-zero. A run that pulled nothing has to fail loudly, not produce zero clusters and a green tick."
+            },
+            "rows_qualified": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "path": {
+              "type": "string",
+              "default": "keywords/dataset.csv"
+            }
           }
         }
       }
     },
-
     "clusters": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "primary", "secondaries", "intent", "page_type", "serp_evidence", "opportunity", "status"],
+        "required": [
+          "id",
+          "primary",
+          "secondaries",
+          "intent",
+          "page_type",
+          "serp_evidence",
+          "opportunity",
+          "status"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string", "pattern": "^c[0-9]{3}$" },
-          "primary": { "$ref": "#/$defs/keyword" },
+          "id": {
+            "type": "string",
+            "pattern": "^c[0-9]{3}$"
+          },
+          "primary": {
+            "$ref": "#/$defs/keyword"
+          },
           "secondaries": {
-            "type": "array", "items": { "$ref": "#/$defs/keyword" },
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/keyword"
+            },
             "description": "Every other keyword whose SERP overlaps the primary's above the threshold. These are the terms ONE page can rank for."
           },
-          "intent": { "enum": ["informational", "commercial", "transactional", "navigational"] },
+          "intent": {
+            "enum": [
+              "informational",
+              "commercial",
+              "transactional",
+              "navigational"
+            ]
+          },
           "page_type": {
             "$ref": "#/$defs/page_type",
             "description": "What actually ranks, taken from the SERP rather than chosen. The writer is told the format; it does not pick one."
           },
           "page_type_source": {
-            "enum": ["serp", "human"],
+            "enum": [
+              "serp",
+              "human"
+            ],
             "default": "serp",
             "description": "Where the page type came from. `serp` means the clusterer read it off observed results, and the thin-evidence rule applies in full. `human` means a person decided it because the planner asked them to, which is a decision rather than evidence and is not bound by that rule. Without this the tool contradicted itself: plan.py skips a mixed cluster saying a human must pick the type, while validate.py made recording that pick an error on any cluster with fewer than 3 observed results, which is most of them."
           },
           "serp_evidence": {
             "type": "object",
-            "required": ["checked_at", "top_results", "type_confidence"],
+            "required": [
+              "checked_at",
+              "top_results",
+              "type_confidence"
+            ],
             "additionalProperties": false,
             "properties": {
-              "checked_at": { "type": "string", "format": "date-time" },
+              "checked_at": {
+                "type": "string",
+                "format": "date-time"
+              },
               "top_results": {
-                "type": "array", "minItems": 1,
+                "type": "array",
+                "minItems": 1,
                 "description": "Observed ranking results. Fewer than 3 is allowed, because in competitor-overlap mode a real opportunity may only have two tracked competitors on it, and discarding it would lose the opportunity. What is NOT allowed is thin evidence wearing a confident page_type: validate.py enforces that under 3 results the type must be `mixed` with confidence at or below 0.5.",
                 "items": {
                   "type": "object",
-                  "required": ["rank", "url", "page_type"],
+                  "required": [
+                    "rank",
+                    "url",
+                    "page_type"
+                  ],
                   "additionalProperties": false,
                   "properties": {
-                    "rank": { "type": "integer", "minimum": 1,
-                      "description": "No upper bound, deliberately. This was capped at 20 on the assumption it only ever holds top-20 SERP data, raised to 100 when live data failed validation, and then failed again on a DataForSEO row at 111. Ranked-keyword exports report absolute positions across several pages of results, so any ceiling here is a guess that eventually rejects real evidence. A competitor sitting at 111 is weak evidence, which is a scoring question, not a validity one." },
-                    "url": { "type": "string" },
-                    "domain": { "type": "string" },
-                    "page_type": { "$ref": "#/$defs/page_type" },
-                    "domain_rating": { "type": ["number", "null"] }
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "No upper bound, deliberately. This was capped at 20 on the assumption it only ever holds top-20 SERP data, raised to 100 when live data failed validation, and then failed again on a DataForSEO row at 111. Ranked-keyword exports report absolute positions across several pages of results, so any ceiling here is a guess that eventually rejects real evidence. A competitor sitting at 111 is weak evidence, which is a scoring question, not a validity one."
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "domain": {
+                      "type": "string"
+                    },
+                    "page_type": {
+                      "$ref": "#/$defs/page_type"
+                    },
+                    "domain_rating": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
                   }
                 }
               },
               "type_confidence": {
-                "type": "number", "minimum": 0, "maximum": 1,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
                 "description": "Share of the top 10 sharing the dominant type. Below about 0.5 the SERP is mixed, which is a signal to a human, not a reason to guess."
               },
               "serp_features": {
                 "type": "array",
                 "description": "Non-organic blocks on the SERP. This list was written from memory and then extended from live Ubersuggest responses, which returned product_considerations, popular_products and discussions_and_forums, and again from a live DataForSEO response on 2026-09-09, which returned related_searches. Extend it the same way, from an observed response, rather than guessing.",
-                "items": { "enum": ["featured_snippet", "people_also_ask", "video", "images",
-                                    "shopping", "local_pack", "ai_overview", "popular_products",
-                                    "product_considerations", "discussions_and_forums",
-                                    "knowledge_panel", "top_stories", "recipes", "jobs",
-                                    "related_searches"] }
+                "items": {
+                  "enum": [
+                    "featured_snippet",
+                    "people_also_ask",
+                    "video",
+                    "images",
+                    "shopping",
+                    "local_pack",
+                    "ai_overview",
+                    "popular_products",
+                    "product_considerations",
+                    "discussions_and_forums",
+                    "knowledge_panel",
+                    "top_stories",
+                    "recipes",
+                    "jobs",
+                    "related_searches"
+                  ]
+                }
               }
             }
           },
           "opportunity": {
             "type": "object",
-            "required": ["score", "why"],
+            "required": [
+              "score",
+              "why"
+            ],
             "additionalProperties": false,
             "properties": {
-              "score": { "type": "number", "minimum": 0, "maximum": 100 },
-              "why": { "type": "string", "description": "One line a human can agree or disagree with at the gate." },
-              "total_volume": { "type": "integer", "minimum": 0 },
-              "max_difficulty": { "type": "integer", "minimum": 0, "maximum": 100 },
-              "competitor_coverage": { "type": "integer", "minimum": 0,
-                "description": "How many tracked competitors already have a page for this. Zero can mean an opening or a dead end." },
+              "score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "why": {
+                "type": "string",
+                "description": "One line a human can agree or disagree with at the gate."
+              },
+              "total_volume": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The largest single member's volume, not the members added up. Google reports one bucketed figure for a group of near-identical queries, so summing a cluster counts one demand many times. Understates a cluster whose members are genuinely distinct, which is the safe direction."
+              },
+              "max_difficulty": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "competitor_coverage": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How many tracked competitors already have a page for this. Zero can mean an opening or a dead end."
+              },
               "competitor_kinds": {
-                "type": ["array", "null"],
-                "items": { "enum": ["product", "publisher", "community", "platform", "unknown"] },
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "enum": [
+                    "product",
+                    "publisher",
+                    "community",
+                    "platform",
+                    "unknown"
+                  ]
+                },
                 "description": "Which KINDS of competitor rank here, from `seo competitors`. The score is weighted by this: a publisher with a 5,000 keyword index would otherwise swamp a product competitor with 57, filling the shortlist with that publisher's subject instead of your market. Null when no competitor classification was supplied."
+              },
+              "volume_summed": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The naive sum, kept only so the gap against total_volume is visible at the gate. Never rank on this."
               }
             }
           },
-          "status": { "enum": ["idea", "planned", "drafted", "published", "rejected"], "default": "idea" },
-          "assigned_slug": { "type": ["string", "null"] },
-          "rejected_reason": { "type": ["string", "null"],
-            "description": "Required when status is rejected, so the same dead end is not re-proposed next quarter." },
+          "status": {
+            "enum": [
+              "idea",
+              "planned",
+              "drafted",
+              "published",
+              "rejected"
+            ],
+            "default": "idea"
+          },
+          "assigned_slug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rejected_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Required when status is rejected, so the same dead end is not re-proposed next quarter."
+          },
           "cannibalisation_risk": {
-            "type": "array", "items": { "type": "string" },
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "description": "Existing slugs whose primary overlaps this cluster. The planning gate blocks on these."
           }
         }
       }
     }
   },
-
   "$defs": {
     "keyword": {
       "type": "object",
-      "required": ["keyword", "volume", "difficulty"],
+      "required": [
+        "keyword",
+        "volume",
+        "difficulty"
+      ],
       "additionalProperties": false,
       "properties": {
-        "keyword": { "type": "string", "minLength": 2 },
-        "volume": { "type": "integer", "minimum": 0 },
-        "difficulty": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "cpc": { "type": ["number", "null"] },
+        "keyword": {
+          "type": "string",
+          "minLength": 2
+        },
+        "volume": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "cpc": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "ranked_by": {
           "type": "array",
           "description": "Which competitors already rank for this, and where. This is the evidence that the keyword is real.",
           "items": {
             "type": "object",
-            "required": ["domain", "position"],
+            "required": [
+              "domain",
+              "position"
+            ],
             "additionalProperties": false,
             "properties": {
-              "domain": { "type": "string" },
-              "position": { "type": "integer", "minimum": 1 },
-              "url": { "type": "string" }
+              "domain": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "url": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
     "page_type": {
-      "enum": ["how_to_guide", "listicle", "comparison", "alternatives", "definition",
-               "use_case", "template_or_tool", "product_page", "pricing_page",
-               "case_study", "glossary", "faq_hub", "news", "mixed"],
+      "enum": [
+        "how_to_guide",
+        "listicle",
+        "comparison",
+        "alternatives",
+        "definition",
+        "use_case",
+        "template_or_tool",
+        "product_page",
+        "pricing_page",
+        "case_study",
+        "glossary",
+        "faq_hub",
+        "news",
+        "mixed"
+      ],
       "description": "A fixed library on purpose. Free-form page types drift across a batch and cannot be templated or taught. Add to this list deliberately, do not let a model invent one."
     }
   }

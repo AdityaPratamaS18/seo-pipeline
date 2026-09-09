@@ -191,12 +191,36 @@ def kind_mix(keyword_row, kinds):
     return seen or ["unknown"]
 
 
+def cluster_volume(primary, secondaries):
+    """A cluster's honest volume, and the naive sum it is not.
+
+    Google reports one bucketed figure for a group of near-identical queries, so
+    ten ways of asking the same thing each come back with the same number. They
+    are one demand reported ten times, not ten demands. Clustering deliberately
+    groups keywords that share a results page, which is exactly the set most
+    likely to share a bucket, so adding the members up counts one demand many
+    times over.
+
+    The effect is perverse: the better a cluster is grouped, the more repeats it
+    holds, and the bigger it looks. On real data a cluster of 21 well-grouped
+    keywords summed to 177,600 against a true figure near 12,100, and it sorted
+    to the top of the shortlist for that reason.
+
+    The largest member is used instead. Where the members share a bucket, that IS
+    the bucket's figure. Where they do not, it understates, and understating what
+    a page can win is the safe direction to be wrong in. Both numbers are kept so
+    the gap is visible at the gate rather than hidden in a single total.
+    """
+    vols = [primary.get("volume") or 0] + [s.get("volume") or 0 for s in secondaries]
+    return max(vols), sum(vols)
+
+
 def score(primary, secondaries, coverage, kinds=None):
     """Opportunity: reward reachable volume, punish difficulty, then weight by
     who is actually ranking. Kept simple and explainable on purpose: a human
     agrees or disagrees with `why` at the gate, so an unexplainable score would
     be worse than none."""
-    vol = primary["volume"] + sum(s["volume"] for s in secondaries)
+    vol, _ = cluster_volume(primary, secondaries)
     diff = max([primary["difficulty"]] + [s["difficulty"] for s in secondaries] or [0])
     reach = max(0, 100 - diff) / 100
     size = min(vol / 5000, 1.0)
@@ -344,7 +368,8 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
                 "score": score(p, secs, coverage, kinds),
                 "why": explain(p, secs, ptype, conf, coverage, kinds),
                 "competitor_kinds": sorted(set(kind_mix(p, kinds))) if kinds else None,
-                "total_volume": p["volume"] + sum(s["volume"] for s in secs),
+                "total_volume": cluster_volume(p, secs)[0],
+                "volume_summed": cluster_volume(p, secs)[1],
                 "max_difficulty": max([p["difficulty"]] + [s["difficulty"] for s in secs]),
                 "competitor_coverage": coverage,
             },
@@ -373,8 +398,9 @@ def infer_intent(keyword, ptype):
 
 
 def explain(p, secs, ptype, conf, coverage, kinds=None):
-    bits = [f"{p['volume'] + sum(s['volume'] for s in secs):,} combined volume "
-            f"across {1 + len(secs)} keyword(s)",
+    headline, summed = cluster_volume(p, secs)
+    bits = [f"{headline:,} volume across {1 + len(secs)} keyword(s)"
+            + (f", not the {summed:,} they add up to" if summed > headline * 1.5 else ""),
             f"difficulty {p['difficulty']}"]
     if conf >= 0.6:
         bits.append(f"the SERP is consistently {ptype.replace('_', ' ')}")

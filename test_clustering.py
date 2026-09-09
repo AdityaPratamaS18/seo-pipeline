@@ -85,5 +85,47 @@ check("ties break alphabetically, not by input order",
       cluster(tie, threshold=3)[0][0]["primary"]["keyword"],
       cluster(list(reversed(tie)), threshold=3)[0][0]["primary"]["keyword"])
 
+
+
+# ---------------------------------------------------------------- volume
+from stages.keywords import cluster_volume                       # noqa: E402
+
+print("\nCLUSTER VOLUME  (Google buckets, so members repeat one demand)")
+
+vol_results = []
+
+
+def vcheck(ok, label, detail=""):
+    vol_results.append(bool(ok))
+    print(f"  {'ok  ' if ok else 'FAIL'}  {label}")
+    if not ok and detail:
+        print(f"          {detail}")
+
+
+# 21 ways of asking one thing, all reporting the same bucketed figure.
+bucketed = [{"volume": 12100} for _ in range(20)]
+h, s = cluster_volume({"volume": 12100}, bucketed)
+vcheck(h == 12100, f"a bucketed cluster is worth its bucket, not 21x it -> {h:,}")
+vcheck(s == 254100, f"the naive sum is kept so the gap is visible -> {s:,}")
+
+# genuinely distinct members: the largest still wins, which understates.
+h, s = cluster_volume({"volume": 165000}, [{"volume": 22000}, {"volume": 12000}])
+vcheck(h == 165000, "distinct members: the largest is used")
+vcheck(h < s, "understating is the direction it errs in, on purpose")
+
+# a singleton cannot be inflated
+h, s = cluster_volume({"volume": 880}, [])
+vcheck((h, s) == (880, 880), "a singleton reports itself either way")
+
+# missing volumes must not crash or count as anything
+h, s = cluster_volume({"volume": None}, [{"volume": 500}, {}])
+vcheck((h, s) == (500, 500), f"absent volumes count as zero -> {h}, {s}")
+
+# the perverse incentive is gone: more repeats must not raise the number
+few = cluster_volume({"volume": 5400}, [{"volume": 5400}])[0]
+many = cluster_volume({"volume": 5400}, [{"volume": 5400}] * 30)[0]
+vcheck(few == many, "grouping more repeats does not make a cluster look bigger")
+
+results.extend(vol_results)
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
