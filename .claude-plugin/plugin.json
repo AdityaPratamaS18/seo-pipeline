@@ -1,7 +1,7 @@
 {
   "name": "seo-pipeline",
   "displayName": "SEO Pipeline",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A staged SEO content system for founders, plus a technical auditor. Reads your repo to learn what you built, discovers who actually ranks, pulls their keywords, clusters them by SERP overlap, and turns it into approved briefs a writer follows exactly. Three skills over one CLI: the pipeline orchestrator, the writer, and the auditor.",
   "license": "MIT",
   "keywords": [
