@@ -102,14 +102,30 @@ counts as a correct result. `validate.py` rejects a set where every prompt expec
 Frozen on approval with a `set_id` recorded on every measurement, so month-to-month numbers stay
 comparable.
 
-## Setup
+## Install
+
+In Claude Code:
+
+```
+/plugin marketplace add AdityaPratamaS18/seo-pipeline
+/plugin install seo-pipeline@humandspark
+```
+
+Then the dependencies and, for stage 1 only, a DataForSEO account:
 
 ```bash
 pip install jsonschema beautifulsoup4 pillow certifi
-export PATH="$PWD/bin:$PATH"
 
-export DATAFORSEO_LOGIN=you@example.com     # stage 1 only
+export DATAFORSEO_LOGIN=you@example.com
 export DATAFORSEO_PASSWORD=...
+```
+
+`seo doctor` tells you what is still missing.
+
+To run it from a clone instead of installing it, add the `bin` directory to your PATH:
+
+```bash
+export PATH="$PWD/bin:$PATH"
 ```
 
 Then, from your site repo:
