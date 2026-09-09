@@ -118,12 +118,44 @@ def render(spec, out_path, colors, title, items, table):
     d = ImageDraw.Draw(img)
     f_title, f_h, f_b, f_n = font(FONT_B, 40), font(FONT_B, 23), font(FONT_R, 16), font(FONT_B, 30)
 
-    for i, line in enumerate(wrap(d, title, f_title, W - 140)[:2]):
-        d.text((70 * S, (58 + i * 48) * S), line, font=f_title, fill=ink)
-    top = 58 + 48 * min(2, len(wrap(d, title, f_title, W - 140))) + 34
-
     t = spec["type"]
-    if t == "table" and table and len(table) > 1:
+    # A cover owns the whole frame and sets its own type. Every other kind gets
+    # the shared title strip along the top.
+    if t != "cover":
+        for i, line in enumerate(wrap(d, title, f_title, W - 140)[:2]):
+            d.text((70 * S, (58 + i * 48) * S), line, font=f_title, fill=ink)
+        top = 58 + 48 * min(2, len(wrap(d, title, f_title, W - 140))) + 34
+    else:
+        top = 0
+
+    if t == "cover":
+        # The hero used to be rendered as a "cards" image with no cards, which
+        # drew one empty rounded rectangle across the frame: most of a 1200x630
+        # image spent on dead space under a repeat of the H1 the reader had just
+        # read. A cover has to earn the top of a page, so it is composed.
+        pad = 76
+        band_x0, band_x1 = pad, W - pad
+        f_cover = font(FONT_B, 66)
+        f_k = font(FONT_B, 16)
+        lines = wrap(d, title, f_cover, band_x1 - band_x0 - 96)[:3]
+
+        # The band fills the frame rather than floating in it, and the type sits
+        # on it with room above and below.
+        d.rounded_rectangle([band_x0 * S, 56 * S, band_x1 * S, (H - 56) * S],
+                            radius=26 * S, fill=paper)
+
+        kicker = (spec.get("kicker") or "").strip().upper()
+        block = len(lines) * 76
+        y = 56 + ((H - 112) - block) // 2 + (10 if kicker else 0)
+        if kicker:
+            d.text(((band_x0 + 48) * S, (y - 46) * S), kicker,
+                   font=f_k, fill=hexrgb(colors["accent"]))
+        for i, line in enumerate(lines):
+            d.text(((band_x0 + 48) * S, (y + i * 76) * S), line, font=f_cover, fill=ink)
+        d.rounded_rectangle([(band_x0 + 48) * S, (y + block + 18) * S,
+                             (band_x0 + 48 + 150) * S, (y + block + 27) * S],
+                            radius=5 * S, fill=hexrgb(colors["accent"]))
+    elif t == "table" and table and len(table) > 1:
         cols = len(table[0])
         cw = (W - 140) / cols
         for r, row in enumerate(table[:6]):
@@ -296,7 +328,8 @@ def main():
     tasks, skipped = [], []
 
     hero = brief["media"]["hero"]
-    tasks.append(({"type": "cards", "bg": hero.get("bg")},
+    tasks.append(({"type": "cover", "bg": hero.get("bg"),
+                   "kicker": brief["page"].get("page_type", "").replace("_", " ")},
                   os.path.join(outdir, f"{a.slug}-hero.png"), colors,
                   brief["page"]["h1"], [], None))
 

@@ -335,16 +335,40 @@ def media_from(template, bar, cluster, business):
     # keyword itself, so without this the image titles and alt text kept the
     # provider's lowercase "adhd" after the headings had been fixed.
     prim = headline_case(cluster["primary"]["keyword"], business)
-    inline = []
-    for i, s in enumerate(template["sections"]):
-        if s.get("wants_image") and len(inline) < max(2, bar["image_target"] - 1):
-            inline.append({
-                "type": s["wants_image"],
-                "placement_section": (s["heading"].replace("{primary}", prim)
-                                      .replace("{topic}", topic(prim))),
-                "alt": s["heading"].replace("{primary}", prim).replace("{topic}", topic(prim)),
-                "bg": palette[(i + 1) % len(palette)],
-            })
+    target = max(2, bar["image_target"] - 1)          # the hero is the other one
+
+    def head_of(sec):
+        return (sec["heading"].replace("{primary}", prim).replace("{topic}", topic(prim)))
+
+    inline, used = [], set()
+    for i, sec in enumerate(template["sections"]):
+        want = sec.get("wants_image")
+        if not want:
+            continue
+        # A page that carries a real table must not also carry a picture of it.
+        # The markdown table can be read by a screen reader, selected, and lifted
+        # by an answer engine; an image of the same rows can do none of those and
+        # is one bad crop away from being a wrong fact. Two renderings of one fact
+        # is worse than one, whichever is prettier.
+        if want == "table" and bar.get("needs_table"):
+            continue
+        if len(inline) >= target:
+            break
+        inline.append({"type": want, "placement_section": head_of(sec),
+                       "alt": head_of(sec), "bg": palette[(i + 1) % len(palette)]})
+        used.add(i)
+
+    # Top up to what the ranking pages actually carry. The templates declare at
+    # most two image slots, so a page competing against eight-image articles
+    # shipped three and read as a wall of text no matter what the bar said.
+    for i, sec in enumerate(template["sections"]):
+        if len(inline) >= target:
+            break
+        if i in used or sec.get("wants_image"):
+            continue
+        inline.append({"type": "steps" if sec.get("ordered") else "cards",
+                       "placement_section": head_of(sec), "alt": head_of(sec),
+                       "bg": palette[(i + 1) % len(palette)]})
     # "A visual for <keyword>" is not a concept, it is a restatement, and an image
     # model given it returns stock-shaped filler. Ground the hero in the page's
     # actual angle instead: the gap it exploits is the most visual thing about it.
