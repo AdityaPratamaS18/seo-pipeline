@@ -1,0 +1,14 @@
+{
+  "name": "seo-pipeline",
+  "description": "SEO Pipeline: a staged SEO content system plus a technical site auditor.",
+  "owner": {
+    "name": "Aditya Pratap Singh"
+  },
+  "plugins": [
+    {
+      "name": "seo-pipeline",
+      "source": "./",
+      "description": "A staged SEO content system for founders, plus a technical auditor. Research once a quarter, plan a batch, write to a brief, check with scripts."
+    }
+  ]
+}
