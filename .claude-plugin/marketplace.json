@@ -1,14 +1,32 @@
 {
-  "name": "seo-pipeline",
-  "description": "SEO Pipeline: a staged SEO content system plus a technical site auditor.",
+  "name": "humandspark",
+  "description": "Plugins by Aditya Pratap Singh at Hum and Spark.",
   "owner": {
-    "name": "Aditya Pratap Singh"
+    "name": "Aditya Pratap Singh",
+    "url": "https://github.com/AdityaPratamaS18"
   },
   "plugins": [
     {
       "name": "seo-pipeline",
       "source": "./",
-      "description": "A staged SEO content system for founders, plus a technical auditor. Research once a quarter, plan a batch, write to a brief, check with scripts."
+      "version": "0.3.0",
+      "description": "A staged SEO content system for founders, plus a technical auditor. Research once a quarter, plan a batch of pages against the pages that currently rank, write to a brief, and check with scripts rather than judgement.",
+      "author": {
+        "name": "Aditya Pratap Singh"
+      },
+      "homepage": "https://github.com/AdityaPratamaS18/seo-pipeline",
+      "repository": "https://github.com/AdityaPratamaS18/seo-pipeline",
+      "license": "MIT",
+      "category": "marketing",
+      "keywords": [
+        "seo",
+        "content",
+        "keywords",
+        "clustering",
+        "dataforseo",
+        "saas",
+        "indie"
+      ]
     }
   ]
 }

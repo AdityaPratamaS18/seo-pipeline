@@ -1,7 +1,13 @@
 {
   "name": "seo-pipeline",
-  "description": "A staged SEO content system for founders, plus a technical auditor. Reads your repo to learn what you built, discovers who actually ranks, pulls their keywords, clusters them by SERP overlap, and turns it into approved briefs a writer follows exactly. Three skills over one CLI: the pipeline orchestrator, the writer, and the auditor.",
+  "displayName": "SEO Pipeline",
   "version": "0.3.0",
+  "description": "A staged SEO content system for founders, plus a technical auditor. Reads your site and repo to learn what you built, discovers who actually ranks, pulls their keywords, clusters them by SERP overlap, and turns it into approved briefs a writer follows exactly. Three skills over one CLI: the pipeline orchestrator, the writer, and the auditor.",
+  "author": {
+    "name": "Aditya Pratap Singh"
+  },
+  "homepage": "https://github.com/AdityaPratamaS18/seo-pipeline",
+  "repository": "https://github.com/AdityaPratamaS18/seo-pipeline",
   "license": "MIT",
   "keywords": [
     "seo",
@@ -11,8 +17,5 @@
     "dataforseo",
     "saas",
     "indie"
-  ],
-  "author": {
-    "name": "Aditya Pratap Singh"
-  }
+  ]
 }
