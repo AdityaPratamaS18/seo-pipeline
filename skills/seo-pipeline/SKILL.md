@@ -31,7 +31,8 @@ next command. Trust it over your memory of the conversation.
 |---|---|---|
 | 0 context | `seo context --domain d` | once per site |
 | GATE 1 | human confirms `context/business.json` | once |
-| 1 keywords | `seo keywords <dataset.csv>` | quarterly |
+| 1 serps | `seo serp "<kw>" ...` then `seo competitors serps/*.json` | quarterly |
+| 1 keywords | `seo pull <domains>` then `seo keywords keywords/dataset.csv` | quarterly |
 | GATE 2 | human approves `keywords/clusters.json` | quarterly |
 | 2 plan | `seo plan` | per batch |
 | GATE 3 | `seo review build`, human decides, `seo review apply` | per batch |

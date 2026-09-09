@@ -37,8 +37,10 @@ as code over every page, not a sample.
 |---|---|---|
 | 0 context | `seo context --domain d` | once per site |
 | **GATE 1** | you confirm `context/business.json` | once |
+| 1 serps | `seo serp "<kw>" "<kw>" ...` | quarterly |
 | 1 competitors | `seo competitors serps/*.json` | quarterly |
-| 1 keywords | `seo keywords <dataset.csv>` | quarterly |
+| 1 pull | `seo pull <domains>` | quarterly |
+| 1 keywords | `seo keywords keywords/dataset.csv` | quarterly |
 | **GATE 2** | you approve `keywords/clusters.json` | quarterly |
 | 2 plan | `seo plan` | per batch |
 | **GATE 3** | `seo review build`, decide, `seo review apply` | per batch |
@@ -55,12 +57,18 @@ been written yet, so it is the cheapest place to kill a page.
 ## Pull competitor keywords the right way
 
 ```bash
-seo competitors serps/*.json                       # who actually ranks, from real SERPs
-python3 -m providers.dataforseo_labs ranked <domains> --ranking-pages --out keywords/dataset.csv
+seo serp "adhd planner" "best adhd apps" "adhd to do list"   # real SERPs, ~$0.003 each
+seo competitors serps/*.json                                 # who actually ranks
+seo pull wonderstruct.co lunatask.app morgen.so              # their keywords
+seo keywords keywords/dataset.csv                            # cluster them
 ```
 
-**Always pass `--ranking-pages`.** It narrows each competitor to the page that actually ranked,
-so you get the keywords that page holds instead of everything its domain happens to rank for.
+`seo pull` narrows each competitor to the page that actually ranked, so you get the keywords that
+page holds instead of everything its domain happens to rank for. That is the default. Pass
+`--domain-wide` to turn it off deliberately.
+
+Give `seo serp` ten or twelve seeds, not three. Clustering groups keywords that share a results
+page, so with too few seeds nothing overlaps and every cluster comes out a singleton.
 
 Difficulty scores are **not comparable between providers**, so pick your ceiling against the
 data in front of you. `seo keywords` warns when the distribution says your ceiling is filtering

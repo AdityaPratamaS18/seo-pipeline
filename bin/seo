@@ -11,8 +11,10 @@ yours.
     seo status              where this site is in the pipeline
     seo next                the one command to run now
 
-    seo competitors serps/*.json      who is really ranking, from real SERPs
     seo context --domain d [--repo p]  stage 0  read the site, and a repo if you have one
+    seo serp "<kw>" "<kw>" ...        stage 1  fetch real SERPs for your seed queries
+    seo competitors serps/*.json      stage 1  who is really ranking, from those SERPs
+    seo pull <domains>                stage 1  their keywords, narrowed to the ranking page
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
@@ -46,6 +48,8 @@ DIRECT = {
     "audit": ("stages.audit", []),
     "prompts": ("stages.prompts", []),
     "visibility": ("stages.visibility", []),
+    "serp": ("providers.dataforseo_serp", []),
+    "pull": ("providers.dataforseo_labs", ["ranked"]),
 }
 
 
@@ -251,6 +255,19 @@ def main(argv):
         return cmd_doctor()
     if cmd == "check":
         return cmd_check(rest)
+    if cmd == "pull":
+        # --ranking-pages is the difference between paying for the keywords the
+        # page that ranked actually holds and paying for everything its domain
+        # ranks for. Default it on; --domain-wide turns it off deliberately.
+        rest = argv[1:]
+        if "--domain-wide" in rest:
+            rest = [x for x in rest if x != "--domain-wide"]
+        elif "--ranking-pages" not in rest:
+            rest = rest + ["--ranking-pages", p("keywords/competitors.json")]
+        if not any(x == "--out" for x in rest):
+            rest = rest + ["--out", p("keywords/dataset.csv")]
+        return run("providers.dataforseo_labs", ["ranked"] + rest)
+
     if cmd in DIRECT:
         module, extra = DIRECT[cmd]
         # `seo media <slug>` defaults to render, but `seo media prompts <slug>`
