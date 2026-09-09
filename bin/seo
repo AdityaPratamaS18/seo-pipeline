@@ -12,7 +12,7 @@ yours.
     seo next                the one command to run now
 
     seo competitors serps/*.json      who is really ranking, from real SERPs
-    seo context <repo> [--domain d]   stage 0  read the repo and the site
+    seo context --domain d [--repo p]  stage 0  read the site, and a repo if you have one
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
@@ -132,7 +132,7 @@ def cmd_next(quiet=False):
     s = state()
     b, c = s["business"], s["clusters"]
     if not b:
-        n = "seo context <path-to-your-repo> --domain yoursite.com"
+        n = "seo context --domain yoursite.com --competitors rival.com,other.com"
         why = "nothing knows what this business is yet"
     elif not b["confirmed"]:
         n = "edit context/business.json, then set meta.confirmed_at"
@@ -200,7 +200,7 @@ def cmd_doctor():
     print("\n  this site")
     s = state()
     for label, cond, hint in (
-            ("context/business.json", s["business"], "run: seo context <repo> --domain yoursite.com"),
+            ("context/business.json", s["business"], "run: seo context --domain yoursite.com"),
             ("  confirmed (GATE 1)", s["business"] and s["business"]["confirmed"],
              "set meta.confirmed_at once the file is correct"),
             ("keywords/clusters.json", s["clusters"], "run: seo keywords <dataset.csv>"),

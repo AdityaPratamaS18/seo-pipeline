@@ -16,29 +16,26 @@ seo doctor      # is this machine set up
 seo status      # where this site is, and the one command to run next
 ```
 
-## Why it is built this way
+## How it works
 
-**The seams are files, not prompts.** Each stage writes an artifact the next one reads, and a
-human approves it. That is the difference between a decision made once and a decision
-re-derived thirty times, and it is the reason a batch of thirty pages does not drift apart.
+**Every stage writes a file the next stage reads, and you approve it.** Four gates, four
+artifacts: `business.json`, `clusters.json`, the briefs, the drafts.
 
-**The writer chooses nothing the brief settled.** Keyword, page type, outline, word target,
-links and the facts that may be asserted all arrive decided. Thirty agents cannot disagree
-about strategy none of them was asked to decide.
+**The brief settles everything before writing starts.** Keyword, page type, outline, word
+target, internal links and the facts that may be asserted all arrive decided, so thirty pages
+can be drafted in parallel and still hold together.
 
-**Evidence is a whitelist.** `brief.evidence` is the complete set of facts a page may assert.
-Every price, percentage and quantity in a draft has to trace back to it. Fabricated pricing is
-the most damaging error in AI-written content and the least visible, because an invented number
-reads exactly like a real one.
+**`brief.evidence` is the complete set of facts a page may assert.** Every price, percentage
+and quantity in a draft traces back to it.
 
-**Checks are scripts, not judgement.** Every failure that created a check here was a judgement
-lapse. Another judgement layer would not have caught it.
+**Checks are scripts.** Voice, claims, extraction, brief compliance and batch diversity all run
+as code over every page, not a sample.
 
 ## The stages
 
 | Stage | Command | Runs |
 |---|---|---|
-| 0 context | `seo context <repo> --domain d` | once per site |
+| 0 context | `seo context --domain d` | once per site |
 | **GATE 1** | you confirm `context/business.json` | once |
 | 1 competitors | `seo competitors serps/*.json` | quarterly |
 | 1 keywords | `seo keywords <dataset.csv>` | quarterly |
@@ -52,8 +49,8 @@ lapse. Another judgement layer would not have caught it.
 | 5 links | `seo links pending <slug>` | before each publish |
 | 6 publish | `seo publish <slug>` | one a day |
 
-GATE 3 is the one that matters. Thirty briefs read in twenty minutes, and it is the cheapest
-place to kill a bad page because nothing has been written yet.
+GATE 3 is the one that matters. Thirty briefs take about twenty minutes to read, and nothing has
+been written yet, so it is the cheapest place to kill a page.
 
 ## Pull competitor keywords the right way
 
@@ -62,33 +59,23 @@ seo competitors serps/*.json                       # who actually ranks, from re
 python3 -m providers.dataforseo_labs ranked <domains> --ranking-pages --out keywords/dataset.csv
 ```
 
-**Always pass `--ranking-pages`.** A domain can be a SERP competitor for one query while its
-overall keyword profile is irrelevant to you. Erin Condren genuinely ranks for "adhd planner"
-and is a stationery shop, so pulling its whole domain filled a planner-app shortlist with
-"return envelope labels". Narrowing each competitor to the page that actually ranked cut a real
-dataset from 2,941 rows to 1,070 and turned the best cluster from 24 keywords into 72.
+**Always pass `--ranking-pages`.** It narrows each competitor to the page that actually ranked,
+so you get the keywords that page holds instead of everything its domain happens to rank for.
 
-Difficulty scores are **not comparable between providers**. On 396 shared keywords, Ubersuggest
-and DataForSEO disagreed by a median of 33 points and 68% changed side of a `difficulty <= 30`
-filter purely by switching. Pick the ceiling against the data you have; `seo keywords` warns
-when the distribution says your ceiling is doing nothing.
+Difficulty scores are **not comparable between providers**, so pick your ceiling against the
+data in front of you. `seo keywords` warns when the distribution says your ceiling is filtering
+nothing.
 
 ## AI search signals
 
-Three things the pipeline records because they are already observable and were previously
-discarded:
+Three things the pipeline records:
 
-- **AI Overview presence per cluster.** SERP dumps keep the block `type`, and a feature seen on
-  any cluster member counts for the cluster, because clustering means those keywords share a
-  SERP. Reported as a floor, since only clusters containing a seed query can be measured.
-- **AI crawler policy as a decision.** `business.json` carries `ai_access` with an explicit
-  policy. The audit compares it against the live robots.txt and reports drift. An undecided
-  policy is reported as undecided, because allowing everything by default is a choice nobody
-  made.
-- **llms.txt**, checked when the business says it publishes one.
-
-On a real run, three of four seed queries carried an AI Overview, covering the single best
-cluster in the dataset. That is the number that tells you whether deeper LLM work is worth it.
+- **AI Overview presence per cluster.** SERP dumps keep each block's `type`, and a feature seen
+  on any cluster member counts for the cluster. Reported as a floor: only clusters containing a
+  seed query can be measured.
+- **AI crawler policy.** `business.json` carries `ai_access` with an explicit policy, and the
+  audit compares it against your live robots.txt and reports drift.
+- **llms.txt**, checked when you say you publish one.
 
 ## The prompt set
 
@@ -98,17 +85,14 @@ seo prompts check
 ```
 
 Keywords are what people type into a search box. Prompts are what they ask a model, and the two
-are different shapes. The set is generated from approved clusters plus `business.json` across
-six archetypes (category discovery, problem first, comparison, brand check, feature led,
-definitional), because a set made only of "best X" questions measures one narrow thing and
-reports it as visibility.
+are different shapes. The set is built from your approved clusters and `business.json` across six
+archetypes: category discovery, problem first, comparison, brand check, feature led, definitional.
 
-**It deliberately includes prompts you should not win.** A rival's brand check is in there with
-`expect_mention: false`, so absence is a correct result. `validate.py` rejects a set where every
-prompt expects a mention: a self-flattering instrument measures nothing.
+The set includes prompts you should **not** win, marked `expect_mention: false`, so absence
+counts as a correct result. `validate.py` rejects a set where every prompt expects a mention.
 
-Frozen after approval, with a `set_id` recorded on every measurement. If the set drifts,
-month-to-month numbers are not comparable and you will read noise as progress.
+Frozen on approval with a `set_id` recorded on every measurement, so month-to-month numbers stay
+comparable.
 
 ## Setup
 

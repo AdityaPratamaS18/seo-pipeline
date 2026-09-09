@@ -1,12 +1,10 @@
 ---
 name: seo-write
 description: >
-  Write one SEO page from an approved brief, in the site's voice, asserting only facts the
-  brief supplies. Use when the user says "write the page", "draft this brief", "write the
-  article for <slug>", "turn this brief into a draft", or hands over a brief and asks for
-  copy. Also use when checking a finished draft against its brief. Requires an approved brief
-  from `seo plan`: it is not for writing from a bare keyword or a topic idea, because a page
-  written without a brief has no measured bar to clear and no evidence whitelist.
+  Write one SEO page from an approved brief, in the site's voice, asserting only facts the brief
+  supplies. Use when the user says "write the page", "draft this brief", "write the article for
+  <slug>", "turn this brief into a draft", or hands over a brief and asks for copy. Also use when
+  checking a finished draft against its brief. Requires an approved brief from `seo plan`.
 ---
 
 # Writing one page from a brief
@@ -27,14 +25,11 @@ internal links, the voice guide and the image markers.
 
 ## The rule
 
-**You choose nothing the brief settled.** Not the keyword, not the page type, not the section
-order, not the word target, not which pages to link to. Thirty agents writing in parallel
-cannot disagree about strategy none of them was asked to decide, and that is the entire reason
-a batch holds together.
+**You choose nothing the brief settled.** Not the keyword, the page type, the section order, the
+word target, or which pages to link to.
 
-If the brief is missing something you need, that is a **planner bug**. Say so and stop. Do not
-improvise a fix, because an improvised fix helps this one page and leaves the next twenty-nine
-with the same hole.
+If the brief is missing something you need, that is a **planner bug**. Say so and stop. Fixing it
+in the draft leaves the same hole in the other twenty-nine.
 
 ## Evidence is a whitelist
 

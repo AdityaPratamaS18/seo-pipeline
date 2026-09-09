@@ -7,7 +7,7 @@ Set up a new site, end to end, up to the first gate.
 1. `seo doctor`. Fix anything it marks FAIL before going further. A missing package is a
    one-line pip install; missing DataForSEO credentials only matter at stage 1, so they can wait.
 2. Ask which repo and which domain. If the user is in the repo already, use that.
-3. `seo context <repo> --domain <domain> --out context/extraction.json`
+3. `seo context --domain <domain> [--repo <path>] [--competitors a.com,b.com] --out context/extraction.json`
 4. Read the extraction. Compose `context/business.json` from it against
    `schemas/business.schema.json`, filling only what the evidence supports. **Every claimable
    fact needs a source.** Leave judgement fields for the user rather than inventing them: the

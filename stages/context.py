@@ -1,24 +1,21 @@
 #!/usr/bin/env python3
 """
-Read a repo and a live site, and report what can be established as FACT.
+Read a live site, and a repo if there is one, and report what can be established
+as FACT. Stage 0.
 
-Stage 0 of the pipeline, and the piece nothing else in the SEO tooling world
-does: an indie founder's repo is the best available source of truth about what
-they built, and it is sitting right there.
+A URL is all this needs. Point it at a domain and it reads the homepage, the
+sitemap, the schema markup and the visible prices. Add a repo and it also reads
+the stack, the routes and the package metadata, which is the difference between
+knowing a site has 25 pages and knowing where to write the 26th.
 
-This script extracts only what it can evidence, each item carrying the file or
-URL it came from. It deliberately does NOT write business.json, because half of
-that file is judgement: the one liner, the jobs to be done, the ICP, the
-differentiators. A script that guessed at those and wrote them into a
-schema-shaped file would produce something that validates and is wrong, and
-everything downstream would inherit it.
+Every item carries the file or URL it came from. What this produces is evidence,
+not `business.json`: half of that file is judgement (the one liner, the jobs to be
+done, the ICP, the differentiators), the skill composes it from this, and a human
+confirms at GATE 1. The `todo` list printed at the end is what the human settles.
 
-So: this produces evidence, the skill composes business.json from it, and a
-human confirms at GATE 1. The `todo` list it prints is exactly what the human
-has to settle.
-
-    python3 -m stages.context ~/code/my-site --domain mysite.com
-    python3 -m stages.context . --out context/extraction.json
+    python3 -m stages.context --domain mysite.com
+    python3 -m stages.context --domain mysite.com --competitors acme.com,other.io
+    python3 -m stages.context --repo ~/code/my-site --domain mysite.com
 """
 import argparse
 import json
@@ -198,6 +195,28 @@ def read_site(domain):
 
 
 # ── what a human still has to decide ──────────────────────────────────────
+def blank_repo():
+    """The repo shape, empty, for a site-only setup."""
+    return {"stack": None, "routes_dir": None, "content_dir": None, "content_format": None,
+            "public_dir": None, "package": {}, "routes": [], "features": [], "prices": []}
+
+
+def parse_competitors(raw):
+    """Competitor domains a user names at setup, as seeds for `seo competitors`."""
+    out, seen = [], set()
+    for part in (raw or "").split(","):
+        d = part.strip().lower().removeprefix("http://").removeprefix("https://")
+        d = d.removeprefix("www.").split("/")[0]
+        if not d or d in seen:
+            continue
+        if not re.match(r"^[a-z0-9.-]+\.[a-z]{2,}$", d):
+            sys.exit(f"not a domain: {part.strip()}. Give bare domains, "
+                     "e.g. --competitors acme.com,other.io")
+        seen.add(d)
+        out.append({"name": d.split(".")[0], "domain": d})
+    return out
+
+
 def todos(repo, site):
     t = []
     if not site.get("title") and not repo.get("readme_excerpt"):
@@ -205,16 +224,14 @@ def todos(repo, site):
                  "site said what this is. Ask the owner directly.")
     else:
         t.append("one_liner: draft it from the README and homepage below, then have "
-                 "the owner correct it. Their framing beats ours.")
-    t.append("product.core_jobs: the jobs users hire this for, in THEIR words. "
-             "Not derivable from code.")
+                 "the owner correct it.")
+    t.append("product.core_jobs: the jobs users hire this for, in their words.")
     t.append("audience.segments and icp: who this is for, and what they search when "
              "the problem bites.")
-    t.append("audience.not_for: who it is explicitly NOT for. Stops the planner "
-             "chasing traffic that never converts.")
+    t.append("audience.not_for: who it is explicitly NOT for.")
     t.append("positioning.differentiators: needs a source per claim.")
-    t.append("positioning.against: name competitors AND what each does better. "
-             "they_win_on is required.")
+    t.append("positioning.against: each competitor, what you do better, and what "
+             "they do better. they_win_on is required.")
     if site.get("prices"):
         t.append(f"pricing: prices seen on the site ({', '.join(site['prices'][:4])}). "
                  "Confirm which are current before any page cites one.")
@@ -229,37 +246,53 @@ def todos(repo, site):
 
 def main():
     ap = argparse.ArgumentParser(description="Extract evidence about a business from its repo and site.")
-    ap.add_argument("repo", nargs="?", default=".", help="path to the site repo")
-    ap.add_argument("--domain", help="live domain, e.g. mysite.com")
+    ap.add_argument("repo_pos", nargs="?", metavar="REPO",
+                    help="path to the site repo (optional; --repo does the same)")
+    ap.add_argument("--repo", dest="repo_opt", help="path to the site repo, if you have one")
+    ap.add_argument("--domain", help="your live domain, e.g. mysite.com")
+    ap.add_argument("--competitors", help="comma separated competitor domains you already know, "
+                                         "e.g. acme.com,other.io")
     ap.add_argument("--out", help="write the extraction JSON here")
     ap.add_argument("--no-site", action="store_true", help="skip the network entirely")
     a = ap.parse_args()
 
-    root = os.path.expanduser(a.repo)
-    if not os.path.isdir(root):
+    repo_path = a.repo_opt or a.repo_pos
+    if not repo_path and not a.domain:
+        sys.exit("give a domain, a repo, or both:\n"
+                 "  seo context --domain mysite.com\n"
+                 "  seo context --repo ~/code/my-site --domain mysite.com")
+
+    root = os.path.expanduser(repo_path) if repo_path else None
+    if root and not os.path.isdir(root):
         sys.exit(f"not a directory: {root}")
 
-    repo, rsrc = read_repo(root)
+    repo, rsrc = read_repo(root) if root else (blank_repo(), [])
     site, ssrc = ({}, [])
     if a.domain and not a.no_site:
         site, ssrc = read_site(a.domain)
 
     if not rsrc and not ssrc:
-        sys.exit("read nothing at all: no package.json, no README, no reachable site. "
-                 "A context built from nothing is worse than no context.")
+        sys.exit("read nothing: no reachable site, and no package.json or README in the repo.\n"
+                 "  Check the domain resolves, or point --repo at the right directory.")
 
-    out = {"meta": {"generated_at": now(), "generated_by": "seo context v0.1",
+    known = parse_competitors(a.competitors)
+    out = {"meta": {"generated_at": now(), "generated_by": "seo context v0.2",
                     "sources": rsrc + ssrc},
-           "repo": repo, "site": site, "todo": todos(repo, site)}
+           "repo": repo, "site": site, "known_competitors": known,
+           "todo": todos(repo, site)}
 
-    print(f"  repo    {root}")
-    print(f"          stack: {repo['stack'] or 'NOT DETECTED'}"
-          + (f", routes in {repo['routes_dir']}" if repo["routes_dir"] else "")
-          + (f", content in {repo['content_dir']}" if repo["content_dir"]
-             else ", no content collection found (the publisher will use its default)"))
-    if repo["package"].get("name"):
-        print(f"          package: {repo['package']['name']}")
-    print(f"          {len(repo['routes'])} existing route(s) found")
+    if root:
+        print(f"  repo    {root}")
+        print(f"          stack: {repo['stack'] or 'NOT DETECTED'}"
+              + (f", routes in {repo['routes_dir']}" if repo["routes_dir"] else "")
+              + (f", content in {repo['content_dir']}" if repo["content_dir"]
+                 else ", no content collection found (the publisher will use its default)"))
+        if repo["package"].get("name"):
+            print(f"          package: {repo['package']['name']}")
+        print(f"          {len(repo['routes'])} existing route(s) found")
+    else:
+        print("  repo    none given, so the stack is unknown.")
+        print("          Set tech.stack in business.json, or pass --repo to detect it.")
     if site:
         if site.get("error"):
             print(f"  site    {site['error']}")
@@ -268,6 +301,10 @@ def main():
             print(f"          title: {(site.get('title') or '')[:64]}")
             print(f"          {len(site.get('sitemap_urls', []))} URLs in sitemap, "
                   f"{len(site.get('prices', []))} price(s) seen")
+    if known:
+        print(f"  rivals  {len(known)} named: "
+              + ", ".join(c["domain"] for c in known))
+        print("          seeds for `seo competitors`, which finds who actually ranks")
     print(f"  sources {len(out['meta']['sources'])} read")
     print(f"\n  {len(out['todo'])} thing(s) a human must decide (GATE 1):")
     for t in out["todo"]:

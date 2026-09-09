@@ -1,14 +1,12 @@
 ---
 name: seo-pipeline
 description: >
-  Staged SEO content system: understand a business from its repo and site, research keywords
-  once per quarter rather than once per page, plan a batch of pages against real competitor
-  data, write them, check them, and publish to any static stack. Use when the user wants to
-  grow organic search traffic: "set up SEO for my site", "do keyword research", "plan a batch
-  of pages", "write an SEO article", "what should I publish next", "check my drafts before
-  publishing", "rank for X". Works for any site: everything site-specific lives in one
-  business.json. Reach for it even when the user does not say "SEO" but is trying to get found
-  on Google.
+  Staged SEO content system: learn a business from its site or repo, research keywords once a
+  quarter, plan a batch of pages against the pages that currently rank, write them, check them
+  with scripts, and publish to any static stack. Use when the user wants organic search traffic:
+  "set up SEO for my site", "do keyword research", "plan a batch of pages", "write an SEO
+  article", "what should I publish next", "check my drafts before publishing", "rank for X".
+  Reach for it when the user is trying to get found on Google even if they never say "SEO".
 ---
 
 # SEO Pipeline
@@ -31,7 +29,7 @@ next command. Trust it over your memory of the conversation.
 
 | Stage | Command | Cadence |
 |---|---|---|
-| 0 context | `seo context <repo> --domain d` | once per site |
+| 0 context | `seo context --domain d` | once per site |
 | GATE 1 | human confirms `context/business.json` | once |
 | 1 keywords | `seo keywords <dataset.csv>` | quarterly |
 | GATE 2 | human approves `keywords/clusters.json` | quarterly |
@@ -44,43 +42,41 @@ next command. Trust it over your memory of the conversation.
 | GATE 4 | human reads flagged pages and a sample | per batch |
 | 6 publish | `seo publish <slug>` | one a day |
 
-## The rule the whole design rests on
+## The rule
 
 **The writer chooses nothing the brief settled.** Keyword, page type, outline, word target,
 internal links and the facts that may be asserted all arrive decided. When you write a draft,
 run `seo write prompt <slug>` and follow what it gives you. Do not research, do not restructure,
 do not add a section you think would be nice.
 
-If a brief is missing something you need, that is a **planner bug**. Say so and fix the brief
-rather than improvising, because an improvised fix helps one page and leaves the next twenty-nine
-with the same hole.
+If a brief is missing something you need, that is a **planner bug**. Fix the brief, not the
+draft: the same hole is in the other twenty-nine.
 
 ## Evidence is a whitelist
 
 `brief.evidence` is the complete set of facts a page may assert. Every price, percentage,
-multiplier and quantity in a draft must trace back to it. If a section needs a fact you were not
-given, **write the section without it and note what was missing.** Never estimate, never round,
-never infer a statistic. `seo check` enforces this and will catch you.
+multiplier and quantity in a draft traces back to it. If a section needs a fact you were not
+given, **write the section without it and note what was missing.** Never estimate, round, or
+infer a statistic. `seo check` enforces this.
 
 ## Gates
 
 - **GATE 1 and 2** are edits the user makes to a JSON file: they set `meta.confirmed_at`. Tell
   them what to look at; do not set it yourself.
 - **GATE 3** is the important one. `seo review build` writes `review/index.html`, the user opens
-  it, decides, copies the JSON, and you run `seo review apply decisions.json`. Reading thirty
-  briefs takes twenty minutes and it is the cheapest place to kill a bad page, because nothing
-  has been written yet.
+  it, decides, copies the JSON, and you run `seo review apply decisions.json`. Thirty briefs take
+  about twenty minutes, and nothing has been written yet, so it is the cheapest place to kill a
+  page.
 - **GATE 4** is a human reading the pages `seo check` flagged, plus a sample of the clean ones.
 
-Nothing published is ever fully autonomous. Bulk unreviewed AI pages are what search spam
-updates target, and a young domain doing that risks a manual penalty.
+A human reads pages before they publish, every time.
 
 ## Batch work, not one page at a time
 
 Research once, plan thirty, write them in parallel, check them as a set, publish one a day.
-Drafting is the only stage worth spawning subagents for: one per brief, each following the
-prompt from `seo write prompt`. Checking is never an agent's job, because every failure that
-created a check was a judgement lapse and another judgement layer would not have caught it.
+
+Drafting is the stage to spawn subagents for: one per brief, each following the prompt from
+`seo write prompt`. Run the checks as scripts.
 
 ## Hard rules
 
@@ -88,8 +84,7 @@ created a check was a judgement lapse and another judgement layer would not have
 - **Beat the median**, not a word floor. A shorter better page beats a longer worse one.
 - **No stock photos.** Images are composed from brand colours and pull their content from the
   draft's real sections, never invented.
-- **A check that passes on nothing is worse than no check.** If a stage reports zero units
-  examined, treat it as a failure.
+- **A stage reporting zero units examined is a failure**, not a pass.
 - **Never publish an unapproved brief.** Both the writer and the publisher refuse one.
 
 ## The other two skills
@@ -107,6 +102,6 @@ or "write this brief", that skill alone is the right amount of context to load.
 
 ## Reference
 
-- `schemas/README.md` the artifact contracts and why the seams are files
+- `schemas/README.md` the artifact contracts
 - `defaults/voice.md` the voice guide, copied per site and meant to be edited
 - `defaults/page-templates.json` the fixed page-type library

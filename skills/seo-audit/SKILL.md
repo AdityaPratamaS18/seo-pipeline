@@ -1,13 +1,12 @@
 ---
 name: seo-audit
 description: >
-  Technical SEO audit of a site that is already live, plus the internal link graph. Use when
-  the user asks to "audit my site", "run a technical SEO audit", "check my site's SEO health",
-  "why isn't my site ranking", "find broken links", "check my robots.txt or sitemap", "are my
-  pages indexable", "check Core Web Vitals", "find orphan pages", or wants a health check
-  before or after a migration. Two depths: a basic pass that needs nothing but the site, and a
-  full pass that crawls the sitemap and checks speed, duplication and hreflang. It reports and
-  never edits a live page.
+  Read-only technical SEO audit of a live site, plus its internal link graph. Use when the user
+  asks to "audit my site", "run a technical SEO audit", "check my site's SEO health", "why isn't
+  my site ranking", "find broken links", "check my robots.txt or sitemap", "are my pages
+  indexable", "check Core Web Vitals", "find orphan pages", or wants a health check before or
+  after a migration. Two depths: a basic pass that needs only the site, and a full pass that
+  crawls the sitemap and checks speed, duplication and hreflang.
 ---
 
 # Auditing a live site

@@ -4,126 +4,303 @@
   "title": "Business context",
   "description": "What the product is, who it is for, and what may be claimed about it. Written once by `seo context` from the repo and the live site, corrected by a human, then FROZEN. Every later stage reads this instead of re-deriving it, which is what stops page 1 and page 25 of a batch disagreeing about the product.",
   "type": "object",
-  "required": ["meta", "identity", "product", "audience", "positioning", "constraints", "tech"],
+  "required": [
+    "meta",
+    "identity",
+    "product",
+    "audience",
+    "positioning",
+    "constraints",
+    "tech"
+  ],
   "additionalProperties": false,
   "properties": {
-    "meta": { "$ref": "#/$defs/meta" },
-
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
     "identity": {
       "type": "object",
-      "required": ["name", "domain", "one_liner", "category"],
+      "required": [
+        "name",
+        "domain",
+        "one_liner",
+        "category"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "domain": { "type": "string", "pattern": "^[a-z0-9.-]+\\.[a-z]{2,}$" },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+\\.[a-z]{2,}$"
+        },
         "one_liner": {
-          "type": "string", "minLength": 20, "maxLength": 300,
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 300,
           "description": "What it does, in the founder's own framing. Used verbatim in prompts, so vague copy here poisons every page."
         },
-        "category": { "type": "string", "description": "The category a buyer would search in, not the clever positioning." },
-        "business_model": { "enum": ["b2b_saas", "b2c_saas", "prosumer_saas", "marketplace", "agency", "ecommerce", "other"] },
-        "locales": { "type": "array", "items": { "type": "string" }, "default": ["en"] },
-        "currency": { "type": "string", "default": "USD" }
+        "category": {
+          "type": "string",
+          "description": "The category a buyer would search in, not the clever positioning."
+        },
+        "business_model": {
+          "enum": [
+            "b2b_saas",
+            "b2c_saas",
+            "prosumer_saas",
+            "marketplace",
+            "agency",
+            "ecommerce",
+            "other"
+          ]
+        },
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "en"
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        }
       }
     },
-
     "product": {
       "type": "object",
-      "required": ["core_jobs", "features"],
+      "required": [
+        "core_jobs",
+        "features"
+      ],
       "additionalProperties": false,
       "properties": {
         "core_jobs": {
-          "type": "array", "minItems": 1, "items": { "type": "string" },
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
           "description": "The jobs a user hires this for, in their words. Drives keyword qualification."
         },
         "features": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "description": "CLAIMABLE features. A writer may only assert a feature that appears here.",
           "items": {
             "type": "object",
-            "required": ["name", "does", "source"],
+            "required": [
+              "name",
+              "does",
+              "source"
+            ],
             "additionalProperties": false,
             "properties": {
-              "name": { "type": "string" },
-              "does": { "type": "string", "description": "Plain description. No marketing language." },
-              "source": { "$ref": "#/$defs/source" },
-              "status": { "enum": ["live", "beta", "planned"], "default": "live" }
+              "name": {
+                "type": "string"
+              },
+              "does": {
+                "type": "string",
+                "description": "Plain description. No marketing language."
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              },
+              "status": {
+                "enum": [
+                  "live",
+                  "beta",
+                  "planned"
+                ],
+                "default": "live"
+              }
             }
           }
         },
-        "platforms": { "type": "array", "items": { "type": "string" } },
-        "integrations": { "type": "array", "items": { "type": "string" } }
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "integrations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-
     "pricing": {
       "type": "object",
       "description": "Prices are the single most fabricated fact in AI-written SEO copy. Anything asserted about price must come from here.",
       "additionalProperties": false,
       "properties": {
-        "model": { "enum": ["free", "freemium", "trial", "paid", "usage_based"] },
-        "free_trial_days": { "type": ["integer", "null"], "minimum": 0 },
+        "model": {
+          "enum": [
+            "free",
+            "freemium",
+            "trial",
+            "paid",
+            "usage_based"
+          ]
+        },
+        "free_trial_days": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
         "tiers": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name", "price", "period", "source"],
+            "required": [
+              "name",
+              "price",
+              "period",
+              "source"
+            ],
             "additionalProperties": false,
             "properties": {
-              "name": { "type": "string" },
-              "price": { "type": "number", "minimum": 0 },
-              "currency": { "type": "string" },
-              "period": { "enum": ["month", "year", "one_time", "per_seat_month", "per_seat_year"] },
-              "includes": { "type": "array", "items": { "type": "string" } },
-              "source": { "$ref": "#/$defs/source" }
+              "name": {
+                "type": "string"
+              },
+              "price": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string"
+              },
+              "period": {
+                "enum": [
+                  "month",
+                  "year",
+                  "one_time",
+                  "per_seat_month",
+                  "per_seat_year"
+                ]
+              },
+              "includes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
             }
           }
         }
       }
     },
-
     "audience": {
       "type": "object",
-      "required": ["segments", "icp"],
+      "required": [
+        "segments",
+        "icp"
+      ],
       "additionalProperties": false,
       "properties": {
         "segments": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["name", "pains"],
+            "required": [
+              "name",
+              "pains"
+            ],
             "additionalProperties": false,
             "properties": {
-              "name": { "type": "string" },
-              "description": { "type": "string" },
-              "pains": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-              "triggers": { "type": "array", "items": { "type": "string" },
-                "description": "What makes them start searching. These become keyword seeds." }
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "pains": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "triggers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "What makes them start searching. These become keyword seeds."
+              }
             }
           }
         },
-        "icp": { "type": "string", "description": "Which segment name is primary." },
+        "icp": {
+          "type": "string",
+          "description": "Which segment name is primary."
+        },
         "not_for": {
-          "type": "array", "items": { "type": "string" },
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
           "description": "Who this is explicitly NOT for. Prevents the planner chasing traffic that will never convert."
         }
       }
     },
-
     "positioning": {
       "type": "object",
-      "required": ["differentiators"],
+      "required": [
+        "differentiators"
+      ],
       "additionalProperties": false,
       "properties": {
         "differentiators": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["claim", "source"],
+            "required": [
+              "claim",
+              "source"
+            ],
             "additionalProperties": false,
             "properties": {
-              "claim": { "type": "string" },
-              "source": { "$ref": "#/$defs/source" }
+              "claim": {
+                "type": "string"
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
+            }
+          }
+        },
+        "known_competitors": {
+          "type": "array",
+          "description": "Competitors you already know about, named at setup. A seed for `seo competitors`, which then discovers who actually ranks. No claims required here: `against` is where a considered comparison goes.",
+          "items": {
+            "type": "object",
+            "required": [
+              "domain"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string",
+                "pattern": "^[a-z0-9.-]+\\.[a-z]{2,}$"
+              }
             }
           }
         },
@@ -132,21 +309,44 @@
           "description": "Honest competitor comparison. `they_win_on` is required on purpose: comparison pages that never concede anything read as marketing and convert worse.",
           "items": {
             "type": "object",
-            "required": ["competitor", "we_win_on", "they_win_on"],
+            "required": [
+              "competitor",
+              "we_win_on",
+              "they_win_on"
+            ],
             "additionalProperties": false,
             "properties": {
-              "competitor": { "type": "string" },
-              "domain": { "type": "string" },
-              "we_win_on": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-              "they_win_on": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-              "their_pricing": { "type": "string" },
-              "source": { "$ref": "#/$defs/source" }
+              "competitor": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "we_win_on": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "they_win_on": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "their_pricing": {
+                "type": "string"
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
             }
           }
         }
       }
     },
-
     "proof": {
       "type": "object",
       "description": "Verified numbers a writer may cite. Empty is fine and honest; an empty list means the writer cites no numbers.",
@@ -156,33 +356,69 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["claim", "source"],
+            "required": [
+              "claim",
+              "source"
+            ],
             "additionalProperties": false,
             "properties": {
-              "claim": { "type": "string" },
-              "source": { "$ref": "#/$defs/source" }
+              "claim": {
+                "type": "string"
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
             }
           }
         },
-        "customers": { "type": "array", "items": { "type": "string" } }
+        "customers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-
     "constraints": {
       "type": "object",
-      "required": ["no_dashes"],
+      "required": [
+        "no_dashes"
+      ],
       "additionalProperties": false,
       "properties": {
-        "no_dashes": { "type": "boolean", "default": true,
-          "description": "Forbid em-dashes and en-dashes everywhere, including meta and alt text." },
-        "banned_phrases": { "type": "array", "items": { "type": "string" },
-          "default": ["revolutionary", "game-changing", "unlock", "supercharge", "delve", "in today's digital landscape", "it's important to note"] },
-        "do_not_claim": { "type": "array", "items": { "type": "string" },
-          "description": "Claims that are legally or factually off limits, e.g. medical efficacy, guaranteed outcomes." },
-        "reading_level": { "type": "string", "description": "e.g. 'grade 8'. Optional." }
+        "no_dashes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Forbid em-dashes and en-dashes everywhere, including meta and alt text."
+        },
+        "banned_phrases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "revolutionary",
+            "game-changing",
+            "unlock",
+            "supercharge",
+            "delve",
+            "in today's digital landscape",
+            "it's important to note"
+          ]
+        },
+        "do_not_claim": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Claims that are legally or factually off limits, e.g. medical efficacy, guaranteed outcomes."
+        },
+        "reading_level": {
+          "type": "string",
+          "description": "e.g. 'grade 8'. Optional."
+        }
       }
     },
-
     "brand": {
       "type": "object",
       "description": "What images are composed from. A solo founder has a logo and two hex codes, not a curated illustration library, so this stays small on purpose. Absent means the media stage uses a neutral palette and says so.",
@@ -192,93 +428,214 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "ink": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
-            "paper": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
-            "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+            "ink": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "paper": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "accent": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
             "surfaces": {
-              "type": "array", "items": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
               "description": "Background colours, varied across a batch so the blog does not look samey."
             }
           }
         },
-        "illustration_dir": { "type": "string", "description": "Optional transparent illustration set. Most sites will not have one." },
+        "illustration_dir": {
+          "type": "string",
+          "description": "Optional transparent illustration set. Most sites will not have one."
+        },
         "image_style": {
           "type": "string",
           "description": "A short art direction for GENERATED images, e.g. 'flat vector, soft rounded shapes, generous negative space, no text, no people'. Used verbatim in every image prompt so a batch of thirty looks like one publication rather than thirty stock searches. Leave unset to keep typographic images only."
         },
-        "logo": { "type": "string" }
+        "logo": {
+          "type": "string"
+        }
       }
     },
-
     "ai_access": {
       "type": "object",
       "description": "What AI crawlers and answer engines are allowed to do with this site. This exists because the default is not a decision: a site that has never thought about it is silently allowing everything, and a site that blocked everything by copying a snippet is silently invisible to answer engines. Recording it makes the audit able to detect drift between what you decided and what robots.txt actually says.",
       "additionalProperties": false,
-      "required": ["policy", "decided_at"],
+      "required": [
+        "policy",
+        "decided_at"
+      ],
       "properties": {
         "policy": {
-          "enum": ["allow_all", "block_all", "selective", "undecided"],
+          "enum": [
+            "allow_all",
+            "block_all",
+            "selective",
+            "undecided"
+          ],
           "description": "allow_all: answer engines may train and cite. block_all: neither. selective: per crawler. undecided: nobody has chosen, and the audit will say so."
         },
-        "reasoning": { "type": "string", "description": "One line on why. The tradeoff is real: blocking protects content and removes you from answers." },
+        "reasoning": {
+          "type": "string",
+          "description": "One line on why. The tradeoff is real: blocking protects content and removes you from answers."
+        },
         "crawlers": {
           "type": "object",
-          "additionalProperties": { "enum": ["allow", "block"] },
+          "additionalProperties": {
+            "enum": [
+              "allow",
+              "block"
+            ]
+          },
           "description": "Per-crawler, for the selective policy. Keys are user agent names: GPTBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended, CCBot, Bytespider."
         },
-        "llms_txt": { "type": "boolean", "description": "Whether this site publishes an llms.txt." },
-        "decided_at": { "type": ["string", "null"], "format": "date-time" }
+        "llms_txt": {
+          "type": "boolean",
+          "description": "Whether this site publishes an llms.txt."
+        },
+        "decided_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
       }
     },
-
     "tech": {
       "type": "object",
       "description": "How to publish. Read from the repo, so the publisher does not have to assume Next.js.",
-      "required": ["stack"],
+      "required": [
+        "stack"
+      ],
       "additionalProperties": false,
       "properties": {
-        "stack": { "enum": ["next_app_router", "next_pages", "astro", "hugo", "eleventy", "sveltekit", "nuxt", "plain_mdx", "wordpress", "other"] },
-        "repo_path": { "type": "string" },
-        "routes_dir": { "type": "string", "description": "Where the framework's page files live, e.g. src/app for Next App Router. NOT where markdown posts go." },
-        "content_dir": { "type": "string", "description": "Where markdown or MDX posts live, e.g. src/content/blog. Leave unset if the site has no content collection yet: the publisher will use its adapter default rather than writing an .mdx into a route directory." },
-        "content_format": { "enum": ["mdx", "md", "tsx", "html"] },
-        "url_prefix": { "type": "string", "default": "/blog/" },
-        "public_dir": { "type": "string", "default": "public" },
+        "stack": {
+          "enum": [
+            "next_app_router",
+            "next_pages",
+            "astro",
+            "hugo",
+            "eleventy",
+            "sveltekit",
+            "nuxt",
+            "plain_mdx",
+            "wordpress",
+            "other"
+          ]
+        },
+        "repo_path": {
+          "type": "string"
+        },
+        "routes_dir": {
+          "type": "string",
+          "description": "Where the framework's page files live, e.g. src/app for Next App Router. NOT where markdown posts go."
+        },
+        "content_dir": {
+          "type": "string",
+          "description": "Where markdown or MDX posts live, e.g. src/content/blog. Leave unset if the site has no content collection yet: the publisher will use its adapter default rather than writing an .mdx into a route directory."
+        },
+        "content_format": {
+          "enum": [
+            "mdx",
+            "md",
+            "tsx",
+            "html"
+          ]
+        },
+        "url_prefix": {
+          "type": "string",
+          "default": "/blog/"
+        },
+        "public_dir": {
+          "type": "string",
+          "default": "public"
+        },
         "frontmatter_fields": {
-          "type": "object", "additionalProperties": { "type": "string" },
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "description": "Map canonical names to this site's frontmatter keys, e.g. {\"description\": \"excerpt\"}."
         }
       }
     }
   },
-
   "$defs": {
     "meta": {
       "type": "object",
-      "required": ["schema_version", "generated_at", "sources"],
+      "required": [
+        "schema_version",
+        "generated_at",
+        "sources"
+      ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": { "const": "1.0" },
-        "generated_at": { "type": "string", "format": "date-time" },
-        "generated_by": { "type": "string" },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "generated_by": {
+          "type": "string"
+        },
         "sources": {
-          "type": "array", "minItems": 1, "items": { "type": "string" },
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
           "description": "Every file path and URL actually read. A context built from nothing must be visible as such."
         },
-        "confirmed_at": { "type": ["string", "null"], "format": "date-time",
-          "description": "GATE 1. Null means a human has not confirmed this yet, and downstream stages should refuse to run." },
-        "confirmed_by": { "type": ["string", "null"] }
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "GATE 1. Null means a human has not confirmed this yet, and downstream stages should refuse to run."
+        },
+        "confirmed_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "source": {
       "description": "Where a claimable fact came from. `inferred` is allowed but marks the fact as unciteable, so the claims check will flag a draft that asserts it as fact.",
       "type": "object",
-      "required": ["type", "ref"],
+      "required": [
+        "type",
+        "ref"
+      ],
       "additionalProperties": false,
       "properties": {
-        "type": { "enum": ["repo", "site", "human", "inferred"] },
-        "ref": { "type": "string", "description": "File path, URL, or 'stated by owner'." },
-        "retrieved_at": { "type": "string", "format": "date-time" }
+        "type": {
+          "enum": [
+            "repo",
+            "site",
+            "human",
+            "inferred"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "description": "File path, URL, or 'stated by owner'."
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     }
   }
