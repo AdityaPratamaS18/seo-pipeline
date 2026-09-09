@@ -71,6 +71,12 @@ case("clusters", "thin evidence wearing a confident page type",
                        d["clusters"][0]["serp_evidence"]["top_results"][:2]),
                 set_in(d, ["clusters", 0, "page_type"], "how_to_guide")),
      "thin evidence must not wear a confident label")
+case("clusters", "human page type claimed without saying so",
+     lambda d: (set_in(d, ["clusters", 0, "serp_evidence", "top_results"],
+                       d["clusters"][0]["serp_evidence"]["top_results"][:1]),
+                set_in(d, ["clusters", 0, "page_type"], "definition"),
+                set_in(d, ["clusters", 0, "page_type_source"], "serp")),
+     "thin evidence must not wear a confident label")
 case("clusters", "high confidence claimed from two results",
      lambda d: (set_in(d, ["clusters", 0, "serp_evidence", "top_results"],
                        d["clusters"][0]["serp_evidence"]["top_results"][:2]),
@@ -146,6 +152,23 @@ def run():
         else:
             clean += 1
     print(f"  {clean}/3 known-good examples still pass cleanly")
+
+    # A human pick on thin evidence must NOT be flagged. plan.py refuses to plan a
+    # mixed cluster until a person names the format, so if recording that decision
+    # is an error the pipeline deadlocks on every single-evidence cluster.
+    doc = copy.deepcopy(GOOD["clusters"])
+    set_in(doc, ["clusters", 0, "serp_evidence", "top_results"],
+           doc["clusters"][0]["serp_evidence"]["top_results"][:1])
+    set_in(doc, ["clusters", 0, "page_type"], "definition")
+    set_in(doc, ["clusters", 0, "page_type_source"], "human")
+    msgs = list(Draft202012Validator(schema["clusters"]).iter_errors(doc))
+    errs, _ = V.semantic("clusters", doc)
+    noise = [m.message for m in msgs] + [e for e in errs if "thin evidence" in e]
+    if noise:
+        print(f"  MISSED   [clusters] a human page type on thin evidence was flagged: {noise}")
+        failed += 1
+    else:
+        print("  quiet    [clusters] a human page type on thin evidence is allowed")
 
     print(f"\n{passed}/{len(CASES)} broken artifacts caught, {failed} problem(s)")
     failed += run_voice()

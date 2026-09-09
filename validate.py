@@ -144,10 +144,15 @@ def semantic(kind, doc):
             if c["status"] == "rejected" and not c.get("rejected_reason"):
                 errs.append(f"{c['id']} is rejected with no reason, so it will be re-proposed next quarter.")
             n_seen = len(c["serp_evidence"]["top_results"])
-            if n_seen < 3 and c["page_type"] != "mixed":
+            # A human pick is a decision, not evidence, so it is not bound by the
+            # thin-evidence rule. The rule still holds for anything the clusterer
+            # inferred, which is what it was written to catch.
+            if (n_seen < 3 and c["page_type"] != "mixed"
+                    and c.get("page_type_source") != "human"):
                 errs.append(f"{c['id']} claims page type '{c['page_type']}' from only "
-                            f"{n_seen} observed result(s). Under 3, the type must be 'mixed': "
-                            "thin evidence must not wear a confident label.")
+                            f"{n_seen} observed result(s). Under 3, the type must be 'mixed' "
+                            "or carry page_type_source 'human': thin evidence must not wear "
+                            "a confident label.")
             if n_seen < 3 and c["serp_evidence"]["type_confidence"] > 0.5:
                 errs.append(f"{c['id']} reports confidence "
                             f"{c['serp_evidence']['type_confidence']} from {n_seen} result(s).")

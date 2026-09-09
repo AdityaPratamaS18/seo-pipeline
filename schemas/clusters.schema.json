@@ -82,6 +82,11 @@
             "$ref": "#/$defs/page_type",
             "description": "What actually ranks, taken from the SERP rather than chosen. The writer is told the format; it does not pick one."
           },
+          "page_type_source": {
+            "enum": ["serp", "human"],
+            "default": "serp",
+            "description": "Where the page type came from. `serp` means the clusterer read it off observed results, and the thin-evidence rule applies in full. `human` means a person decided it because the planner asked them to, which is a decision rather than evidence and is not bound by that rule. Without this the tool contradicted itself: plan.py skips a mixed cluster saying a human must pick the type, while validate.py made recording that pick an error on any cluster with fewer than 3 observed results, which is most of them."
+          },
           "serp_evidence": {
             "type": "object",
             "required": ["checked_at", "top_results", "type_confidence"],
