@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "description": "One skeleton per page type. The planner fills these from real SERP evidence and the writer follows the result, which is what stops thirty pages in a batch sharing one shape. Fixed on purpose: free-form structure per page cannot be templated, cannot be taught to someone else, and drifts across a batch.",
+    "placeholders": "{primary} is the primary keyword verbatim. {topic} is the same phrase with its leading stem removed (how to, what is, best), for headings that supply their own. {product} the site name, {competitor} the named rival. Exactly ONE heading per template carries the keyword: repeating it in every H2 is stuffing and reads like a machine wrote it.",
+    "editing": "Add or change a template here rather than letting a model improvise one. If a SERP genuinely needs a shape none of these cover, that is a signal to add a type deliberately, not to freestyle.",
+    "hero_concept": "Art direction for the hero, per page type. Written as a SCENE, because an image model given a restated keyword returns stock-shaped filler, and given an SEO gap ('no page runs an FAQ') returns nothing usable at all."
+  },
+  "templates": {
+    "how_to_guide": {
+      "opening": "Open on the specific moment the reader is in. Two sentences, then answer. No definition first.",
+      "min_words": 1400,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "Why this is harder than it sounds",
+          "purpose": "Answer the query fast and earn trust without lecturing.",
+          "share": 0.15
+        },
+        {
+          "heading": "What it actually looks like",
+          "purpose": "Recognition. The reader should feel described.",
+          "share": 0.15
+        },
+        {
+          "heading": "How to {topic}, step by step",
+          "purpose": "The concrete payload. This is the section most competitors skip.",
+          "share": 0.35,
+          "wants_image": "steps"
+        },
+        {
+          "heading": "The step people skip",
+          "purpose": "The overlooked move, and the natural place the product fits without a pitch.",
+          "share": 0.15
+        },
+        {
+          "heading": "When this is not the real problem",
+          "purpose": "Concede honestly. Trust is won here.",
+          "share": 0.1
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Capture the People Also Ask variants, marked up as FAQPage.",
+          "share": 0.1
+        }
+      ],
+      "hero_concept": "the moment before starting {topic}, and the first small step that breaks it"
+    },
+    "listicle": {
+      "opening": "State what the list is for and who it is for, then get into it. No history of the category.",
+      "min_words": 1600,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "How we picked these",
+          "purpose": "The criteria. Without it a listicle is just opinion.",
+          "share": 0.1
+        },
+        {
+          "heading": "The best {topic}",
+          "purpose": "One consistent block per item: what it is, who it suits, what it costs, where it falls short.",
+          "share": 0.6,
+          "repeats": true,
+          "wants_image": "cards"
+        },
+        {
+          "heading": "How they compare",
+          "purpose": "The at a glance table. Readers scan this before reading anything.",
+          "share": 0.15,
+          "wants_image": "table"
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Question variants from the SERP.",
+          "share": 0.15
+        }
+      ],
+      "hero_concept": "several different approaches to {topic} laid side by side, none of them obviously best"
+    },
+    "comparison": {
+      "opening": "Name the actual decision the reader is stuck on. Do not recap what either product is.",
+      "min_words": 1200,
+      "needs_table": true,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "{primary} at a glance",
+          "purpose": "The table. Pricing, core difference, who each suits.",
+          "share": 0.15,
+          "wants_image": "table"
+        },
+        {
+          "heading": "Where {competitor} is genuinely better",
+          "purpose": "Required, and first. A comparison that concedes nothing reads as marketing and converts worse.",
+          "share": 0.2
+        },
+        {
+          "heading": "Where {product} is genuinely better",
+          "purpose": "Specific and evidenced, no adjectives.",
+          "share": 0.2
+        },
+        {
+          "heading": "Pricing, honestly",
+          "purpose": "Real numbers from evidence, both sides.",
+          "share": 0.15
+        },
+        {
+          "heading": "Which one should you pick",
+          "purpose": "An actual recommendation, conditional on the reader's situation.",
+          "share": 0.2
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "The comparison questions people actually ask.",
+          "share": 0.1
+        }
+      ],
+      "hero_concept": "two ways of handling {topic} weighed against each other on a balance"
+    },
+    "alternatives": {
+      "opening": "Say why someone leaves {competitor}. If you cannot say it honestly, this page has no reason to exist.",
+      "min_words": 1400,
+      "needs_table": true,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "Why people look for {topic}",
+          "purpose": "The real reasons, named. Not a strawman.",
+          "share": 0.15
+        },
+        {
+          "heading": "Who should stay with {competitor}",
+          "purpose": "Required. It is the section that makes the rest believable.",
+          "share": 0.15
+        },
+        {
+          "heading": "The alternatives",
+          "purpose": "One block each: what it is, who it suits, cost, where it falls short.",
+          "share": 0.4,
+          "repeats": true,
+          "wants_image": "cards"
+        },
+        {
+          "heading": "Side by side",
+          "purpose": "The comparison table.",
+          "share": 0.15,
+          "wants_image": "table"
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Switching questions: migration, pricing, data.",
+          "share": 0.15
+        }
+      ],
+      "hero_concept": "someone stepping away from one tool toward several others, for {topic}"
+    },
+    "definition": {
+      "opening": "Define it in the first two sentences, plainly enough to be quoted. This page lives or dies on being extractable.",
+      "min_words": 900,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "What {topic} means",
+          "purpose": "The quotable definition. Short, complete, no hedging.",
+          "share": 0.2
+        },
+        {
+          "heading": "How it shows up in practice",
+          "purpose": "Concrete examples. Definitions without examples do not rank or convert.",
+          "share": 0.3,
+          "wants_image": "cards"
+        },
+        {
+          "heading": "Why it happens",
+          "purpose": "The mechanism, in plain words.",
+          "share": 0.2
+        },
+        {
+          "heading": "What to do about it",
+          "purpose": "The reader came with a problem, not a vocabulary gap.",
+          "share": 0.2
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "The related definitional queries.",
+          "share": 0.1
+        }
+      ],
+      "hero_concept": "what {topic} actually feels like from the inside, shown as a scene not a diagram"
+    },
+    "use_case": {
+      "opening": "Name the reader's role and their specific version of the problem in the first line.",
+      "min_words": 1000,
+      "needs_faq": false,
+      "sections": [
+        {
+          "heading": "The problem for {topic}",
+          "purpose": "Their version of it, not the generic one.",
+          "share": 0.25
+        },
+        {
+          "heading": "What the workflow looks like",
+          "purpose": "Concrete, step by step, with the product in its real place.",
+          "share": 0.4,
+          "wants_image": "steps"
+        },
+        {
+          "heading": "What changes",
+          "purpose": "The before and after, evidenced.",
+          "share": 0.2
+        },
+        {
+          "heading": "Getting started",
+          "purpose": "The first move, today.",
+          "share": 0.15
+        }
+      ],
+      "hero_concept": "a specific person's working day improved by {topic}"
+    },
+    "template_or_tool": {
+      "opening": "Give them the thing first. Explanation after.",
+      "min_words": 700,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "The {topic}",
+          "purpose": "The asset itself, above the fold, no email wall.",
+          "share": 0.3
+        },
+        {
+          "heading": "How to use it",
+          "purpose": "Steps, briefly.",
+          "share": 0.3,
+          "wants_image": "steps"
+        },
+        {
+          "heading": "When it will not help",
+          "purpose": "Honest limits.",
+          "share": 0.2
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Usage questions.",
+          "share": 0.2
+        }
+      ],
+      "hero_concept": "the {topic} in use on a desk, mid-task"
+    },
+    "glossary": {
+      "opening": "Definition in one sentence, then context.",
+      "min_words": 500,
+      "needs_faq": false,
+      "sections": [
+        {
+          "heading": "{primary}",
+          "purpose": "One sentence, quotable.",
+          "share": 0.25
+        },
+        {
+          "heading": "In context",
+          "purpose": "Where the term is used and why it matters.",
+          "share": 0.45
+        },
+        {
+          "heading": "Related terms",
+          "purpose": "Internal links to the rest of the glossary.",
+          "share": 0.3
+        }
+      ],
+      "hero_concept": "a single clear idea for {topic}, isolated on a calm background"
+    },
+    "case_study": {
+      "opening": "Lead with the outcome and the number. The story comes after.",
+      "min_words": 900,
+      "needs_faq": false,
+      "sections": [
+        {
+          "heading": "The outcome",
+          "purpose": "The result, with a real figure from evidence.",
+          "share": 0.15
+        },
+        {
+          "heading": "Where they started",
+          "purpose": "The situation before, specifically.",
+          "share": 0.25
+        },
+        {
+          "heading": "What they changed",
+          "purpose": "The actual work, reproducible by the reader.",
+          "share": 0.4,
+          "wants_image": "steps"
+        },
+        {
+          "heading": "What we would do differently",
+          "purpose": "Honesty. A case study without it reads as an ad.",
+          "share": 0.2
+        }
+      ],
+      "hero_concept": "a before and after of {topic}, shown as two states of the same scene"
+    },
+    "faq_hub": {
+      "opening": "No preamble. First question immediately.",
+      "min_words": 800,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Every question from the SERP, each answered in two or three sentences, FAQPage marked up.",
+          "share": 0.85,
+          "repeats": true
+        },
+        {
+          "heading": "Still stuck",
+          "purpose": "Where to go next.",
+          "share": 0.15
+        }
+      ],
+      "hero_concept": "many questions about {topic} arranged around one calm answer"
+    }
+  }
+}

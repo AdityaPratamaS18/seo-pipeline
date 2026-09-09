@@ -1,0 +1,224 @@
+{
+  "version": "0.1.20260902",
+  "status_code": 20000,
+  "status_message": "Ok.",
+  "time": "13.1954 sec.",
+  "cost": 0.004,
+  "tasks_count": 1,
+  "tasks_error": 0,
+  "tasks": [
+    {
+      "id": "09091024-2493-0629-0000-393d1750821f",
+      "status_code": 20000,
+      "status_message": "Ok.",
+      "time": "13.1327 sec.",
+      "cost": 0.004,
+      "result_count": 1,
+      "path": [
+        "v3",
+        "ai_optimization",
+        "chat_gpt",
+        "llm_scraper",
+        "live",
+        "advanced"
+      ],
+      "data": {
+        "api": "ai_optimization",
+        "function": "llm_scraper",
+        "se": "chat_gpt",
+        "keyword": "What is the best planner for adhd?",
+        "location_name": "United States",
+        "language_name": "English",
+        "force_web_search": true,
+        "device": "desktop",
+        "os": "windows"
+      },
+      "result": [
+        {
+          "keyword": "What is the best planner for adhd?",
+          "location_code": 2840,
+          "language_code": "en",
+          "model": null,
+          "check_url": "https://chatgpt.com/?prompt=What%20is%20the%20best%20planner%20for%20adhd%3F&hints=search",
+          "datetime": "2026-09-09 10:24:53 +00:00",
+          "markdown": "If you mean a **physical planner**, my pick for ADHD is **Panda Planner Pro**\u2014especially if you tend to get overwhelmed by a blank page. Current comparisons favor planners with short daily horizons, a small number of priorities, time-blocking, and an easy way to restart after missing days. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com) [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)\n\n### My picks by ADHD problem\n\n- \ud83e\udd47 **Best overall: Panda Planner Pro** \u2014 structured daily pages, priorities, and time-blocking without requiring you to design your own system. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \ud83e\udde0 **Best specifically for ADHD: Clever Fox ADHD Planner** \u2014 more explicit executive-function support, including prioritization and energy tracking. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \u23f0 **Best for time blindness: Brili** \u2014 particularly focused on making the passage and duration of time visible. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \ud83d\udcf1 **Best digital option: Tiimo** \u2014 visual, timeline-based planning with reminders and ADHD/neurodivergent-oriented design. [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com) [Thawly](https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com)\n- \ud83d\udcdd **Best if you hate complicated planners:** a simple **undated brain-dump + daily priority pad**. The important thing is low friction rather than having 30 different trackers. [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)\n\nIf you want something you can **buy right now**, this is a reasonably simple ADHD-focused option:\n\n- **FOCUSVAULT 2026 ADHD Adult Planner** - $28.95 (Calendage)\n\n### What I'd choose for you\n\nIf you tell me **(1) paper or digital, (2) your biggest problem\u2014forgetting, procrastination, time blindness, overwhelm, or keeping routines\u2014and (3) your budget**, I can narrow it down to **one specific planner** rather than giving you a giant list.",
+          "search_results": null,
+          "sources": [
+            {
+              "type": "chat_gpt_source",
+              "title": "Best ADHD Planners for Adults (2026): Tested & Ranked | ADHD Productivity Tips",
+              "snippet": null,
+              "domain": "adhdproductivitytips.com",
+              "url": "https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com",
+              "thumbnail": null,
+              "source_name": "ADHD Productivity Tips",
+              "publication_date": "2026-03-18 00:00:00 +00:00",
+              "markdown": "[ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)"
+            },
+            {
+              "type": "chat_gpt_source",
+              "title": "Best ADHD Planner 2026: Digital, Paper, or Hybrid? - FOCO",
+              "snippet": null,
+              "domain": "www.tryfoco.com",
+              "url": "https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com",
+              "thumbnail": null,
+              "source_name": "Foco ADHD Planner App",
+              "publication_date": null,
+              "markdown": "[Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)"
+            },
+            {
+              "type": "chat_gpt_source",
+              "title": "Best ADHD Planner in 2026: 9 Options Ranked by What Actually Gets You Moving",
+              "snippet": null,
+              "domain": "thawly.ai",
+              "url": "https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com",
+              "thumbnail": null,
+              "source_name": "Thawly",
+              "publication_date": null,
+              "markdown": "[Thawly](https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com)"
+            }
+          ],
+          "fan_out_queries": null,
+          "brand_entities": null,
+          "se_results_count": 0,
+          "item_types": [
+            "chat_gpt_text",
+            "chat_gpt_products"
+          ],
+          "items_count": 3,
+          "items": [
+            {
+              "type": "chat_gpt_text",
+              "rank_group": 1,
+              "rank_absolute": 1,
+              "markdown": "If you mean a **physical planner**, my pick for ADHD is **Panda Planner Pro**\u2014especially if you tend to get overwhelmed by a blank page. Current comparisons favor planners with short daily horizons, a small number of priorities, time-blocking, and an easy way to restart after missing days. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com) [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com) \n\n### My picks by ADHD problem\n\n- \ud83e\udd47 **Best overall: Panda Planner Pro** \u2014 structured daily pages, priorities, and time-blocking without requiring you to design your own system. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \ud83e\udde0 **Best specifically for ADHD: Clever Fox ADHD Planner** \u2014 more explicit executive-function support, including prioritization and energy tracking. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \u23f0 **Best for time blindness: Brili** \u2014 particularly focused on making the passage and duration of time visible. [ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)\n- \ud83d\udcf1 **Best digital option: Tiimo** \u2014 visual, timeline-based planning with reminders and ADHD/neurodivergent-oriented design. [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com) [Thawly](https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com)\n- \ud83d\udcdd **Best if you hate complicated planners:** a simple **undated brain-dump + daily priority pad**. The important thing is low friction rather than having 30 different trackers. [Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)\n\nIf you want something you can **buy right now**, this is a reasonably simple ADHD-focused option:\n\n",
+              "sources": [
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planners for Adults (2026): Tested & Ranked | ADHD Productivity Tips",
+                  "snippet": null,
+                  "domain": "adhdproductivitytips.com",
+                  "url": "https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "ADHD Productivity Tips",
+                  "publication_date": "2026-03-18 00:00:00 +00:00",
+                  "markdown": "[ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planner 2026: Digital, Paper, or Hybrid? - FOCO",
+                  "snippet": null,
+                  "domain": "www.tryfoco.com",
+                  "url": "https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "Foco ADHD Planner App",
+                  "publication_date": null,
+                  "markdown": "[Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planners for Adults (2026): Tested & Ranked | ADHD Productivity Tips",
+                  "snippet": null,
+                  "domain": "adhdproductivitytips.com",
+                  "url": "https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "ADHD Productivity Tips",
+                  "publication_date": "2026-03-18 00:00:00 +00:00",
+                  "markdown": "[ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planners for Adults (2026): Tested & Ranked | ADHD Productivity Tips",
+                  "snippet": null,
+                  "domain": "adhdproductivitytips.com",
+                  "url": "https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "ADHD Productivity Tips",
+                  "publication_date": "2026-03-18 00:00:00 +00:00",
+                  "markdown": "[ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planners for Adults (2026): Tested & Ranked | ADHD Productivity Tips",
+                  "snippet": null,
+                  "domain": "adhdproductivitytips.com",
+                  "url": "https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "ADHD Productivity Tips",
+                  "publication_date": "2026-03-18 00:00:00 +00:00",
+                  "markdown": "[ADHD Productivity Tips](https://adhdproductivitytips.com/best-adhd-planners-adults?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planner 2026: Digital, Paper, or Hybrid? - FOCO",
+                  "snippet": null,
+                  "domain": "www.tryfoco.com",
+                  "url": "https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "Foco ADHD Planner App",
+                  "publication_date": "2026-06-03 00:00:00 +00:00",
+                  "markdown": "[Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planner in 2026: 9 Options Ranked by What Actually Gets You Moving",
+                  "snippet": null,
+                  "domain": "thawly.ai",
+                  "url": "https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "Thawly",
+                  "publication_date": null,
+                  "markdown": "[Thawly](https://thawly.ai/blog/best-adhd-planner?utm_source=chatgpt.com)"
+                },
+                {
+                  "type": "chat_gpt_source",
+                  "title": "Best ADHD Planner 2026: Digital, Paper, or Hybrid? - FOCO",
+                  "snippet": null,
+                  "domain": "www.tryfoco.com",
+                  "url": "https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com",
+                  "thumbnail": null,
+                  "source_name": "Foco ADHD Planner App",
+                  "publication_date": "2026-06-03 00:00:00 +00:00",
+                  "markdown": "[Foco ADHD Planner App](https://www.tryfoco.com/best-adhd-planner/?utm_source=chatgpt.com)"
+                }
+              ],
+              "brand_entities": null
+            },
+            {
+              "type": "chat_gpt_products",
+              "rank_group": 1,
+              "rank_absolute": 2,
+              "items": [
+                {
+                  "type": "chat_gpt_products_element",
+                  "product_id": null,
+                  "merchants": "Calendage",
+                  "id_to_token_map": null,
+                  "title": "FOCUSVAULT 2026 ADHD Adult Planner",
+                  "rating": null,
+                  "price": 28.95,
+                  "currency": "USD",
+                  "tag": null,
+                  "url": null,
+                  "domain": null,
+                  "images": [
+                    "https://images.openai.com/static-rsc-1/NRcjzJa_MPTZ7rtkccrRdSRYdYwXGf6N7ddQiqK242n5dd5CDM8USYgoXqQDTuX0A7B-Vi3qpHRZ83QRPNQemTTHA8Js6EjLB6a244ofso0rdGo4fHtZKTNX9o0hk7rwlsZ1Qhy81C1jzZmYnFbCvNhnMKhFtcXhaJ9TTa2pZxmuK_EHGTl7gwTS2XqVpQYt"
+                  ],
+                  "product_ids": null
+                }
+              ]
+            },
+            {
+              "type": "chat_gpt_text",
+              "rank_group": 2,
+              "rank_absolute": 3,
+              "markdown": "### What I'd choose for you\n\nIf you tell me **(1) paper or digital, (2) your biggest problem\u2014forgetting, procrastination, time blindness, overwhelm, or keeping routines\u2014and (3) your budget**, I can narrow it down to **one specific planner** rather than giving you a giant list.\n\n",
+              "sources": null,
+              "brand_entities": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "version": "0.1.20260801",
+  "status_code": 20000,
+  "status_message": "Ok.",
+  "tasks": [
+    {
+      "id": "09081200-1234-0399-0000-abcdef123456",
+      "status_code": 20000,
+      "status_message": "Ok.",
+      "result": [
+        {
+          "se_type": "google",
+          "target": "tiimoapp.com",
+          "location_code": 2840,
+          "language_code": "en",
+          "total_count": 4182,
+          "items_count": 3,
+          "items": [
+            {
+              "se_type": "google",
+              "keyword_data": {
+                "keyword": "adhd planner",
+                "keyword_info": { "search_volume": 8100, "cpc": 1.42, "competition": 0.31 },
+                "keyword_properties": { "keyword_difficulty": 42 }
+              },
+              "ranked_serp_element": {
+                "serp_item": { "rank_group": 3, "rank_absolute": 4, "url": "https://tiimoapp.com/blog/adhd-planner", "domain": "tiimoapp.com" }
+              }
+            },
+            {
+              "se_type": "google",
+              "keyword_data": {
+                "keyword": "adhd task paralysis",
+                "keyword_info": { "search_volume": 880, "cpc": 0.94, "competition": 0.18 },
+                "keyword_properties": { "keyword_difficulty": 24 }
+              },
+              "ranked_serp_element": {
+                "serp_item": { "rank_group": 6, "rank_absolute": 7, "url": "https://tiimoapp.com/blog/task-paralysis", "domain": "tiimoapp.com" }
+              }
+            },
+            {
+              "se_type": "google",
+              "keyword_data": {
+                "keyword": "visual timer app",
+                "keyword_info": { "search_volume": 2400, "cpc": null, "competition": 0.22 },
+                "keyword_properties": {}
+              },
+              "ranked_serp_element": {
+                "serp_item": { "rank_group": 1, "rank_absolute": 1, "url": "https://tiimoapp.com/", "domain": "tiimoapp.com" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "generated_at": "2026-09-08T12:14:37Z",
+    "cluster_id": "c001",
+    "batch": "2026-09-08",
+    "sources": {
+      "clusters_generated_at": "2026-09-08T12:14:32Z",
+      "teardown_run_at": "2026-09-08T12:14:37Z",
+      "business_confirmed_at": "2026-09-08T09:40:00Z"
+    },
+    "approved_at": "2026-09-08T12:14:54Z",
+    "approved_by": "adityapratapsingh",
+    "decision": "approved",
+    "decision_note": null
+  },
+  "page": {
+    "slug": "how-to-stop-procrastinating-adhd",
+    "url": "/how-to-stop-procrastinating-adhd",
+    "page_type": "how_to_guide",
+    "h1": "How to stop procrastinating adhd",
+    "meta_title_max": 60,
+    "meta_description_range": [
+      150,
+      160
+    ]
+  },
+  "keywords": {
+    "primary": {
+      "keyword": "how to stop procrastinating adhd",
+      "volume": 2400,
+      "difficulty": 28,
+      "min_uses": 4
+    },
+    "secondaries": [
+      {
+        "keyword": "adhd procrastination",
+        "volume": 1900,
+        "required": true
+      },
+      {
+        "keyword": "adhd task paralysis",
+        "volume": 880,
+        "required": true
+      },
+      {
+        "keyword": "why do i procrastinate adhd",
+        "volume": 320,
+        "required": true
+      }
+    ],
+    "avoid": [
+      "best to do list apps"
+    ]
+  },
+  "angle": {
+    "why_this_page_exists": "No page in the set runs an FAQ, so the question variants are unclaimed. This page targets how to stop procrastinating adhd (5,500 combined volume, difficulty 31) and answers it properly.",
+    "gaps_to_exploit": [
+      "No page in the set runs an FAQ, so the question variants are unclaimed",
+      "1 of 3 ranking pages are under 1,100 words, so depth alone is a real opening",
+      "2 of 3 carry two images or fewer, so the pages are a wall of text and a scannable one wins"
+    ],
+    "differentiation": "5,500 combined volume across 4 keyword(s). Difficulty 28. The SERP is consistently how to guide. 2 tracked competitor(s) already rank here."
+  },
+  "the_bar": {
+    "median_words": 1812,
+    "word_target": 2174,
+    "image_target": 3,
+    "needs_table": false,
+    "table_compares": null,
+    "needs_video": false,
+    "video_gap_accepted": false,
+    "faq": {
+      "required": true,
+      "min": 4,
+      "max": 6,
+      "schema": true
+    },
+    "competitors": [
+      {
+        "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/",
+        "words": 1812,
+        "images": 2,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "1812 words across 10 sections."
+      },
+      {
+        "url": "https://www.healthline.com/health/adhd/adhd-procrastination",
+        "words": 993,
+        "images": 16,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "Thin at 993 words. 16 images with no alt text."
+      },
+      {
+        "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/",
+        "words": 2776,
+        "images": 2,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "2776 words across 17 sections."
+      }
+    ]
+  },
+  "structure": {
+    "opening": "Open on the specific moment the reader is in. Two sentences, then answer. No definition first.",
+    "sections": [
+      {
+        "heading": "Why this is harder than it sounds",
+        "level": 2,
+        "purpose": "Answer the query fast and earn trust without lecturing.",
+        "must_cover": [],
+        "target_words": 326
+      },
+      {
+        "heading": "What it actually looks like",
+        "level": 2,
+        "purpose": "Recognition. The reader should feel described.",
+        "must_cover": [],
+        "target_words": 326
+      },
+      {
+        "heading": "How to stop procrastinating adhd, step by step",
+        "level": 2,
+        "purpose": "The concrete payload. This is the section most competitors skip.",
+        "must_cover": [],
+        "target_words": 760
+      },
+      {
+        "heading": "The step people skip",
+        "level": 2,
+        "purpose": "The overlooked move, and the natural place the product fits without a pitch.",
+        "must_cover": [],
+        "target_words": 326
+      },
+      {
+        "heading": "When this is not the real problem",
+        "level": 2,
+        "purpose": "Concede honestly. Trust is won here.",
+        "must_cover": [],
+        "target_words": 217
+      },
+      {
+        "heading": "Frequently asked questions",
+        "level": 2,
+        "purpose": "Capture the People Also Ask variants, marked up as FAQPage.",
+        "must_cover": [],
+        "target_words": 217
+      }
+    ],
+    "cta": {
+      "placement": "end_and_contextual",
+      "url": "https://dootit.com",
+      "label": "Try it"
+    }
+  },
+  "evidence": {
+    "product_facts": [
+      {
+        "claim": "Takes one messy paragraph, typed or spoken, and returns separate tasks.",
+        "source": "product.features[0]"
+      },
+      {
+        "claim": "Reads 'next Tuesday' or 'end of the month' and sets a real due date.",
+        "source": "product.features[1]"
+      },
+      {
+        "claim": "Groups tasks by priority without the user configuring anything.",
+        "source": "product.features[2]"
+      },
+      {
+        "claim": "Deliberately omits streaks, scores and overdue shaming.",
+        "source": "product.features[3]"
+      },
+      {
+        "claim": "USD 8.99 a month, or USD 19.99 once. There is no free trial.",
+        "source": "pricing.tiers"
+      }
+    ],
+    "competitor_facts": [],
+    "stats": []
+  },
+  "links": {
+    "internal": [
+      {
+        "target_slug": "best-to-do-list-apps",
+        "anchor_intent": "the related page",
+        "target_status": "pending"
+      }
+    ],
+    "inbound_from": []
+  },
+  "media": {
+    "hero": {
+      "concept": "A visual for how to stop procrastinating adhd",
+      "alt": "how to stop procrastinating adhd",
+      "bg": "#a7d8ec",
+      "text": null
+    },
+    "inline": [
+      {
+        "type": "steps",
+        "placement_section": "How to stop procrastinating adhd, step by step",
+        "alt": "How to stop procrastinating adhd, step by step",
+        "bg": "#84eaa4"
+      }
+    ]
+  },
+  "voice": {
+    "guide": "context/voice.md",
+    "exemplars": [
+      "context/voice.md"
+    ],
+    "person": null,
+    "pov": "first_person_plural"
+  }
+}

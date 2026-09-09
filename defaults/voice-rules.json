@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "description": "The machine-checkable subset of voice.md. Kept deliberately small and high precision: a check that cries wolf gets ignored, which is worse than no check. Disable a rule by setting enabled to false rather than by learning to skip its output.",
+    "note": "Patterns are Python regex, matched case-insensitively unless case_sensitive is true. Fenced code blocks and inline code are excluded before matching."
+  },
+  "rules": [
+    {
+      "id": "no_dashes",
+      "severity": "error",
+      "enabled": true,
+      "why": "The single most reliable tell of unedited AI output.",
+      "patterns": [
+        "[\u2014\u2013]"
+      ],
+      "message": "em-dash or en-dash. Use a period, comma, colon, parentheses, or restructure."
+    },
+    {
+      "id": "staccato_fragments",
+      "severity": "error",
+      "enabled": true,
+      "why": "The most overused construction in AI-written copy, and instantly recognisable.",
+      "patterns": [
+        "\\bno\\s+[\\w'\u2019]+(\\s+[\\w'\u2019]+){0,2},\\s*no\\s+[\\w'\u2019]+",
+        "\\bno\\s+[\\w'\u2019]+(\\s+[\\w'\u2019]+){0,2},\\s*just\\s+[\\w'\u2019]+",
+        "\\bnot\\s+[^.!?\\n]{1,40}[.!]\\s+just\\b",
+        "\\bless\\s+[^.!?\\n]{1,30}[.!]\\s+more\\b"
+      ],
+      "message": "staccato fragment framing. Write it as a normal sentence."
+    },
+    {
+      "id": "ai_filler",
+      "severity": "error",
+      "enabled": true,
+      "why": "Phrases that appear almost exclusively in machine-written prose.",
+      "patterns": [
+        "\\bdelve\\b",
+        "in today's (digital )?(landscape|world|age)",
+        "it's important to note",
+        "it is important to note",
+        "let's dive in",
+        "(^|[.!?]\\s+)at the end of the day\\b|at the end of the day,",
+        "harness the power of",
+        "navigate the complexities",
+        "when it comes to",
+        "in the realm of",
+        "plays a (crucial|vital|key) role"
+      ],
+      "message": "AI filler phrase."
+    },
+    {
+      "id": "marketing_fluff",
+      "severity": "error",
+      "enabled": true,
+      "why": "Adjectives that assert value instead of demonstrating it.",
+      "patterns": [
+        "\\brevolutionary\\b",
+        "\\bgame[- ]changing\\b",
+        "\\bsupercharge\\b",
+        "\\bcutting[- ]edge\\b",
+        "\\bseamless(ly)?\\b",
+        "\\bunlock (the|your|new)\\b",
+        "\\beffortless(ly)?\\b",
+        "\\bworld[- ]class\\b"
+      ],
+      "message": "marketing fluff. Show the thing instead of asserting it."
+    },
+    {
+      "id": "over_clarifying",
+      "severity": "warn",
+      "enabled": true,
+      "why": "Pre-empting a misreading the reader was never going to have. One deliberate antithesis is fine, the habit is not.",
+      "patterns": [
+        ",\\s*not\\s+(a|an|the)\\s+[\\w'\u2019]+",
+        "rather than (a|an|the)\\s+[\\w'\u2019]+",
+        "this (does not|doesn't) mean"
+      ],
+      "message": "possible over-clarifying. State the thing and trust the reader."
+    },
+    {
+      "id": "contents_preview",
+      "severity": "warn",
+      "enabled": true,
+      "why": "Announcing what the page contains, instead of getting on with it. Reads as a table of contents in prose and is a standard content-mill opener. Flagged by Aditya on a real draft: 'Here is what to look for, five options compared honestly, and who each one suits' should have been 'an honest comparison of the top planners, and what to look for'.",
+      "patterns": [
+        "here('s| is| are) what (you'll|you will|we'll|we will|to)\\b",
+        "\\bin this (post|article|guide|piece)\\b",
+        "this (post|article|guide) (will |is going to )?(cover|explain|walk|show|break)",
+        "by the end of this (post|article|guide)",
+        "\\bwe('ll| will) (cover|look at|walk through|explore)\\b",
+        "\\blet's (take a look|get started|begin)\\b"
+      ],
+      "message": "announces the contents instead of delivering them. Lead with the thing."
+    },
+    {
+      "id": "hedging",
+      "severity": "warn",
+      "enabled": true,
+      "why": "Softening every claim reads as having nothing to say.",
+      "patterns": [
+        "\\bit might be worth considering\\b",
+        "\\byou may want to consider\\b",
+        "\\bperhaps\\b",
+        "\\barguably\\b",
+        "\\bgenerally speaking\\b",
+        "\\bin most cases,"
+      ],
+      "message": "hedging. Say it or cut it."
+    },
+    {
+      "id": "bullet_heavy",
+      "severity": "warn",
+      "enabled": true,
+      "why": "Bullets are easier for a model to generate than a paragraph that holds together, so unedited drafts over-list.",
+      "type": "ratio",
+      "max_bullet_share": 0.4,
+      "message": "more than 40 percent of lines are bullets. Turn the argument back into prose."
+    }
+  ]
+}

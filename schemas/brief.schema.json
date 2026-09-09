@@ -1,0 +1,770 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seo-pipeline/schemas/brief.schema.json",
+  "title": "Page brief",
+  "description": "One brief per page, written by `seo plan` and approved at GATE 3. This is the contract that makes batch writing safe: the brief settles the keyword, the page type, the outline, the bar to beat and the facts that may be asserted, so the writer produces prose and decides nothing strategic. If a writer needs to make a tool call to answer a question, the brief is incomplete and that is a bug in the planner, not the writer.",
+  "type": "object",
+  "required": [
+    "meta",
+    "page",
+    "keywords",
+    "angle",
+    "the_bar",
+    "structure",
+    "evidence",
+    "links",
+    "media",
+    "voice"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "generated_at",
+        "cluster_id",
+        "sources"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cluster_id": {
+          "type": "string",
+          "pattern": "^c[0-9]{3}$"
+        },
+        "batch": {
+          "type": "string",
+          "description": "Batch label, e.g. 2026-Q4-01. Diversity checks run per batch."
+        },
+        "sources": {
+          "type": "object",
+          "required": [
+            "clusters_generated_at",
+            "teardown_run_at"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clusters_generated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "teardown_run_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "business_confirmed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "approved_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "GATE 3. The writer must refuse a brief with null here."
+        },
+        "approved_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decision": {
+          "enum": [
+            "pending",
+            "approved",
+            "revise",
+            "killed"
+          ],
+          "default": "pending"
+        },
+        "decision_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "required": [
+        "slug",
+        "url",
+        "page_type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Long-tail and readable. The slug is the keyword phrase, not the head term."
+        },
+        "url": {
+          "type": "string"
+        },
+        "page_type": {
+          "enum": [
+            "how_to_guide",
+            "listicle",
+            "comparison",
+            "alternatives",
+            "definition",
+            "use_case",
+            "template_or_tool",
+            "product_page",
+            "pricing_page",
+            "case_study",
+            "glossary",
+            "faq_hub",
+            "news"
+          ]
+        },
+        "h1": {
+          "type": "string",
+          "description": "Contains the primary keyword once."
+        },
+        "meta_title_max": {
+          "type": "integer",
+          "default": 60
+        },
+        "meta_description_range": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "default": [
+            150,
+            160
+          ]
+        }
+      }
+    },
+    "keywords": {
+      "type": "object",
+      "required": [
+        "primary",
+        "secondaries",
+        "avoid"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "object",
+          "required": [
+            "keyword",
+            "volume",
+            "difficulty",
+            "min_uses"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "keyword": {
+              "type": "string"
+            },
+            "volume": {
+              "type": "integer"
+            },
+            "difficulty": {
+              "type": "integer"
+            },
+            "min_uses": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 4,
+              "description": "Checked after writing. Under this and the page does not ship."
+            }
+          }
+        },
+        "secondaries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "keyword",
+              "volume"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "keyword": {
+                "type": "string"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Required terms must appear at least once. Optional ones are used only where natural."
+              }
+            }
+          }
+        },
+        "avoid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keywords owned by OTHER pages on this site. Using them here splits authority. This is cannibalisation prevention encoded per page rather than left to memory."
+        }
+      }
+    },
+    "angle": {
+      "type": "object",
+      "required": [
+        "why_this_page_exists",
+        "gaps_to_exploit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "why_this_page_exists": {
+          "type": "string",
+          "minLength": 30,
+          "description": "One sentence a human approves or kills at GATE 3. If this cannot be written convincingly, the page should not be built. This field is the single cheapest defence against publishing volume with no reason to exist."
+        },
+        "gaps_to_exploit": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "What the ranking pages fail to answer, taken from actually reading them."
+        },
+        "differentiation": {
+          "type": "string",
+          "description": "How this page differs from the current top result, specifically."
+        }
+      }
+    },
+    "the_bar": {
+      "type": "object",
+      "description": "Measured from the ranking pages by competitor_teardown.py. The draft is judged against these numbers, not against a fixed word floor.",
+      "required": [
+        "median_words",
+        "word_target",
+        "competitors"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "median_words": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "word_target": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Beat the median without padding. Padding to a number is worse than being shorter and better."
+        },
+        "image_target": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "needs_table": {
+          "type": "boolean",
+          "default": false
+        },
+        "table_compares": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "What the table's columns should be, when needs_table is true."
+        },
+        "needs_video": {
+          "type": "boolean",
+          "default": false
+        },
+        "video_gap_accepted": {
+          "type": "boolean",
+          "default": false,
+          "description": "True when competitors use video and we knowingly ship without. Recorded, not papered over."
+        },
+        "faq": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": true
+            },
+            "min": {
+              "type": "integer",
+              "default": 4
+            },
+            "max": {
+              "type": "integer",
+              "default": 6
+            },
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "competitors": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Non-empty on purpose: a bar computed from zero pages is not a bar.",
+          "items": {
+            "type": "object",
+            "required": [
+              "url",
+              "words"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "rank": {
+                "type": "integer"
+              },
+              "words": {
+                "type": "integer"
+              },
+              "images": {
+                "type": "integer"
+              },
+              "tables": {
+                "type": "integer"
+              },
+              "videos": {
+                "type": "integer"
+              },
+              "has_faq": {
+                "type": "boolean"
+              },
+              "notable": {
+                "type": "string",
+                "description": "One line on what this page does well."
+              }
+            }
+          }
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "required": [
+        "sections"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "opening": {
+          "type": "string",
+          "description": "How to open. Varied deliberately across a batch: thirty pages that open the same way read as machine output and are what scaled-content policies target."
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 2,
+          "description": "The outline, decided at planning time from the SERP. The writer fills these in and does not restructure.",
+          "items": {
+            "type": "object",
+            "required": [
+              "heading",
+              "purpose"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "heading": {
+                "type": "string"
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 3,
+                "default": 2
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "must_cover": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "target_words": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "cta": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "placement": {
+              "enum": [
+                "end_only",
+                "end_and_contextual"
+              ],
+              "default": "end_and_contextual"
+            },
+            "url": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "extractable": {
+      "type": "object",
+      "description": "What a model has to be able to lift out of this page without reading the rest of it. An answer engine quotes a PASSAGE, not a page, so a paragraph that only makes sense after the two above it cannot be used even when the page ranks. Decided at planning time like everything else here, so the writer is not left to guess what should be extractable.",
+      "required": [
+        "definition",
+        "direct_answers",
+        "subject_terms"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "definition": {
+          "type": "object",
+          "description": "A plain sentence defining the page's subject, early, in the form '<term> is ...'. This is the block most often lifted verbatim.",
+          "required": [
+            "term",
+            "must_appear_by_word"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "term": {
+              "type": "string",
+              "description": "The thing being defined, as a reader would name it."
+            },
+            "must_appear_by_word": {
+              "type": "integer",
+              "minimum": 20,
+              "default": 120,
+              "description": "How far into the body the definition may sit. Past this it is below the fold of an extractor's attention as much as a reader's."
+            },
+            "note": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "direct_answers": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Question variants this page must answer outright, each near a heading that asks it. Sourced from the frozen prompt set and from question-shaped cluster secondaries. People Also Ask text is NOT a source here: the SERP dumps record that the block existed, not what it said, and inventing the questions would be fabricating the input to a measurement.",
+          "items": {
+            "type": "object",
+            "required": [
+              "question",
+              "source"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "question": {
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "prompt_set",
+                  "cluster_secondary",
+                  "human"
+                ]
+              },
+              "answer_within_words": {
+                "type": "integer",
+                "minimum": 10,
+                "default": 60,
+                "description": "The answer must land within this many words of the heading that asks it."
+              }
+            }
+          }
+        },
+        "comparison_table": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Set when the_bar.needs_table is true. A table is the most reliably extracted structure on a page, and the SERP already said whether this query expects one.",
+          "additionalProperties": false,
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2
+            },
+            "rows_are": {
+              "type": "string"
+            },
+            "because": {
+              "type": "string",
+              "description": "Which ranking pages carried a table."
+            }
+          }
+        },
+        "subject_terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Names a claim sentence may use as its subject. 'We built it because capture kept failing' is useless once lifted out of the page. 'doot was built because capture kept failing' survives the trip. check_extractable.py enforces this."
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "THE ONLY facts this page may assert. A number, price, statistic or competitor capability that does not appear here must not appear in the draft. The claims check enforces this, because fabrication is the failure that damages trust fastest and is hardest to spot across thirty pages.",
+      "required": [
+        "product_facts",
+        "competitor_facts",
+        "stats"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "product_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "source"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "description": "Pointer into business.json, e.g. product.features[2]"
+              }
+            }
+          }
+        },
+        "competitor_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "source_url",
+              "retrieved_at"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim": {
+                "type": "string"
+              },
+              "competitor": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "retrieved_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "stats": {
+          "type": "array",
+          "description": "Third-party numbers. Empty is a valid and honest answer, and means the page cites none.",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "source_url",
+              "retrieved_at"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "publisher": {
+                "type": "string"
+              },
+              "retrieved_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "required": [
+        "internal"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "internal": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "target_slug",
+              "anchor_intent",
+              "target_status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "target_slug": {
+                "type": "string"
+              },
+              "anchor_intent": {
+                "type": "string",
+                "description": "What the anchor should convey, not the exact words."
+              },
+              "target_status": {
+                "enum": [
+                  "live",
+                  "pending"
+                ],
+                "description": "Pending links are stripped at publish and re-added when the target ships. Tracked so they are not forgotten."
+              }
+            }
+          }
+        },
+        "inbound_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Live pages that should gain a link TO this one when it publishes."
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "required": [
+        "hero"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "hero": {
+          "type": "object",
+          "required": [
+            "concept",
+            "alt"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "concept": {
+              "type": "string"
+            },
+            "alt": {
+              "type": "string"
+            },
+            "bg": {
+              "type": "string",
+              "description": "Brand hex. Varied across a batch so the blog does not look samey."
+            },
+            "text": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "inline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "placement_section",
+              "alt"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "enum": [
+                  "steps",
+                  "cards",
+                  "table",
+                  "chart",
+                  "diagram"
+                ]
+              },
+              "placement_section": {
+                "type": "string",
+                "description": "The H2 this sits under. Content comes from that section, never invented."
+              },
+              "alt": {
+                "type": "string"
+              },
+              "bg": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "required": [
+        "guide",
+        "exemplars"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "guide": {
+          "type": "string",
+          "default": "context/voice.md"
+        },
+        "exemplars": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Paths to two or three published pages that sound right. Voice drifts faster from description than from example, so examples are required."
+        },
+        "person": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Whose voice, when the site writes as a named person."
+        },
+        "pov": {
+          "enum": [
+            "first_person_singular",
+            "first_person_plural",
+            "second_person",
+            "neutral"
+          ],
+          "default": "first_person_plural"
+        }
+      }
+    }
+  }
+}

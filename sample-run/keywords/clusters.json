@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "generated_at": "2026-09-08T12:14:32Z",
+    "expires_at": "2026-12-07T12:14:32Z",
+    "confirmed_at": "2026-09-08T16:00:00Z",
+    "method": {
+      "clustering": "serp_overlap",
+      "overlap_threshold": 3,
+      "difficulty_ceiling": 35,
+      "min_volume": 20,
+      "location": "2840",
+      "language": "en"
+    },
+    "providers": [
+      "dataforseo_labs"
+    ],
+    "competitors_analysed": [
+      {
+        "domain": "additudemag.com",
+        "keywords_pulled": 10,
+        "discovered_by": "serp_overlap"
+      },
+      {
+        "domain": "ahrefs.com",
+        "keywords_pulled": 3,
+        "discovered_by": "serp_overlap"
+      },
+      {
+        "domain": "en.wikipedia.org",
+        "keywords_pulled": 3,
+        "discovered_by": "serp_overlap"
+      },
+      {
+        "domain": "healthline.com",
+        "keywords_pulled": 4,
+        "discovered_by": "serp_overlap"
+      },
+      {
+        "domain": "zapier.com",
+        "keywords_pulled": 3,
+        "discovered_by": "serp_overlap"
+      }
+    ],
+    "dataset": {
+      "rows_raw": 23,
+      "rows_qualified": 7,
+      "path": "/Users/adityapratapsingh/Documents/Claude-code/seo-pipeline/fixtures/dataset_sample.csv"
+    }
+  },
+  "clusters": [
+    {
+      "id": "c001",
+      "primary": {
+        "keyword": "how to stop procrastinating adhd",
+        "volume": 2400,
+        "difficulty": 28,
+        "cpc": 1.2,
+        "ranked_by": [
+          {
+            "domain": "additudemag.com",
+            "position": 1,
+            "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/"
+          },
+          {
+            "domain": "healthline.com",
+            "position": 2,
+            "url": "https://www.healthline.com/health/adhd/adhd-procrastination"
+          },
+          {
+            "domain": "additudemag.com",
+            "position": 4,
+            "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/"
+          }
+        ]
+      },
+      "secondaries": [
+        {
+          "keyword": "adhd procrastination",
+          "volume": 1900,
+          "difficulty": 31,
+          "cpc": 1.2,
+          "ranked_by": [
+            {
+              "domain": "additudemag.com",
+              "position": 1,
+              "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/"
+            },
+            {
+              "domain": "healthline.com",
+              "position": 2,
+              "url": "https://www.healthline.com/health/adhd/adhd-procrastination"
+            },
+            {
+              "domain": "additudemag.com",
+              "position": 4,
+              "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/"
+            }
+          ]
+        },
+        {
+          "keyword": "adhd task paralysis",
+          "volume": 880,
+          "difficulty": 24,
+          "cpc": 1.2,
+          "ranked_by": [
+            {
+              "domain": "additudemag.com",
+              "position": 1,
+              "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/"
+            },
+            {
+              "domain": "healthline.com",
+              "position": 2,
+              "url": "https://www.healthline.com/health/adhd/adhd-procrastination"
+            },
+            {
+              "domain": "additudemag.com",
+              "position": 4,
+              "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/"
+            }
+          ]
+        },
+        {
+          "keyword": "why do i procrastinate adhd",
+          "volume": 320,
+          "difficulty": 19,
+          "cpc": 1.2,
+          "ranked_by": [
+            {
+              "domain": "additudemag.com",
+              "position": 1,
+              "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/"
+            },
+            {
+              "domain": "healthline.com",
+              "position": 2,
+              "url": "https://www.healthline.com/health/adhd/adhd-procrastination"
+            },
+            {
+              "domain": "additudemag.com",
+              "position": 4,
+              "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/"
+            }
+          ]
+        }
+      ],
+      "intent": "informational",
+      "page_type": "how_to_guide",
+      "serp_evidence": {
+        "checked_at": "2026-09-08T12:14:32Z",
+        "top_results": [
+          {
+            "rank": 1,
+            "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/",
+            "domain": "additudemag.com",
+            "page_type": "how_to_guide"
+          },
+          {
+            "rank": 2,
+            "url": "https://www.healthline.com/health/adhd/adhd-procrastination",
+            "domain": "healthline.com",
+            "page_type": "how_to_guide"
+          },
+          {
+            "rank": 4,
+            "url": "https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/",
+            "domain": "additudemag.com",
+            "page_type": "how_to_guide"
+          }
+        ],
+        "type_confidence": 1.0
+      },
+      "opportunity": {
+        "score": 80,
+        "why": "5,500 combined volume across 4 keyword(s). Difficulty 28. The SERP is consistently how to guide. 2 tracked competitor(s) already rank here.",
+        "total_volume": 5500,
+        "max_difficulty": 31,
+        "competitor_coverage": 2
+      },
+      "status": "idea",
+      "assigned_slug": null,
+      "cannibalisation_risk": []
+    },
+    {
+      "id": "c002",
+      "primary": {
+        "keyword": "best to do list apps",
+        "volume": 1600,
+        "difficulty": 33,
+        "cpc": 1.2,
+        "ranked_by": [
+          {
+            "domain": "zapier.com",
+            "position": 1,
+            "url": "https://zapier.com/blog/best-todo-list-apps/"
+          },
+          {
+            "domain": "en.wikipedia.org",
+            "position": 5,
+            "url": "https://en.wikipedia.org/wiki/Time_management"
+          },
+          {
+            "domain": "ahrefs.com",
+            "position": 7,
+            "url": "https://ahrefs.com/seo/seo-basics"
+          }
+        ]
+      },
+      "secondaries": [
+        {
+          "keyword": "task management tools",
+          "volume": 900,
+          "difficulty": 30,
+          "cpc": 1.2,
+          "ranked_by": [
+            {
+              "domain": "zapier.com",
+              "position": 1,
+              "url": "https://zapier.com/blog/best-todo-list-apps/"
+            },
+            {
+              "domain": "en.wikipedia.org",
+              "position": 5,
+              "url": "https://en.wikipedia.org/wiki/Time_management"
+            },
+            {
+              "domain": "ahrefs.com",
+              "position": 7,
+              "url": "https://ahrefs.com/seo/seo-basics"
+            }
+          ]
+        },
+        {
+          "keyword": "to do list app comparison",
+          "volume": 210,
+          "difficulty": 18,
+          "cpc": 1.2,
+          "ranked_by": [
+            {
+              "domain": "zapier.com",
+              "position": 1,
+              "url": "https://zapier.com/blog/best-todo-list-apps/"
+            },
+            {
+              "domain": "en.wikipedia.org",
+              "position": 5,
+              "url": "https://en.wikipedia.org/wiki/Time_management"
+            },
+            {
+              "domain": "ahrefs.com",
+              "position": 7,
+              "url": "https://ahrefs.com/seo/seo-basics"
+            }
+          ]
+        }
+      ],
+      "intent": "commercial",
+      "page_type": "listicle",
+      "serp_evidence": {
+        "checked_at": "2026-09-08T12:14:32Z",
+        "top_results": [
+          {
+            "rank": 1,
+            "url": "https://zapier.com/blog/best-todo-list-apps/",
+            "domain": "zapier.com",
+            "page_type": "listicle"
+          },
+          {
+            "rank": 5,
+            "url": "https://en.wikipedia.org/wiki/Time_management",
+            "domain": "en.wikipedia.org",
+            "page_type": "listicle"
+          },
+          {
+            "rank": 7,
+            "url": "https://ahrefs.com/seo/seo-basics",
+            "domain": "ahrefs.com",
+            "page_type": "listicle"
+          }
+        ],
+        "type_confidence": 1.0
+      },
+      "opportunity": {
+        "score": 63,
+        "why": "2,710 combined volume across 3 keyword(s). Difficulty 33. The SERP is consistently listicle. 3 tracked competitor(s) already rank here.",
+        "total_volume": 2710,
+        "max_difficulty": 33,
+        "competitor_coverage": 3
+      },
+      "status": "idea",
+      "assigned_slug": null,
+      "cannibalisation_risk": []
+    }
+  ]
+}

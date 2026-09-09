@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+.DS_Store
+.teardown-cache.json
+
+# A run produces its artifacts in the working directory. If someone runs the
+# pipeline from inside this clone, none of it belongs in the repo. Anchored to
+# the root on purpose: sample-run/context and fixtures/llm are shipped examples
+# and unanchored patterns silently swallowed them.
+/context/
+/keywords/
+/briefs/
+/drafts/
+/llm/
+/serps/
+/review/
+/pages/
+/*.csv

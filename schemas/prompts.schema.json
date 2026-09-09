@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seo-pipeline/schemas/prompts.schema.json",
+  "title": "Prompt set",
+  "description": "The questions this brand's visibility is measured against, and the fourth frozen artifact after business.json, clusters.json and briefs. Keywords are what people TYPE INTO A SEARCH BOX; prompts are what they ASK A MODEL, and the two are different shapes: 'best adhd planner' and 'I have ADHD and keep abandoning planners, what should I use' retrieve differently and name different brands. Generated from approved clusters plus business.json, approved by a human, then FROZEN. Freezing matters more here than anywhere else in the pipeline: if the set drifts, month-to-month numbers are not comparable and you will draw confident conclusions from noise.",
+  "type": "object",
+  "required": ["meta", "prompts"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["schema_version", "generated_at", "brand", "set_id"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "brand": { "type": "string", "description": "The name a model would have to say for a mention to count." },
+        "aliases": {
+          "type": "array", "items": { "type": "string" },
+          "description": "Other ways the brand might be written. A mention check that only looks for the exact name undercounts."
+        },
+        "set_id": {
+          "type": "string",
+          "description": "Stable id for this frozen set, e.g. 2026-Q4. Every measurement records it, so a comparison across two different sets can be refused rather than silently reported as change."
+        },
+        "confirmed_at": { "type": ["string", "null"], "format": "date-time",
+          "description": "The gate. Null means the set is not approved and no measurement should run against it." },
+        "sources": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "clusters_generated_at": { "type": "string" },
+            "business_confirmed_at": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "prompts": {
+      "type": "array", "minItems": 5,
+      "description": "Fewer than a handful cannot measure anything, given how much answers vary run to run.",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "archetype", "intent", "win_condition", "expect_mention"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^p[0-9]{3}$" },
+          "text": {
+            "type": "string", "minLength": 12,
+            "description": "Phrased the way a person would actually ask, not the keyword with a question mark bolted on."
+          },
+          "archetype": {
+            "enum": ["category_discovery", "problem_first", "comparison", "brand_check",
+                     "feature_led", "definitional"],
+            "description": "A fixed set on purpose. A prompt set made only of 'best X' questions measures one narrow thing and reports it as visibility."
+          },
+          "intent": { "enum": ["informational", "commercial", "transactional", "navigational"] },
+          "source_cluster": { "type": ["string", "null"], "pattern": "^c[0-9]{3}$|^$" },
+          "expect_mention": {
+            "type": "boolean",
+            "description": "Should this brand plausibly appear? Not every prompt should. Including prompts you SHOULD NOT win is what stops a set being self-flattering, and absence on those is a correct result rather than a failure."
+          },
+          "win_condition": {
+            "enum": ["mentioned", "cited_with_link", "recommended_first"],
+            "description": "What counts as success. Being named in passing is not the same as being the recommendation, and measuring them as one number hides which you actually got."
+          },
+          "competitors_expected": {
+            "type": "array", "items": { "type": "string" },
+            "description": "Who you would expect a model to name here. Used for share of voice, and for noticing when a rival you never tracked keeps appearing."
+          },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

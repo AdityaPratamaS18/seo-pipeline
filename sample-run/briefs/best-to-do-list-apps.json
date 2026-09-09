@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "generated_at": "2026-09-08T12:14:40Z",
+    "cluster_id": "c002",
+    "batch": "2026-09-08",
+    "sources": {
+      "clusters_generated_at": "2026-09-08T12:14:32Z",
+      "teardown_run_at": "2026-09-08T12:14:40Z",
+      "business_confirmed_at": "2026-09-08T09:40:00Z"
+    },
+    "approved_at": null,
+    "approved_by": null,
+    "decision": "killed",
+    "decision_note": "we are not a to do list app"
+  },
+  "page": {
+    "slug": "best-to-do-list-apps",
+    "url": "/best-to-do-list-apps",
+    "page_type": "listicle",
+    "h1": "Best to do list apps",
+    "meta_title_max": 60,
+    "meta_description_range": [
+      150,
+      160
+    ]
+  },
+  "keywords": {
+    "primary": {
+      "keyword": "best to do list apps",
+      "volume": 1600,
+      "difficulty": 33,
+      "min_uses": 4
+    },
+    "secondaries": [
+      {
+        "keyword": "task management tools",
+        "volume": 900,
+        "required": true
+      },
+      {
+        "keyword": "to do list app comparison",
+        "volume": 210,
+        "required": true
+      }
+    ],
+    "avoid": [
+      "how to stop procrastinating adhd"
+    ]
+  },
+  "angle": {
+    "why_this_page_exists": "No page in the set runs an FAQ, so the question variants are unclaimed. This page targets best to do list apps (2,710 combined volume, difficulty 33) and answers it properly.",
+    "gaps_to_exploit": [
+      "No page in the set runs an FAQ, so the question variants are unclaimed"
+    ],
+    "differentiation": "2,710 combined volume across 3 keyword(s). Difficulty 33. The SERP is consistently listicle. 3 tracked competitor(s) already rank here."
+  },
+  "the_bar": {
+    "median_words": 3140,
+    "word_target": 3768,
+    "image_target": 4,
+    "needs_table": false,
+    "table_compares": null,
+    "needs_video": false,
+    "video_gap_accepted": false,
+    "faq": {
+      "required": true,
+      "min": 4,
+      "max": 6,
+      "schema": true
+    },
+    "competitors": [
+      {
+        "url": "https://zapier.com/blog/best-todo-list-apps/",
+        "words": 4572,
+        "images": 54,
+        "tables": 1,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "Runs a comparison table (Best for, Standout feature, Pricing)."
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Time_management",
+        "words": 2366,
+        "images": 7,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "4 images with no alt text."
+      },
+      {
+        "url": "https://ahrefs.com/seo/seo-basics",
+        "words": 3140,
+        "images": 47,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "22 images with no alt text."
+      }
+    ]
+  },
+  "structure": {
+    "opening": "State what the list is for and who it is for, then get into it. No history of the category.",
+    "sections": [
+      {
+        "heading": "How we picked these",
+        "level": 2,
+        "purpose": "The criteria. Without it a listicle is just opinion.",
+        "must_cover": [],
+        "target_words": 376
+      },
+      {
+        "heading": "The list",
+        "level": 2,
+        "purpose": "One consistent block per item: what it is, who it suits, what it costs, where it falls short.",
+        "must_cover": [],
+        "target_words": 2260
+      },
+      {
+        "heading": "How they compare",
+        "level": 2,
+        "purpose": "The at a glance table. Readers scan this before reading anything.",
+        "must_cover": [],
+        "target_words": 565
+      },
+      {
+        "heading": "Frequently asked questions",
+        "level": 2,
+        "purpose": "Question variants from the SERP.",
+        "must_cover": [],
+        "target_words": 565
+      }
+    ],
+    "cta": {
+      "placement": "end_and_contextual",
+      "url": "https://dootit.com",
+      "label": "Try it"
+    }
+  },
+  "evidence": {
+    "product_facts": [
+      {
+        "claim": "Takes one messy paragraph, typed or spoken, and returns separate tasks.",
+        "source": "product.features[0]"
+      },
+      {
+        "claim": "Reads 'next Tuesday' or 'end of the month' and sets a real due date.",
+        "source": "product.features[1]"
+      },
+      {
+        "claim": "Groups tasks by priority without the user configuring anything.",
+        "source": "product.features[2]"
+      },
+      {
+        "claim": "Deliberately omits streaks, scores and overdue shaming.",
+        "source": "product.features[3]"
+      },
+      {
+        "claim": "USD 8.99 a month, or USD 19.99 once. There is no free trial.",
+        "source": "pricing.tiers"
+      }
+    ],
+    "competitor_facts": [],
+    "stats": []
+  },
+  "links": {
+    "internal": [
+      {
+        "target_slug": "how-to-stop-procrastinating-adhd",
+        "anchor_intent": "the related page",
+        "target_status": "pending"
+      }
+    ],
+    "inbound_from": []
+  },
+  "media": {
+    "hero": {
+      "concept": "A visual for best to do list apps",
+      "alt": "best to do list apps",
+      "bg": "#a7d8ec",
+      "text": null
+    },
+    "inline": [
+      {
+        "type": "cards",
+        "placement_section": "The list",
+        "alt": "The list",
+        "bg": "#f9cdd0"
+      },
+      {
+        "type": "table",
+        "placement_section": "How they compare",
+        "alt": "How they compare",
+        "bg": "#84eaa4"
+      }
+    ]
+  },
+  "voice": {
+    "guide": "context/voice.md",
+    "exemplars": [
+      "context/voice.md"
+    ],
+    "person": null,
+    "pov": "first_person_plural"
+  }
+}

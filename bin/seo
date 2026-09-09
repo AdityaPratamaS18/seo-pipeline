@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+"""
+seo: one entry point for the whole pipeline.
+
+Runs from anywhere. The stages live in the installed pipeline directory; your
+artifacts live in whatever directory you run this from, which is normally your
+site repo. That separation is the point: the tooling is shared, the data is
+yours.
+
+    seo doctor              is this machine set up
+    seo status              where this site is in the pipeline
+    seo next                the one command to run now
+
+    seo competitors serps/*.json      who is really ranking, from real SERPs
+    seo context <repo> [--domain d]   stage 0  read the repo and the site
+    seo keywords <dataset.csv>        stage 1  cluster, once a quarter
+    seo plan                          stage 2  briefs from approved clusters
+    seo review build | apply <f>      GATE 3   the review page
+    seo write prompt|check <slug>     stage 3
+    seo media <slug>                  stage 4  typographic images
+    seo media prompts <slug>          stage 4  prompts for generated art
+    seo media collect <slug> --from d stage 4  place what a model generated
+    seo publish <slug> [--dry-run]    stage 6
+    seo links scan | pending <slug>   the internal link graph
+    seo audit basic|full <domain>     technical audit of a live site
+    seo prompts build | check         the LLM prompt set
+    seo visibility run | report       are you named, and who is named instead
+    seo check [<slug>]                every checker: voice, claims, batch
+"""
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+HOME = os.path.dirname(os.path.dirname(os.path.abspath(os.path.realpath(__file__))))
+WORK = os.getcwd()
+PY = sys.executable
+
+DIRECT = {
+    "context": ("stages.context", []), "keywords": ("stages.keywords", []),
+    "plan": ("stages.plan", []), "review": ("stages.review", []),
+    "write": ("stages.write", []), "media": ("stages.media", ["render"]),
+    "publish": ("stages.publish", []),
+    "competitors": ("stages.competitors", []),
+    "links": ("stages.links", []),
+    "audit": ("stages.audit", []),
+    "prompts": ("stages.prompts", []),
+    "visibility": ("stages.visibility", []),
+}
+
+
+def run(module, args):
+    sys.stdout.flush()
+    env = dict(os.environ, PYTHONPATH=HOME + os.pathsep + os.environ.get("PYTHONPATH", ""))
+    return subprocess.call([PY, "-m", module, *args], cwd=WORK, env=env)
+
+
+def script(name, args):
+    sys.stdout.flush()
+    env = dict(os.environ, PYTHONPATH=HOME + os.pathsep + os.environ.get("PYTHONPATH", ""))
+    return subprocess.call([PY, os.path.join(HOME, name), *args], cwd=WORK, env=env)
+
+
+def p(path):
+    return os.path.join(WORK, path)
+
+
+def jload(path):
+    import json
+    try:
+        return json.load(open(p(path)))
+    except Exception:                                               # noqa: BLE001
+        return None
+
+
+def state():
+    import glob
+    import json
+    s = {"business": None, "clusters": None, "briefs": [], "drafts": []}
+    b = jload("context/business.json")
+    if b:
+        s["business"] = {"confirmed": bool(b["meta"].get("confirmed_at")),
+                         "name": b.get("identity", {}).get("name", "?"),
+                         "stack": b.get("tech", {}).get("stack")}
+    c = jload("keywords/clusters.json")
+    if c:
+        exp = c["meta"].get("expires_at", "")
+        expired = bool(exp) and exp < datetime.now(timezone.utc).isoformat()
+        s["clusters"] = {"confirmed": bool(c["meta"].get("confirmed_at")),
+                         "n": len(c["clusters"]), "expired": expired,
+                         "open": sum(1 for x in c["clusters"] if x["status"] == "idea")}
+    for f in sorted(glob.glob(p("briefs/*.json"))):
+        try:
+            d = json.load(open(f))
+            s["briefs"].append((d["page"]["slug"], d["meta"]["decision"]))
+        except Exception:                                           # noqa: BLE001
+            continue
+    s["drafts"] = [os.path.basename(os.path.dirname(f))
+                   for f in sorted(glob.glob(p("drafts/*/content.md")))]
+    return s
+
+
+def cmd_status():
+    s = state()
+    print(f"  working dir  {WORK}")
+    print(f"  pipeline     {HOME}\n")
+    b = s["business"]
+    print(f"  0 context    " + (
+        f"{b['name']} ({b['stack'] or 'stack unknown'}), "
+        + ("confirmed" if b["confirmed"] else "NOT confirmed (GATE 1)") if b
+        else "not started"))
+    c = s["clusters"]
+    print(f"  1 keywords   " + (
+        f"{c['n']} clusters, {c['open']} unplanned, "
+        + ("EXPIRED, re-run stage 1" if c["expired"]
+           else "approved" if c["confirmed"] else "NOT approved (GATE 2)") if c
+        else "not started"))
+    if s["briefs"]:
+        from collections import Counter
+        n = Counter(d for _, d in s["briefs"])
+        print(f"  2 plan       {len(s['briefs'])} briefs: " +
+              ", ".join(f"{v} {k}" for k, v in n.most_common()))
+    else:
+        print("  2 plan       no briefs yet")
+    print(f"  3 write      {len(s['drafts'])} draft(s)" if s["drafts"] else "  3 write      no drafts yet")
+    print()
+    cmd_next(quiet=True)
+    return 0
+
+
+def cmd_next(quiet=False):
+    s = state()
+    b, c = s["business"], s["clusters"]
+    if not b:
+        n = "seo context <path-to-your-repo> --domain yoursite.com"
+        why = "nothing knows what this business is yet"
+    elif not b["confirmed"]:
+        n = "edit context/business.json, then set meta.confirmed_at"
+        why = "GATE 1: everything downstream inherits this file"
+    elif not c:
+        n = "seo keywords keywords/dataset.csv"
+        why = "no keyword clusters yet"
+    elif c["expired"]:
+        n = "seo keywords keywords/dataset.csv"
+        why = "the clusters have expired"
+    elif not c["confirmed"]:
+        n = "review keywords/clusters.json, then set meta.confirmed_at"
+        why = "GATE 2: approve the clusters before planning from them"
+    elif not s["briefs"]:
+        if c["open"] == 0:
+            n = "seo keywords <dataset.csv>   (or edit clusters.json to reopen a cluster)"
+            why = "every cluster is already planned, rejected or published"
+        elif os.path.isdir(p("briefs")):
+            n = "read what `seo plan` skipped, then fix those clusters"
+            why = ("plan ran and wrote nothing. Usually a mixed SERP needing a human to pick "
+                   "the page type, or competitor URLs that no longer resolve")
+        else:
+            n = "seo plan"
+            why = "clusters are approved, nothing planned yet"
+    elif any(d == "pending" for _, d in s["briefs"]):
+        n = "seo review build   then open review/index.html"
+        why = f"GATE 3: {sum(1 for _, d in s['briefs'] if d == 'pending')} brief(s) undecided"
+    else:
+        approved = [sl for sl, d in s["briefs"] if d == "approved"]
+        todo = [sl for sl in approved if sl not in s["drafts"]]
+        if todo:
+            n, why = f"seo write prompt {todo[0]}", f"{len(todo)} approved brief(s) not yet written"
+        elif s["drafts"]:
+            n, why = "seo check", "drafts exist, run every checker before publishing"
+        else:
+            n, why = "seo plan", "nothing approved to write"
+    print(f"  next:  {n}")
+    print(f"         ({why})")
+    return 0
+
+
+def cmd_doctor():
+    ok = True
+    print("  python")
+    print(f"    {'ok  ' if sys.version_info >= (3, 9) else 'FAIL'}  {sys.version.split()[0]} "
+          f"{'' if sys.version_info >= (3, 9) else '(need 3.9+)'}")
+    print("\n  packages")
+    for mod, why, needed in (("jsonschema", "validating artifacts", True),
+                             ("bs4", "reading pages and competitor teardowns", True),
+                             ("PIL", "rendering images", True),
+                             ("certifi", "TLS for the keyword API", False)):
+        try:
+            __import__(mod)
+            print(f"    ok    {mod}  ({why})")
+        except ImportError:
+            print(f"    {'FAIL' if needed else 'warn'}  {mod} missing  ({why})")
+            print(f"            pip install {'beautifulsoup4' if mod == 'bs4' else 'pillow' if mod == 'PIL' else mod}")
+            ok = ok and not needed
+    print("\n  keyword data")
+    if os.environ.get("DATAFORSEO_LOGIN") and os.environ.get("DATAFORSEO_PASSWORD"):
+        print("    ok    DataForSEO credentials are set")
+    else:
+        print("    warn  DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD not set")
+        print("            needed only for stage 1. Sign up at dataforseo.com, then export both.")
+    print("\n  this site")
+    s = state()
+    for label, cond, hint in (
+            ("context/business.json", s["business"], "run: seo context <repo> --domain yoursite.com"),
+            ("  confirmed (GATE 1)", s["business"] and s["business"]["confirmed"],
+             "set meta.confirmed_at once the file is correct"),
+            ("keywords/clusters.json", s["clusters"], "run: seo keywords <dataset.csv>"),
+            ("  approved (GATE 2)", s["clusters"] and s["clusters"]["confirmed"],
+             "set meta.confirmed_at once the clusters are right")):
+        print(f"    {'ok  ' if cond else 'todo'}  {label}" + ("" if cond else f"\n            {hint}"))
+    print(f"\n  {'ready' if ok else 'FIX THE FAILURES ABOVE FIRST'}")
+    return 0 if ok else 1
+
+
+def cmd_check(args):
+    import glob
+    slug = args[0] if args else None
+    drafts = ([p(f"drafts/{slug}/content.md")] if slug
+              else sorted(glob.glob(p("drafts/*/content.md"))))
+    drafts = [d for d in drafts if os.path.exists(d)]
+    if not drafts:
+        print("  no drafts found. A check that examined nothing must not pass.")
+        return 1
+    rc = 0
+    print(f"  checking {len(drafts)} draft(s)\n")
+    print("  VOICE");  rc |= script("check_voice.py", drafts)
+    print("\n  EXTRACTABLE"); rc |= script("check_extractable.py",
+                                          drafts + ["--briefs", p("briefs")])
+    print("\n  CLAIMS"); rc |= script("check_claims.py", drafts + ["--briefs", p("briefs"),
+                                                                  "--business", p("context/business.json")])
+    if len(drafts) > 1:
+        print("\n  BATCH"); rc |= script("check_batch.py", drafts + ["--briefs", p("briefs")])
+    else:
+        print("\n  BATCH  skipped, a batch check needs 2+ drafts")
+    for d in drafts:
+        s = os.path.basename(os.path.dirname(d))
+        print(f"\n  BRIEF COMPLIANCE: {s}")
+        rc |= run("stages.write", ["check", s, "--briefs", p("briefs"), "--drafts", p("drafts")])
+    return 1 if rc else 0
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return 0
+    cmd, rest = argv[0], argv[1:]
+    if cmd == "status":
+        return cmd_status()
+    if cmd == "next":
+        return cmd_next()
+    if cmd == "doctor":
+        return cmd_doctor()
+    if cmd == "check":
+        return cmd_check(rest)
+    if cmd in DIRECT:
+        module, extra = DIRECT[cmd]
+        # `seo media <slug>` defaults to render, but `seo media prompts <slug>`
+        # must pass its own subcommand through rather than gaining a second one.
+        if extra and rest and rest[0] in ("render", "prompts", "collect"):
+            extra = []
+        return run(module, extra + rest)
+    print(f"unknown command: {cmd}\n")
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

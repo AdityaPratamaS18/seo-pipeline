@@ -1,0 +1,271 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "generated_at": "2026-09-08T11:40:00Z",
+    "cluster_id": "c001",
+    "batch": "2026-Q4-01",
+    "sources": {
+      "clusters_generated_at": "2026-09-08T10:02:00Z",
+      "teardown_run_at": "2026-09-08T11:36:00Z",
+      "business_confirmed_at": "2026-09-08T09:40:00Z"
+    },
+    "approved_at": "2026-09-08T12:05:00Z",
+    "approved_by": "Aditya Pratap Singh",
+    "decision": "approved",
+    "decision_note": "Angle is right. Keep the clinical tone light, this is not a medical page."
+  },
+  "page": {
+    "slug": "how-to-stop-procrastinating-adhd",
+    "url": "/how-to-stop-procrastinating-adhd",
+    "page_type": "how_to_guide",
+    "h1": "How to stop procrastinating with ADHD when starting is the hard part",
+    "meta_title_max": 60,
+    "meta_description_range": [
+      150,
+      160
+    ]
+  },
+  "keywords": {
+    "primary": {
+      "keyword": "how to stop procrastinating adhd",
+      "volume": 2400,
+      "difficulty": 28,
+      "min_uses": 4
+    },
+    "secondaries": [
+      {
+        "keyword": "adhd procrastination",
+        "volume": 1900,
+        "required": true
+      },
+      {
+        "keyword": "adhd task paralysis",
+        "volume": 880,
+        "required": true
+      },
+      {
+        "keyword": "why do i procrastinate adhd",
+        "volume": 320,
+        "required": true
+      },
+      {
+        "keyword": "adhd procrastination cycle",
+        "volume": 210,
+        "required": false
+      }
+    ],
+    "avoid": [
+      "brain dump app",
+      "adhd planner",
+      "time blindness"
+    ]
+  },
+  "angle": {
+    "why_this_page_exists": "Every page ranking for this explains the neuroscience of why ADHD procrastination happens and then stops, leaving the reader informed and still stuck. This one gives the mechanism in two paragraphs and spends the rest on what to do in the next ten minutes.",
+    "gaps_to_exploit": [
+      "None of the top four give a concrete first action for the next ten minutes",
+      "None address the capture problem, that the task is often not written down anywhere",
+      "The two highest ranking pages carry no images at all, so the pages are a wall of text",
+      "No page in the top ten runs an FAQ, despite four People Also Ask boxes on the SERP"
+    ],
+    "differentiation": "Clinical publishers cannot recommend a specific workflow without hedging. We can be concrete, and we concede where medication or therapy is the real answer."
+  },
+  "the_bar": {
+    "median_words": 1812,
+    "word_target": 2100,
+    "image_target": 4,
+    "needs_table": false,
+    "table_compares": null,
+    "needs_video": false,
+    "video_gap_accepted": false,
+    "faq": {
+      "required": true,
+      "min": 4,
+      "max": 6,
+      "schema": true
+    },
+    "competitors": [
+      {
+        "url": "https://www.additudemag.com/how-to-stop-procrastinating-adhd/",
+        "rank": 1,
+        "words": 1812,
+        "images": 2,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "Strong on the why, ten H2 sections, but every suggestion is a general principle rather than a step."
+      },
+      {
+        "url": "https://www.healthline.com/health/adhd/adhd-procrastination",
+        "rank": 2,
+        "words": 993,
+        "images": 16,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "Thin at under 1,000 words, and its images are icons and stock rather than anything explanatory."
+      },
+      {
+        "url": "https://www.verywellmind.com/adhd-and-procrastination-4165058",
+        "rank": 3,
+        "words": 1640,
+        "images": 3,
+        "tables": 0,
+        "videos": 0,
+        "has_faq": false,
+        "notable": "Best structured of the three. Bot-blocked, so read via WebFetch."
+      }
+    ]
+  },
+  "structure": {
+    "opening": "Open on the specific moment: the task is known, the deadline is real, and the person still cannot start. Name it in two sentences, then answer. No definition of ADHD first.",
+    "sections": [
+      {
+        "heading": "Why ADHD procrastination is not laziness",
+        "level": 2,
+        "purpose": "Answer the query fast and establish trust without a lecture.",
+        "must_cover": [
+          "executive function, in plain words",
+          "the gap between knowing and starting"
+        ],
+        "target_words": 300
+      },
+      {
+        "heading": "What ADHD task paralysis actually feels like",
+        "level": 2,
+        "purpose": "Recognition. The reader should feel described, not diagnosed.",
+        "must_cover": [
+          "freezing at the start",
+          "the task feeling larger than it is"
+        ],
+        "target_words": 250
+      },
+      {
+        "heading": "Break the ADHD procrastination cycle in the next ten minutes",
+        "level": 2,
+        "purpose": "The concrete payload the ranking pages all skip.",
+        "must_cover": [
+          "get it out of your head first",
+          "shrink to a two minute first move",
+          "remove the decision, not the task"
+        ],
+        "target_words": 650
+      },
+      {
+        "heading": "Why writing it down is the step people skip",
+        "level": 2,
+        "purpose": "The capture gap, and the natural place Doot fits without a pitch.",
+        "must_cover": [
+          "the thought is lost before it is captured"
+        ],
+        "target_words": 350
+      },
+      {
+        "heading": "When the problem is not procrastination",
+        "level": 2,
+        "purpose": "Concede honestly. This is where clinical publishers cannot follow and where trust is won.",
+        "must_cover": [
+          "burnout",
+          "when to talk to a professional"
+        ],
+        "target_words": 250
+      },
+      {
+        "heading": "Frequently asked questions",
+        "level": 2,
+        "purpose": "Capture the four People Also Ask variants, marked up as FAQPage.",
+        "must_cover": [
+          "why do i procrastinate adhd"
+        ],
+        "target_words": 300
+      }
+    ],
+    "cta": {
+      "placement": "end_and_contextual",
+      "url": "https://app.dootit.com/signup",
+      "label": "Try the web app free"
+    }
+  },
+  "evidence": {
+    "product_facts": [
+      {
+        "claim": "Takes one messy paragraph, typed or spoken, and returns separate tasks.",
+        "source": "product.features[0]"
+      },
+      {
+        "claim": "Reads plain English dates such as next Tuesday.",
+        "source": "product.features[1]"
+      },
+      {
+        "claim": "No streaks, scores or overdue shaming.",
+        "source": "product.features[3]"
+      },
+      {
+        "claim": "$8.99 a month, or $19.99 once for lifetime access. There is no free trial, but the web app is free to try.",
+        "source": "pricing.tiers"
+      }
+    ],
+    "competitor_facts": [],
+    "stats": []
+  },
+  "links": {
+    "internal": [
+      {
+        "target_slug": "adhd",
+        "anchor_intent": "the wider ADHD overview",
+        "target_status": "live"
+      },
+      {
+        "target_slug": "brain-dump",
+        "anchor_intent": "the capture workflow itself",
+        "target_status": "live"
+      },
+      {
+        "target_slug": "adhd-task-paralysis",
+        "anchor_intent": "the deeper dive on freezing",
+        "target_status": "pending"
+      }
+    ],
+    "inbound_from": [
+      "adhd",
+      "brain-dump"
+    ]
+  },
+  "media": {
+    "hero": {
+      "concept": "A single overwhelming task shown breaking into three small ones",
+      "alt": "Breaking one overwhelming task into smaller steps to stop procrastinating with ADHD",
+      "bg": "#a7d8ec",
+      "text": null
+    },
+    "inline": [
+      {
+        "type": "steps",
+        "placement_section": "Break the ADHD procrastination cycle in the next ten minutes",
+        "alt": "Three steps to break the ADHD procrastination cycle",
+        "bg": "#f7d774"
+      },
+      {
+        "type": "cards",
+        "placement_section": "What ADHD task paralysis actually feels like",
+        "alt": "Three common signs of ADHD task paralysis",
+        "bg": "#f9cdd0"
+      },
+      {
+        "type": "diagram",
+        "placement_section": "Why writing it down is the step people skip",
+        "alt": "Where a task gets lost between thinking it and doing it",
+        "bg": "#84eaa4"
+      }
+    ]
+  },
+  "voice": {
+    "guide": "context/voice.md",
+    "exemplars": [
+      "pages/brain-dump/content.md",
+      "pages/adhd/content.md"
+    ],
+    "person": null,
+    "pov": "first_person_plural"
+  }
+}

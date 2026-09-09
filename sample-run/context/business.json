@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "generated_at": "2026-09-08T09:12:00Z",
+    "generated_by": "seo context v0.1",
+    "sources": [
+      "doot-site/README.md",
+      "doot-site/package.json",
+      "doot-site/src/app/page.tsx",
+      "doot-site/src/app/adhd/page.tsx",
+      "https://dootit.com/"
+    ],
+    "confirmed_at": "2026-09-08T09:40:00Z",
+    "confirmed_by": "Aditya Pratap Singh"
+  },
+  "identity": {
+    "name": "Doot",
+    "domain": "dootit.com",
+    "one_liner": "AI task manager for ADHD and messy minds: brain dump in plain English, get back tasks with dates, priorities and lists.",
+    "category": "task manager",
+    "business_model": "prosumer_saas",
+    "locales": [
+      "en"
+    ],
+    "currency": "USD"
+  },
+  "product": {
+    "core_jobs": [
+      "get everything out of my head before I lose it",
+      "turn a messy paragraph into tasks I can actually start",
+      "decide what to do next without re-reading a long list",
+      "stop forgetting things I already wrote down"
+    ],
+    "features": [
+      {
+        "name": "AI brain dump",
+        "does": "Takes one messy paragraph, typed or spoken, and returns separate tasks.",
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/",
+          "retrieved_at": "2026-09-08T09:12:00Z"
+        }
+      },
+      {
+        "name": "Plain English dates",
+        "does": "Reads 'next Tuesday' or 'end of the month' and sets a real due date.",
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/",
+          "retrieved_at": "2026-09-08T09:12:00Z"
+        }
+      },
+      {
+        "name": "Automatic priority grouping",
+        "does": "Groups tasks by priority without the user configuring anything.",
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/",
+          "retrieved_at": "2026-09-08T09:12:00Z"
+        }
+      },
+      {
+        "name": "No streaks or guilt mechanics",
+        "does": "Deliberately omits streaks, scores and overdue shaming.",
+        "source": {
+          "type": "human",
+          "ref": "stated by owner"
+        }
+      }
+    ],
+    "platforms": [
+      "web",
+      "ios"
+    ],
+    "integrations": []
+  },
+  "pricing": {
+    "model": "freemium",
+    "free_trial_days": null,
+    "tiers": [
+      {
+        "name": "Monthly",
+        "price": 8.99,
+        "currency": "USD",
+        "period": "month",
+        "includes": [
+          "everything"
+        ],
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/ FAQ: How much does doot cost?",
+          "retrieved_at": "2026-09-08T14:20:00Z"
+        }
+      },
+      {
+        "name": "Lifetime",
+        "price": 19.99,
+        "currency": "USD",
+        "period": "one_time",
+        "includes": [
+          "everything",
+          "one payment, no renewal"
+        ],
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/ FAQ: How much does doot cost?",
+          "retrieved_at": "2026-09-08T14:20:00Z"
+        }
+      }
+    ]
+  },
+  "audience": {
+    "segments": [
+      {
+        "name": "Adults with ADHD",
+        "description": "Diagnosed or self-identified, already tried several task apps and abandoned them.",
+        "pains": [
+          "loses a thought before it reaches a list",
+          "opens a task app and closes it without acting",
+          "abandons systems that need daily upkeep",
+          "feels judged by overdue counts and broken streaks"
+        ],
+        "triggers": [
+          "missed a deadline they knew about",
+          "read about time blindness or executive dysfunction",
+          "gave up on a planner app for the third time"
+        ]
+      },
+      {
+        "name": "Messy-minded professionals",
+        "description": "No diagnosis, but think in paragraphs rather than lists.",
+        "pains": [
+          "notes app full of unsorted text",
+          "task list that no longer reflects reality"
+        ],
+        "triggers": [
+          "a chaotic week",
+          "starting a new job"
+        ]
+      }
+    ],
+    "icp": "Adults with ADHD",
+    "not_for": [
+      "teams needing shared project management",
+      "people who want a habit tracker",
+      "anyone looking for a medical assessment or diagnosis"
+    ]
+  },
+  "positioning": {
+    "differentiators": [
+      {
+        "claim": "Accepts one messy paragraph and returns many tasks, rather than one task per line.",
+        "source": {
+          "type": "site",
+          "ref": "https://dootit.com/",
+          "retrieved_at": "2026-09-08T09:12:00Z"
+        }
+      },
+      {
+        "claim": "No setup tax: no projects, labels or configuration before it is useful.",
+        "source": {
+          "type": "human",
+          "ref": "stated by owner"
+        }
+      },
+      {
+        "claim": "No streaks, scores or overdue shaming.",
+        "source": {
+          "type": "human",
+          "ref": "stated by owner"
+        }
+      }
+    ],
+    "against": [
+      {
+        "competitor": "Tiimo",
+        "domain": "tiimoapp.com",
+        "we_win_on": [
+          "free-form capture",
+          "desktop and web use"
+        ],
+        "they_win_on": [
+          "visual daily schedules",
+          "routines",
+          "mobile polish"
+        ],
+        "their_pricing": "around $10 per month",
+        "source": {
+          "type": "human",
+          "ref": "stated by owner, verified against tiimoapp.com"
+        }
+      },
+      {
+        "competitor": "Todoist",
+        "domain": "todoist.com",
+        "we_win_on": [
+          "messy paragraph input",
+          "no upkeep required"
+        ],
+        "they_win_on": [
+          "maturity",
+          "cross-platform coverage",
+          "integrations"
+        ],
+        "their_pricing": "from around $4 per month",
+        "source": {
+          "type": "human",
+          "ref": "stated by owner, verified against todoist.com"
+        }
+      }
+    ]
+  },
+  "proof": {
+    "metrics": [],
+    "customers": []
+  },
+  "constraints": {
+    "no_dashes": true,
+    "banned_phrases": [
+      "revolutionary",
+      "game-changing",
+      "unlock",
+      "supercharge",
+      "delve",
+      "in today's digital landscape",
+      "it's important to note"
+    ],
+    "do_not_claim": [
+      "any medical or therapeutic benefit",
+      "that Doot treats, diagnoses or assesses ADHD",
+      "outcomes such as guaranteed productivity gains"
+    ]
+  },
+  "tech": {
+    "stack": "next_app_router",
+    "repo_path": "~/Documents/Claude-code/doot/doot-site",
+    "content_format": "tsx",
+    "url_prefix": "/",
+    "public_dir": "public",
+    "routes_dir": "src/app"
+  },
+  "brand": {
+    "colors": {
+      "ink": "#075349",
+      "paper": "#faf6ee",
+      "accent": "#84eaa4",
+      "surfaces": [
+        "#a7d8ec",
+        "#f7d774",
+        "#f9cdd0",
+        "#84eaa4",
+        "#f2ede2"
+      ]
+    }
+  }
+}
