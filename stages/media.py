@@ -97,7 +97,9 @@ def extract_items(body, limit=4):
     for it in items[:limit]:
         it = re.sub(r"\*\*(.+?)\*\*", r"\1", it).strip()
         head, _, tail = it.partition(". ")
-        out.append((head[:44], tail[:110]) if tail and len(head) < 46 else (it[:44], ""))
+        # No hard slicing here. Both halves are wrapped to the card width later,
+        # and slicing first is what produced headings ending "want to be walked th".
+        out.append((head, tail) if tail and len(head) < 90 else (it, ""))
     return out
 
 
@@ -130,8 +132,12 @@ def render(spec, out_path, colors, title, items, table):
                 d.rounded_rectangle([70 * S, (y - 12) * S, (W - 70) * S, (y + 42) * S],
                                     radius=8 * S, fill=paper)
             for c, cell in enumerate(row[:cols]):
-                d.text(((86 + c * cw) * S, y * S), cell[:22],
-                       font=f_h if r == 0 else f_b, fill=ink)
+                # Wrap to the column. This used to be cell[:22], which cut every
+                # cell mid-word and, worse, cut prices: "USD 8.99 a month, or U".
+                # A truncated price is not a shorter fact, it is a wrong one.
+                cf = f_h if r == 0 else f_b
+                for li, line in enumerate(wrap(d, cell, cf, cw - 32)[:2]):
+                    d.text(((86 + c * cw) * S, (y + li * 21) * S), line, font=cf, fill=ink)
             if r:
                 d.line([70 * S, (y + 46) * S, (W - 70) * S, (y + 46) * S],
                        fill=paper, width=2 * S)
@@ -144,7 +150,7 @@ def render(spec, out_path, colors, title, items, table):
         need = 0
         for head, body in items:
             h = 26 + (44 if t == "steps" else 0)
-            h += 28 * len(wrap(d, head, f_h, cw - 48)[:3]) + 6
+            h += 28 * len(wrap(d, head, f_h, cw - 48)[:4]) + 6
             h += 22 * len(wrap(d, body, f_b, cw - 48)[:5]) + 26
             need = max(need, h)
         card_h = min(need, H - top - 60)
@@ -157,7 +163,7 @@ def render(spec, out_path, colors, title, items, table):
             if t == "steps":
                 d.text(((x + 24) * S, y * S), str(i + 1), font=f_n, fill=hexrgb(colors["accent"]))
                 y += 44
-            for line in wrap(d, head, f_h, cw - 48)[:3]:
+            for line in wrap(d, head, f_h, cw - 48)[:4]:
                 d.text(((x + 24) * S, y * S), line, font=f_h, fill=ink)
                 y += 28
             y += 6

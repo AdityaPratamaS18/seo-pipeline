@@ -312,8 +312,11 @@ def sections_from(template, bar, cluster, business):
     comp = next((a["competitor"] for a in business.get("positioning", {}).get("against", [])), "the alternative")
     out = []
     for s in template["sections"]:
-        heading = (s["heading"].replace("{primary}", prim)
-                   .replace("{topic}", topic(prim))
+        # The substituted keyword arrives lowercased from the provider, so a
+        # template heading came out "The best adhd apps for adults" and carried
+        # that casing into the draft and into the rendered images.
+        heading = (s["heading"].replace("{primary}", headline_case(prim, business))
+                   .replace("{topic}", headline_case(topic(prim), business))
                    .replace("{product}", business["identity"]["name"])
                    .replace("{competitor}", comp))
         out.append({
@@ -326,9 +329,12 @@ def sections_from(template, bar, cluster, business):
     return out
 
 
-def media_from(template, bar, cluster):
+def media_from(template, bar, cluster, business):
     palette = ["#a7d8ec", "#f7d774", "#f9cdd0", "#84eaa4", "#f2ede2"]
-    prim = cluster["primary"]["keyword"]
+    # Cased the same way as the section headings. This function substitutes the
+    # keyword itself, so without this the image titles and alt text kept the
+    # provider's lowercase "adhd" after the headings had been fixed.
+    prim = headline_case(cluster["primary"]["keyword"], business)
     inline = []
     for i, s in enumerate(template["sections"]):
         if s.get("wants_image") and len(inline) < max(2, bar["image_target"] - 1):
@@ -411,7 +417,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "extractable": extractable_for(cluster, business, bar, promptset),
         "evidence": evidence_for(business, cluster["page_type"]),
         "links": links,
-        "media": media_from(template, bar, cluster),
+        "media": media_from(template, bar, cluster, business),
         "voice": voice_from(business),
     }
 
