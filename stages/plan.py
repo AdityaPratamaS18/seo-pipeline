@@ -373,7 +373,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             "slug": slug,
             "url": "/" + slug,
             "page_type": cluster["page_type"],
-            "h1": prim[0].upper() + prim[1:],
+            "h1": headline_case(prim, business),
             "meta_title_max": 60,
             "meta_description_range": [150, 160],
         },
@@ -414,6 +414,50 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "media": media_from(template, bar, cluster),
         "voice": voice_from(business),
     }
+
+
+def headline_case(keyword, business):
+    """Sentence-case a keyword, capitalising the way the site already does.
+
+    `prim[0].upper() + prim[1:]` produced "Planner for adhd", which no editor
+    would ship and which a writer then has to notice. Provider keywords arrive
+    lowercased, so the casing has to come from somewhere: business.json is the
+    site's own prose, so any token it writes with capitals (ADHD, AI) is written
+    that way here too, and a brand it writes lowercase (doot) stays lowercase.
+    Nothing is hardcoded, so this works the same for a site in another category.
+
+    This is still a working headline. The brief settles the keyword; the writer
+    writes the title."""
+    forms = {}
+
+    def learn(node):
+        if isinstance(node, str):
+            words = re.findall(r"[A-Za-z][A-Za-z0-9]*", node)
+            for i, word in enumerate(words):
+                if word == word.lower():
+                    continue
+                # An acronym is an acronym anywhere. A merely capitalised word is
+                # only evidence when it is not sitting at the front of a phrase,
+                # where every word is capitalised regardless: the audience label
+                # "Adults with ADHD" was teaching this that "Adults" is a proper
+                # noun, and briefs came out titled "ADHD apps for Adults".
+                strong = word.isupper() and len(word) > 1
+                strong = strong or i > 0
+                strong = strong or len(words) == 1
+                if strong:
+                    forms.setdefault(word.lower(), word)
+        elif isinstance(node, dict):
+            for v in node.values():
+                learn(v)
+        elif isinstance(node, list):
+            for v in node:
+                learn(v)
+
+    learn(business)
+    words = [forms.get(w.lower(), w) for w in keyword.split()]
+    if words and words[0] == words[0].lower():
+        words[0] = words[0][0].upper() + words[0][1:]
+    return " ".join(words)
 
 
 def weakness_angle(bar):
