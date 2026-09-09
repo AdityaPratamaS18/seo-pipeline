@@ -28,8 +28,15 @@ from datetime import datetime, timezone
 CSS = """
 :root{--paper:#eef1f0;--card:#fbfcfc;--ink:#141a19;--muted:#5b6866;--rule:#ccd5d3;
 --rule-soft:#dde4e2;--ok:#1c7d74;--warn:#ad6416;--kill:#a83c2e;}
-@media (prefers-color-scheme:dark){:root{--paper:#0e1413;--card:#151d1b;--ink:#e4ebe8;
+/* Three theme states, not two: an explicit choice stamps data-theme on the root,
+   and the default "system" setting stamps nothing, so prefers-color-scheme alone
+   decides. Guarding the media query lets an explicit light choice beat a dark OS,
+   and repeating the tokens under [data-theme=dark] lets the toggle win the other
+   way. Without the second block this page ignores a host that stamps a theme. */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0e1413;--card:#151d1b;--ink:#e4ebe8;
 --muted:#93a19e;--rule:#2a3634;--rule-soft:#212b29;--ok:#4ec7b8;--warn:#e2a45f;--kill:#f08a78;}}
+:root[data-theme="dark"]{--paper:#0e1413;--card:#151d1b;--ink:#e4ebe8;
+--muted:#93a19e;--rule:#2a3634;--rule-soft:#212b29;--ok:#4ec7b8;--warn:#e2a45f;--kill:#f08a78;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
 .wrap{max-width:960px;margin:0 auto;padding:40px 24px 120px}
@@ -164,11 +171,18 @@ def build(briefs_dir, out_path):
         sys.exit(f"no briefs in {briefs_dir}/. Nothing to review.")
     briefs = [json.load(open(p)) for p in paths]
     batch = briefs[0]["meta"].get("batch") or "batch"
+    # Name the site in the title. This page gets opened in a tab, saved, and
+    # published alongside review pages for other sites, and "Review 2026-09-09"
+    # identifies none of them. Falls back silently when run without a business.
+    try:
+        site = json.load(open("context/business.json"))["identity"]["name"]
+    except Exception:                                               # noqa: BLE001
+        site = ""
     cards = "".join(card(b) for b in briefs)
     doc = f"""<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Review {esc(batch)}</title><style>{CSS}</style></head><body><div class="wrap">
-<h1>Review batch {esc(batch)}</h1>
+<title>{esc(site + " " if site else "")}review {esc(batch)}</title><style>{CSS}</style></head><body><div class="wrap">
+<h1>{esc(site + " " if site else "")}review batch {esc(batch)}</h1>
 <p class="sub">{len(briefs)} briefs. Kill anything whose reason to exist does not convince you.
 Nothing has been written yet, so this is the cheapest place to say no.</p>
 {cards}

@@ -207,7 +207,12 @@ def build_bar(ok, template):
         # images where two are explanatory, and targeting 8 would have a writer
         # commissioning filler.
         "image_target": max(3, sorted(meaningful_images(p) for p in ok)[len(ok) // 2]),
-        "needs_table": bool(template.get("needs_table")) or using_tables >= max(2, len(ok) // 2),
+        # A template whose own sections ask for a comparison table needs one, whatever
+        # the competitors do. Without this the brief contradicted itself: `needs_table`
+        # false, a "How they compare" section, and a table image in `media`.
+        "needs_table": bool(template.get("needs_table"))
+                       or any(sec.get("wants_image") == "table" for sec in template.get("sections", []))
+                       or using_tables >= max(2, len(ok) // 2),
         "table_compares": None,
         "needs_video": sum(1 for p in ok if p["video_count"]) >= max(2, len(ok) // 2),
         "video_gap_accepted": False,
@@ -392,7 +397,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             + (f"Targets {prim}: {cluster['opportunity']['total_volume']:,} combined volume "
                f"at difficulty {cluster['opportunity']['max_difficulty']}."),
             "gaps_to_exploit": gaps,
-            "differentiation": cluster["opportunity"]["why"],
+            **({"differentiation": diff} if (diff := weakness_angle(bar)) else {}),
         },
         "the_bar": bar,
         "structure": {
@@ -407,9 +412,38 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "evidence": evidence_for(business, cluster["page_type"]),
         "links": links,
         "media": media_from(template, bar, cluster),
-        "voice": {"guide": "context/voice.md", "exemplars": ["context/voice.md"],
-                  "person": None, "pov": "first_person_plural"},
+        "voice": voice_from(business),
     }
+
+
+def weakness_angle(bar):
+    """What the ranking pages actually get wrong, read off the teardown.
+
+    This field used to be `cluster["opportunity"]["why"]`, the same string
+    `why_this_page_exists` already opens with, so the brief said one thing twice
+    and a human read a statistic where an angle should be. A fault a competitor
+    demonstrably has is the only differentiation worth writing at plan time.
+    Returns None rather than filler when the teardown found nothing."""
+    faults = [c["notable"] for c in bar["competitors"]
+              if c.get("notable")
+              and re.search(r"no alt text|no FAQPage|Thin at|with no ", c["notable"])]
+    if not faults:
+        return None
+    return "Beat these specifically. " + " ".join(faults[:3])
+
+
+def voice_from(business):
+    """The voice block, taken from business.json rather than assumed.
+
+    `pov` was hardcoded to first_person_plural, which is wrong for any site that
+    addresses the reader as "you" and names the product, and a writer follows the
+    brief over the guide. `exemplars` pointed at the guide itself, which is not an
+    example of anything. Both now come from the site, and the guide stays the
+    fallback so a site that has not filled this in still validates."""
+    v = business.get("voice") or {}
+    exemplars = [e for e in v.get("exemplars", []) if e] or ["context/voice.md"]
+    return {"guide": "context/voice.md", "exemplars": exemplars,
+            "person": v.get("person"), "pov": v.get("pov", "first_person_plural")}
 
 
 def main():

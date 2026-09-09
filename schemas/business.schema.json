@@ -66,6 +66,10 @@
             "en"
           ]
         },
+        "cta_url": {
+          "type": "string",
+          "description": "Where a CTA points. plan.py reads this; without it every brief falls back to the bare domain, which is rarely where a signup lives."
+        },
         "currency": {
           "type": "string",
           "default": "USD"
@@ -563,6 +567,35 @@
             "type": "string"
           },
           "description": "Map canonical names to this site's frontmatter keys, e.g. {\"description\": \"excerpt\"}."
+        }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Machine-readable voice facts the brief hands a writer. The prose guide stays context/voice.md; these are the two things a writer follows over the guide because they arrive in the brief itself.",
+      "properties": {
+        "pov": {
+          "enum": [
+            "first_person_singular",
+            "first_person_plural",
+            "second_person",
+            "neutral"
+          ],
+          "description": "Was hardcoded to first_person_plural in plan.py, which is wrong for any site that addresses the reader as 'you'."
+        },
+        "person": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exemplars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Published pages that sound right. Pointing this at the guide, as the old default did, gives a writer no example at all."
         }
       }
     }
