@@ -29,8 +29,9 @@ next command. Trust it over your memory of the conversation.
 
 | Stage | Command | Cadence |
 |---|---|---|
+| 0 init | `seo init --domain d` | once per site |
 | 0 context | `seo context --domain d` | once per site |
-| GATE 1 | human confirms `context/business.json` | once |
+| GATE 1 | human answers every TODO, then confirms `context/business.json` | once |
 | 1 serps | `seo serp "<kw>" ...` then `seo competitors serps/*.json` | quarterly |
 | 1 keywords | `seo pull <domains>` then `seo keywords keywords/dataset.csv` | quarterly |
 | GATE 2 | human approves `keywords/clusters.json` | quarterly |

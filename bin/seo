@@ -11,6 +11,7 @@ yours.
     seo status              where this site is in the pipeline
     seo next                the one command to run now
 
+    seo init --domain d               scaffold this folder, draft business.json
     seo context --domain d [--repo p]  stage 0  read the site, and a repo if you have one
     seo serp "<kw>" "<kw>" ...        stage 1  fetch real SERPs for your seed queries
     seo competitors serps/*.json      stage 1  who is really ranking, from those SERPs
@@ -48,6 +49,7 @@ DIRECT = {
     "audit": ("stages.audit", []),
     "prompts": ("stages.prompts", []),
     "visibility": ("stages.visibility", []),
+    "init": ("stages.init", []),
     "serp": ("providers.dataforseo_serp", []),
     "pull": ("providers.dataforseo_labs", ["ranked"]),
 }

@@ -96,8 +96,8 @@
                   "required": ["rank", "url", "page_type"],
                   "additionalProperties": false,
                   "properties": {
-                    "rank": { "type": "integer", "minimum": 1, "maximum": 100,
-                      "description": "Was capped at 20 on the assumption this only ever holds top-20 SERP data. Real ranked-keyword exports carry positions into the 80s, and a competitor sitting at 50 is still evidence about the query. Raised to 100 after live data failed validation." },
+                    "rank": { "type": "integer", "minimum": 1,
+                      "description": "No upper bound, deliberately. This was capped at 20 on the assumption it only ever holds top-20 SERP data, raised to 100 when live data failed validation, and then failed again on a DataForSEO row at 111. Ranked-keyword exports report absolute positions across several pages of results, so any ceiling here is a guess that eventually rejects real evidence. A competitor sitting at 111 is weak evidence, which is a scoring question, not a validity one." },
                     "url": { "type": "string" },
                     "domain": { "type": "string" },
                     "page_type": { "$ref": "#/$defs/page_type" },
@@ -111,11 +111,12 @@
               },
               "serp_features": {
                 "type": "array",
-                "description": "Non-organic blocks on the SERP. This list was written from memory and then extended from live Ubersuggest responses, which returned product_considerations, popular_products and discussions_and_forums. Extend it the same way, from an observed response, rather than guessing.",
+                "description": "Non-organic blocks on the SERP. This list was written from memory and then extended from live Ubersuggest responses, which returned product_considerations, popular_products and discussions_and_forums, and again from a live DataForSEO response on 2026-09-09, which returned related_searches. Extend it the same way, from an observed response, rather than guessing.",
                 "items": { "enum": ["featured_snippet", "people_also_ask", "video", "images",
                                     "shopping", "local_pack", "ai_overview", "popular_products",
                                     "product_considerations", "discussions_and_forums",
-                                    "knowledge_panel", "top_stories", "recipes", "jobs"] }
+                                    "knowledge_panel", "top_stories", "recipes", "jobs",
+                                    "related_searches"] }
               }
             }
           },

@@ -70,9 +70,36 @@ def walk_strings(node, path="$"):
             yield from walk_strings(v, f"{path}[{i}]")
 
 
+TODO = re.compile(r"^\s*TODO\b", re.I)
+
+
+def sentinels(doc):
+    """Every field still holding a TODO placeholder.
+
+    `seo init` writes a skeleton: the fields the extraction could evidence are
+    filled, and the ones only a person can answer carry a TODO. That saves a
+    human from authoring two hundred lines of JSON from nothing, and it is only
+    safe because a file still carrying a TODO cannot pass. Otherwise the
+    skeleton becomes the answer, which is worse than the blank page it replaced.
+    """
+    return [(p, v) for p, v in walk_strings(doc) if TODO.match(v)]
+
+
 def semantic(kind, doc):
     """Checks JSON Schema cannot express. Returns (errors, warnings)."""
     errs, warns = [], []
+
+    left = sentinels(doc)
+    if left:
+        confirmed = (doc.get("meta") or {}).get("confirmed_at")
+        where = "; ".join(p for p, _ in left[:6])
+        more = f" and {len(left) - 6} more" if len(left) > 6 else ""
+        if confirmed:
+            errs.append(f"confirmed, but {len(left)} field(s) are still TODO: {where}{more}. "
+                        "Confirming a skeleton is how a guess becomes the record.")
+        else:
+            warns.append(f"{len(left)} field(s) still TODO: {where}{more}. "
+                         "Answer them before setting meta.confirmed_at.")
 
     # The no-dashes rule is a hard editorial constraint on these sites, and an
     # em-dash in a brief propagates into every draft written from it.
@@ -91,6 +118,10 @@ def semantic(kind, doc):
         inferred = [f["name"] for f in feats if f["source"]["type"] == "inferred"]
         if inferred:
             warns.append(f"features with inferred sources cannot be cited as fact: {', '.join(inferred)}")
+        tech = doc.get("tech", {})
+        if tech.get("stack") == "other" and not tech.get("repo_path"):
+            warns.append("tech.stack is 'other', which is the fallback for not detected "
+                         "rather than a detection. `seo publish` needs the real one.")
         for a in doc.get("positioning", {}).get("against", []):
             if not a.get("they_win_on"):
                 errs.append(f"competitor '{a['competitor']}' has no they_win_on. "
