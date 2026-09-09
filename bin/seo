@@ -229,6 +229,8 @@ def cmd_check(args):
     rc = 0
     print(f"  checking {len(drafts)} draft(s)\n")
     print("  VOICE");  rc |= script("check_voice.py", drafts)
+    print("\n  DENSITY"); rc |= script("check_density.py",
+                                     drafts + ["--briefs", p("briefs")])
     print("\n  EXTRACTABLE"); rc |= script("check_extractable.py",
                                           drafts + ["--briefs", p("briefs")])
     print("\n  CLAIMS"); rc |= script("check_claims.py", drafts + ["--briefs", p("briefs"),

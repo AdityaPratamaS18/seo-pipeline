@@ -50,6 +50,19 @@ check compares against the median rather than a floor.
 If two or more ranking pages run a comparison table, yours needs one. If they average ten
 images, three will not hold a reader.
 
+## Shape, not just length
+
+`the_bar.rhythm` carries how many list items the ranking pages use, the paragraph length
+they average, and the longest they run to. Hitting the word target with sixty paragraphs of
+identical length and no lists produces a page that is exactly the right size and unreadable.
+
+Vary the paragraphs. A two line paragraph after a long one is what makes the long one
+readable. Where the content is a set of things, make it a set of things rather than prose
+about a set of things: that is also what the media stage draws its images from, so a page
+with no lists gets no images either.
+
+`check_density.py` compares the draft against that bar.
+
 ## Every passage has to survive being lifted
 
 An answer engine does not quote a page. It quotes a **passage**, and it shows that passage to

@@ -195,6 +195,11 @@ def extractable_for(cluster, business, bar, promptset):
     }
 
 
+def med(values):
+    v = sorted(x for x in values if x)
+    return v[len(v) // 2] if v else 0
+
+
 def build_bar(ok, template):
     words = sorted(p["word_count"] for p in ok)
     median = words[len(words) // 2]
@@ -214,6 +219,15 @@ def build_bar(ok, template):
                        or any(sec.get("wants_image") == "table" for sec in template.get("sections", []))
                        or using_tables >= max(2, len(ok) // 2),
         "table_compares": None,
+        # The shape the ranking pages take, not just their length. A draft can hit
+        # the word median exactly and still be a slab: sixty paragraphs of the same
+        # fifty words with nothing between them. Measured, so it is a bar rather
+        # than a style opinion.
+        "rhythm": {
+            "list_items": med(p.get("list_item_count", 0) for p in ok),
+            "paragraph_words": max(30, med(p.get("para_words_median", 0) for p in ok)),
+            "paragraph_max": max(70, med(p.get("para_words_max", 0) for p in ok)),
+        },
         "needs_video": sum(1 for p in ok if p["video_count"]) >= max(2, len(ok) // 2),
         "video_gap_accepted": False,
         "faq": {"required": bool(template.get("needs_faq")), "min": 4, "max": 6, "schema": True},

@@ -353,6 +353,28 @@
               }
             }
           }
+        },
+        "rhythm": {
+          "type": "object",
+          "description": "How the ranking pages are SHAPED, measured from them. Hitting the word median with sixty paragraphs of identical length and no lists produces a page that is the right size and unreadable.",
+          "additionalProperties": false,
+          "properties": {
+            "list_items": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Median list items across the ranking pages."
+            },
+            "paragraph_words": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Median paragraph length to aim around, not to hit every time. Variety is the point."
+            },
+            "paragraph_max": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Longest paragraph the ranking pages run to."
+            }
+          }
         }
       }
     },

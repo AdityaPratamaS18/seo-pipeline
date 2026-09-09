@@ -69,6 +69,18 @@ def build_prompt(b, voice_text, exemplars):
     images = "\n".join(f"  - [IMAGE: {i['type']} | Alt: {i['alt']}] under \"{i['placement_section']}\""
                        for i in b["media"].get("inline", [])) or "  (none)"
 
+    r = bar.get("rhythm") or {}
+    if r:
+        rhythm = (f"  Shape: about {r['list_items']} list items across the page, paragraphs "
+                  f"averaging {r['paragraph_words']} words and none past "
+                  f"{r['paragraph_max']}.\n"
+                  "         Measured from the pages above. Sixty paragraphs of the same length "
+                  "with no\n         lists hits the word count and is still a wall. Vary them: "
+                  "a two line paragraph\n         after a long one is what makes the long one "
+                  "readable.")
+    else:
+        rhythm = "  Shape: not measured for this page."
+
     ex = b.get("extractable")
     if ex:
         subs = ex.get("subject_terms") or ["the product"]
@@ -130,6 +142,7 @@ Median is {bar['median_words']:,} words. **Target {bar['word_target']:,}**, and 
 median by being more useful, not by padding. A shorter, better page beats a longer, worse one.
 
   Images: {bar['image_target']} (the placements are given below)
+{rhythm}
   Comparison table required: {'yes, comparing ' + (bar['table_compares'] or '') if bar['needs_table'] else 'no'}
   FAQ: {'yes, ' + str(bar['faq']['min']) + ' to ' + str(bar['faq']['max']) + ' questions, written so they can become FAQPage JSON-LD verbatim' if bar['faq']['required'] else 'not required'}
 

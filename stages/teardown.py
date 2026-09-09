@@ -218,6 +218,12 @@ def teardown(url):
     faq_visible = bool(re.search(r"\b(faq|frequently asked|common questions)\b",
                                  text[:20000], re.I))
 
+    paras = []
+    for para in body.find_all("p"):
+        n = len(para.get_text(" ", strip=True).split())
+        if n >= 8:                    # captions, bylines and one-word <p> are not prose
+            paras.append(n)
+
     return {
         "url": final_url,
         "title": (soup.title.get_text(strip=True) if soup.title else ""),
@@ -233,6 +239,14 @@ def teardown(url):
         "videos": videos,
         "video_count": len(videos),
         "list_count": len(body.find_all(("ul", "ol"))),
+        # Density, measured rather than asserted. A page can hit the word median
+        # exactly and still be an unreadable slab: sixty paragraphs of the same
+        # fifty words with nothing to break them. These are what tell a writer
+        # the SHAPE the ranking pages take, not just their length.
+        "list_item_count": len(body.find_all("li")),
+        "para_count": len(paras),
+        "para_words_median": (sorted(paras)[len(paras) // 2] if paras else 0),
+        "para_words_max": (max(paras) if paras else 0),
         "faq_visible": faq_visible,
         "faq_schema": "FAQPage" in schema_types,
         "schema_types": sorted(set(schema_types)),
