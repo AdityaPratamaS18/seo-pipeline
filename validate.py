@@ -172,7 +172,8 @@ def semantic(kind, doc):
             if n_seen < 3 and c["serp_evidence"]["type_confidence"] > 0.5:
                 errs.append(f"{c['id']} reports confidence "
                             f"{c['serp_evidence']['type_confidence']} from {n_seen} result(s).")
-            if c["serp_evidence"]["type_confidence"] < 0.5 and c["status"] not in ("rejected",):
+            if c["serp_evidence"]["type_confidence"] < 0.5 and c["status"] not in ("rejected",) \
+                    and c.get("page_type_source") != "human":
                 warns.append(f"{c['id']} '{c['primary']['keyword']}': mixed SERP "
                              f"(confidence {c['serp_evidence']['type_confidence']}). "
                              "Page type is a guess; have a human look.")

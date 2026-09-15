@@ -76,9 +76,24 @@ def type_from(dump):
     return ptype, share, results
 
 
-def candidates(doc, limit):
-    """The mixed clusters among the next `limit` a plan would take, in plan order."""
-    todo = [c for c in doc["clusters"] if c["status"] in ("idea", "planned")][:limit]
+def pick(doc, wanted):
+    """Clusters named by id or primary keyword, in the order given. Exits on a name
+    that matches nothing, since planning the wrong cluster silently is worse."""
+    out = []
+    for w in wanted:
+        hit = [c for c in doc["clusters"]
+               if c["id"] == w or c["primary"]["keyword"].lower() == w.strip().lower()]
+        if not hit:
+            sys.exit(f"no cluster with id or primary keyword '{w}'")
+        out += hit
+    return out
+
+
+def candidates(doc, limit, wanted=None):
+    """The mixed clusters among the next `limit` a plan would take, in plan order,
+    or among the clusters named with --cluster."""
+    todo = pick(doc, wanted) if wanted else \
+        [c for c in doc["clusters"] if c["status"] in ("idea", "planned")][:limit]
     return [c for c in todo if c["page_type"] == "mixed" and c.get("page_type_source") != "human"]
 
 
@@ -87,6 +102,8 @@ def main():
     ap.add_argument("--clusters", default="keywords/clusters.json")
     ap.add_argument("--serps", default="serps")
     ap.add_argument("--limit", type=int, default=30, help="the batch size you will plan")
+    ap.add_argument("--cluster", action="append",
+                    help="a cluster id or primary keyword, instead of the next --limit (repeatable)")
     ap.add_argument("--needs", default="keywords/serp-needed.txt",
                     help="where to write the keywords still needing a SERP")
     ap.add_argument("--apply", action="store_true", help="write the settled page types")
@@ -95,9 +112,10 @@ def main():
     if not os.path.exists(a.clusters):
         sys.exit(f"no clusters at {a.clusters}. Run: seo keywords <dataset.csv>")
     doc = json.load(open(a.clusters))
-    mixed = candidates(doc, a.limit)
+    mixed = candidates(doc, a.limit, a.cluster)
+    scope = "named" if a.cluster else f"in the next {a.limit}"
     if not mixed:
-        print(f"  no mixed clusters in the next {a.limit}. Nothing to retype.")
+        print(f"  no mixed clusters {scope}. Nothing to retype.")
         return 0
 
     settled, still, needs = [], [], []
@@ -109,7 +127,7 @@ def main():
         ptype, share, results = type_from(dump)
         (settled if ptype != "mixed" else still).append((c, ptype, share, results, path))
 
-    print(f"  {len(mixed)} mixed cluster(s) in the next {a.limit}:")
+    print(f"  {len(mixed)} mixed cluster(s) {scope}:")
     for c, ptype, share, results, path in settled:
         print(f"    {c['primary']['keyword']:<40} -> {ptype} ({share:.0%} of {len(results)} results)")
     for c, ptype, share, results, path in still:

@@ -113,14 +113,27 @@ def serp_urls(cluster, serps_dir="serps"):
     return out
 
 
-def measure(cluster, cache, serps_dir="serps", want=5):
+# A shop page ranks, but a guide is not written to beat a product listing. Measured
+# into the bar for a how-to, one 398 word product page told the writer the
+# competition was thin and aimed the whole angle at it.
+SHOP_PATH = re.compile(r"/(products?|product-page|collections?|shop|store|dp|gp/product|listing|itm)(/|$)", re.I)
+SHOP_TYPES = ("product_page", "pricing_page")
+
+
+def measure(cluster, cache, serps_dir="serps", want=5, page_type=None):
     urls = [r["url"] for r in cluster["serp_evidence"]["top_results"]]
     seen = set()
-    candidates = []
-    for u in urls + serp_urls(cluster, serps_dir):
+    candidates, shops = [], []
+    # A saved SERP first: it is what ranks now, in order. The cluster's own evidence
+    # is competitor overlap, where a tracked rival at position 61 counts the same as
+    # the top result, and it set a bar from two shops ranked 47th and 61st.
+    for u in serp_urls(cluster, serps_dir) + urls:
         key = u.split("://")[-1].removeprefix("www.").rstrip("/")
         if key not in seen:
             seen.add(key)
+            if page_type not in SHOP_TYPES and SHOP_PATH.search("/" + key.split("/", 1)[-1]):
+                shops.append(u)
+                continue
             candidates.append(u)
     pages, failed = [], []
     for u in candidates:
@@ -151,7 +164,8 @@ def measure(cluster, cache, serps_dir="serps", want=5):
     for p in ok:
         kind, _, _ = classify(p["url"], p.get("title", ""))
         (ugc if kind == "faq_hub" else editorial).append(p)
-    return editorial, failed + [(p["url"], "forum or UGC, excluded from the bar") for p in ugc]
+    return editorial, failed + [(p["url"], "forum or UGC, excluded from the bar") for p in ugc] \
+        + [(u, "a shop page, excluded from the bar") for u in shops[:3]]
 
 
 QUESTION_START = re.compile(r"^(what|how|why|when|where|which|who|is|are|can|do|does|"
@@ -166,6 +180,11 @@ def load_prompt_set(path="llm/prompts.json"):
         return json.load(open(path))
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def plural_term(term):
+    head = re.split(r"\s+(for|with|in|of|to|on)\s+", term)[0].split()[-1]
+    return head.endswith("s") and not head.endswith(("ss", "us", "is"))
 
 
 def extractable_for(cluster, business, bar, promptset):
@@ -247,13 +266,68 @@ def extractable_for(cluster, business, bar, promptset):
         "definition": {
             "term": defined,
             "must_appear_by_word": 120,
-            "note": "Write it as '<term> is ...'. This sentence is the one most often "
+            "note": f"Write it as '<term> {'are' if plural_term(defined) else 'is'} ...'. This sentence is the one most often "
                     "lifted verbatim, so it has to stand up with nothing around it.",
         },
         "direct_answers": questions[:6],
         "comparison_table": table,
         "subject_terms": subjects or ["the product"],
     }
+
+
+def fold_twins(cluster, clusters, slug=None):
+    """Open clusters that are this page's query in other words, as (twins, near misses).
+
+    Competitor-overlap clustering split "planners for executive functioning" and
+    "executive functioning planner" into two clusters, though they are one query
+    word for word, and the brief then told the writer to AVOID the second. A twin
+    has the same word set, or a strict subset of it with at least two words; it
+    belongs on this page as a secondary, never on a page of its own. A near miss
+    shares most words and is only reported, since "function disorder" may be a
+    different reader."""
+    from stages.keywords import kw_key
+    key = kw_key(cluster["primary"]["keyword"])
+    twins, near = [], []
+    for x in clusters:
+        # A twin closed by an earlier plan of this same page is folded again, or a
+        # replan would drop the keywords it took over.
+        ours = slug and x["status"] == "rejected" and f"folded into /{slug} " in (x.get("rejected_reason") or "")
+        if x is cluster or not (x["status"] == "idea" or ours):
+            continue
+        k = kw_key(x["primary"]["keyword"])
+        if k == key or (len(k) >= 2 and k < key):
+            twins.append(x)
+        elif k and len(k & key) >= 2 and len(k & key) / len(k | key) >= 0.4:
+            near.append(x)
+    return twins, near
+
+
+def gate3_decided(path):
+    """The GATE 3 decision already recorded in an existing brief, or None."""
+    try:
+        decision = json.load(open(path))["meta"].get("decision")
+    except (OSError, json.JSONDecodeError, KeyError):
+        return None
+    return decision if decision in ("approved", "rejected") else None
+
+
+def avoid_for(own, primaries, limit=10):
+    """Other pages' primaries this page is most likely to drift into.
+
+    This was the first ten primaries in alphabetical order, so a page about
+    executive function planners was told to avoid "1-3-5 rule adhd" and "adhd and
+    food" and never told about "planners for executive function". Ranked by words
+    shared with this page's own keywords. Two shared words at least: the draft check
+    fails on any avoid phrase it finds, and a one-word overlap like "best planner"
+    or "executive dysfunction" is a phrase this page has to be able to write."""
+    from stages.keywords import kw_key
+    mine = set().union(*(kw_key(k) for k in own)) if own else set()
+    scored = []
+    for p in primaries - own:
+        shared = len(kw_key(p) & mine)
+        if shared >= 2:
+            scored.append((-shared, len(kw_key(p)), p))
+    return [p for _, _, p in sorted(scored)[:limit]]
 
 
 def med(values):
@@ -611,8 +685,15 @@ def media_from(template, bar, cluster, business):
     # "A visual for <keyword>" is not a concept, it is a restatement, and an image
     # model given it returns stock-shaped filler. Ground the hero in the page's
     # actual angle instead: the gap it exploits is the most visual thing about it.
-    concept = (template.get("hero_concept") or
-               "the moment someone needs {topic} and cannot start").replace("{topic}", topic(prim))
+    subject = topic(prim)
+    if subject[:2] != subject[:2].upper():
+        subject = subject[0].lower() + subject[1:]      # mid-sentence, not a heading
+    concept = template.get("hero_concept") or "the moment someone needs {topic} and cannot start"
+    if "starting {topic}" in concept and not VERB_STEM.match(raw):
+        # "the moment before starting planners for executive functioning" is what a
+        # verb template does to a noun keyword.
+        concept = "the moment someone reaches for {topic}, shown as a scene, not a diagram"
+    concept = concept.replace("{topic}", subject)
     return {"hero": with_bg({"concept": concept, "alt": prim, "text": None}, palette[0]),
             "inline": inline}
 
@@ -676,7 +757,8 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "keywords": {
             "primary": {"keyword": prim, "volume": cluster["primary"]["volume"],
                         "difficulty": cluster["primary"]["difficulty"], "min_uses": 4},
-            "secondaries": [{"keyword": s["keyword"], "volume": s["volume"], "required": i < 3}
+            "secondaries": [{"keyword": s["keyword"], "volume": s["volume"],
+                             "required": i < 3 and not s.get("_optional")}
                             for i, s in enumerate(cluster["secondaries"])] or
                            [{"keyword": prim, "volume": cluster["primary"]["volume"], "required": True}],
             "avoid": avoid,
@@ -688,7 +770,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             # single line a human accepts or kills the page on, so a generic
             # sentence here wastes the gate.
             "why_this_page_exists": (
-                (cluster["opportunity"]["why"] + " ") if len(cluster["opportunity"]["why"]) > 90
+                (why_for(cluster) + " ") if len(cluster["opportunity"]["why"]) > 90
                 else f"{gaps[0]}. ")
             + (f"Targets {prim}: {cluster['opportunity']['total_volume']:,} combined volume "
                f"at difficulty {cluster['opportunity']['max_difficulty']}."),
@@ -711,6 +793,16 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "layout": layout_for(bar, template, business),
         "voice": voice_from(business),
     }
+
+
+def why_for(cluster):
+    """The cluster's reason, corrected for a format a person has since chosen."""
+    why = cluster["opportunity"]["why"]
+    if cluster.get("page_type_source") == "human":
+        why = re.sub(r"The SERP is mixed \(confidence [\d.]+\), so the format needs a human eye",
+                     f"The SERP is mixed, and a person chose a {cluster['page_type'].replace('_', ' ')}",
+                     why)
+    return why
 
 
 def headline_case(keyword, business, acronyms=()):
@@ -800,6 +892,11 @@ def main():
     ap.add_argument("--out", default="briefs")
     ap.add_argument("--limit", type=int, default=30)
     ap.add_argument("--batch", default=None)
+    ap.add_argument("--replan", action="store_true",
+                    help="overwrite briefs already approved or rejected at GATE 3")
+    ap.add_argument("--cluster", action="append",
+                    help="plan this cluster (id or primary keyword) instead of the next --limit; "
+                         "repeatable. For a page someone chose, not the top of the list.")
     ap.add_argument("--cache", default=".teardown-cache.json")
     ap.add_argument("--prompts", default="llm/prompts.json",
                     help="the frozen LLM prompt set, used to decide which questions each "
@@ -827,7 +924,16 @@ def main():
     live = LINKS.live_routes(business)
     print(f"  {len([r for r in live if r != '__wildcards__'])} live route(s) available "
           "as internal link targets")
-    todo = [c for c in clusters_doc["clusters"] if c["status"] in ("idea", "planned")][:a.limit]
+    if a.cluster:
+        from stages.retype import pick
+        todo = pick(clusters_doc, a.cluster)
+        closed = [c for c in todo if c["status"] not in ("idea", "planned")]
+        if closed:
+            sys.exit("not open for planning: " + ", ".join(
+                f"{c['primary']['keyword']} ({c['status']}{': ' + c['rejected_reason'] if c.get('rejected_reason') else ''})"
+                for c in closed))
+    else:
+        todo = [c for c in clusters_doc["clusters"] if c["status"] in ("idea", "planned")][:a.limit]
     if not todo:
         sys.exit("no clusters with status idea or planned. Nothing to plan.")
 
@@ -840,6 +946,15 @@ def main():
         prim = c["primary"]["keyword"]
         slug = c.get("assigned_slug") or slugify(prim)
 
+        # An approved brief is a person's decision. Planning again used to overwrite it
+        # silently, and plan never marked a cluster planned, so the next plain run
+        # would have replaced every approved brief at the top of the list.
+        decided = gate3_decided(os.path.join(a.out, f"{slug}.json"))
+        if decided and not a.replan:
+            skipped.append((prim, f"{a.out}/{slug}.json is already {decided} at GATE 3. --replan "
+                                  "overwrites it."))
+            continue
+
         if c["page_type"] == "mixed":
             skipped.append((prim, "SERP is mixed, so the format is undecided. `seo retype` "
                                   "types it from a real results page, or a person picks."))
@@ -849,7 +964,7 @@ def main():
             skipped.append((prim, f"no template for page type '{c['page_type']}'"))
             continue
 
-        ok, failed = measure(c, cache)
+        ok, failed = measure(c, cache, page_type=c["page_type"])
         c["_acronyms"] = sorted({w for p in ok for w in re.findall(r"\b[A-Z]{2,5}\b", p.get("title") or "")
                                  if w.lower() in prim.lower().split()})
         if len(ok) < 2:
@@ -863,10 +978,22 @@ def main():
         if bar["needs_video"]:
             bar["video_gap_accepted"] = True
 
+        # The brief's cluster gains the twins' keywords; clusters.json keeps the
+        # keywords a person approved at GATE 2, and only its statuses change.
+        twins, near = fold_twins(c, clusters_doc["clusters"], slug)
+        c_orig, c = c, dict(c, secondaries=[dict(s) for s in c.get("secondaries", [])])
+        from stages.keywords import kw_key
+        for tw in twins:
+            optional = kw_key(tw["primary"]["keyword"]) != kw_key(prim)
+            for s in [tw["primary"]] + tw.get("secondaries", []):
+                if s["keyword"] not in {x["keyword"] for x in c["secondaries"]} and s["keyword"] != prim:
+                    c["secondaries"].append(dict(s, _optional=optional or s is not tw["primary"]))
+        c["secondaries"].sort(key=lambda s: (s.get("_optional", False), -(s.get("volume") or 0)))
+
         # Never the page's own keywords: a merged cluster's old primary is now this
         # page's required secondary, and the brief told the writer to avoid it.
         own = {prim} | {s["keyword"] for s in c.get("secondaries", [])}
-        avoid = sorted(all_primaries - own)[:10]
+        avoid = avoid_for(own, all_primaries)
 
         # Link to pages that ARE LIVE first, ranked by shared vocabulary. Only
         # linking to siblings in the same batch meant a one-page batch got no
@@ -903,6 +1030,17 @@ def main():
         path = os.path.join(a.out, f"{slug}.json")
         json.dump(brief, open(path, "w"), indent=2)
         written.append((slug, bar, len(ok), failed))
+        c_orig["status"], c_orig["assigned_slug"] = "planned", slug
+        for tw in twins:
+            tw["status"] = "rejected"
+            tw["rejected_reason"] = (f"the same query as '{prim}', folded into /{slug} as a "
+                                     "secondary. Two pages on one query split the authority.")
+        if twins:
+            print(f"    {slug}: folded {len(twins)} same-query cluster(s) in as secondaries: "
+                  + ", ".join(tw["primary"]["keyword"] for tw in twins))
+        if near:
+            print(f"    {slug}: close to {', '.join(x['primary']['keyword'] for x in near[:4])}. "
+                  "Not folded; decide at GATE 3 whether they are the same reader.")
         if PROFILES.requires_topic_facts(business, c["page_type"]):
             from stages.facts import NAMES_PRODUCTS
             what = ("current prices checked on each product's own site"
@@ -911,6 +1049,12 @@ def main():
                   f"it can be written:  seo facts init {slug}")
 
     json.dump(cache, open(a.cache, "w"))
+    if written:
+        # Statuses only: planned, and twins closed. The keywords and the approval stand.
+        for c in clusters_doc["clusters"]:
+            for k in [k for k in c if k.startswith("_")]:
+                del c[k]
+        json.dump(clusters_doc, open(a.clusters, "w"), indent=2)
 
     print(f"  batch {batch}: {len(written)} brief(s) written, {len(skipped)} skipped")
     for slug, bar, n, failed in written:

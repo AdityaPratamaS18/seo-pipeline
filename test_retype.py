@@ -110,5 +110,21 @@ check(serp_dump({"keyword": "k", "serpEntries": [{"url": "https://a.com/x", "dom
                                                   "type": "organic", "title": "Best apps"}]})["results"][0]["title"]
       == "Best apps", "so does an Ubersuggest one")
 
+print("\nA CHOSEN CLUSTER, NOT THE TOP OF THE LIST")
+with tempfile.TemporaryDirectory() as t:
+    os.makedirs(os.path.join(t, "keywords"))
+    os.makedirs(os.path.join(t, "serps"))
+    doc = {"meta": {}, "clusters": [cluster("c001", "adhd timer"), cluster("c002", "adhd journal"),
+                                    cluster("c003", "best adhd apps")]}
+    json.dump(doc, open(os.path.join(t, "keywords", "clusters.json"), "w"))
+    json.dump(serp("best adhd apps", LISTS), open(os.path.join(t, "serps", "best-adhd-apps.json"), "w"))
+    run = lambda *a: subprocess.run([sys.executable, "-m", "stages.retype", *a], cwd=t, capture_output=True,
+                                    text=True, env=dict(os.environ, PYTHONPATH=HOME))
+    r = run("--limit", "1", "--cluster", "Best ADHD apps")
+    check("-> listicle" in r.stdout and "adhd timer" not in r.stdout,
+          "--cluster by keyword types that cluster and nothing else", r.stdout + r.stderr)
+    r = run("--cluster", "nope")
+    check(r.returncode != 0 and "no cluster" in (r.stdout + r.stderr), "a name matching nothing stops")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
