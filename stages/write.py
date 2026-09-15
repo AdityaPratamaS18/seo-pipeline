@@ -108,14 +108,21 @@ def build_prompt(b, voice_text, exemplars):
                       f"      its words: \"{e['quote']}\""
                       for e in ev.get("topic_facts") or [])
     if topic:
-        topic = ("\nFacts about the topic, each with the source's own words. State them no more "
-                 "strongly\nthan the quote does, and name the instrument or regulator when you do:\n"
+        # Attribution belongs in the Sources list, not the sentence. Told to "name
+        # the regulator" with each fact, the writer produced "Invest Qatar describes
+        # the LLC as..." and "MOCI states..." in paragraph after paragraph, which
+        # reads like a filing rather than an article.
+        topic = ("\nFacts about the topic, each with the source's own words. State each one "
+                 "plainly and no\nmore strongly than its quote. Do not attribute in the "
+                 "sentence (\"the Ministry states\",\n\"according to\"): list every source "
+                 "under a final \"## Sources\" heading instead, one link\neach. A law is "
+                 "still named where the law is the point (\"under Law No. 11 of 2015\").\n"
                  + topic)
     unsettled = "\n".join(f"  - {q}" for q in ev.get("open_questions") or [])
     if unsettled:
         topic += ("\n\nThe research could not settle these. Do not assert an answer to any of "
-                  "them. Where\nsources disagree, give each side with its source, then say the "
-                  "reader should confirm for their case:\n" + unsettled)
+                  "them. Where\nofficial guidance differs, say so plainly and give both "
+                  "positions, then say the reader\nshould confirm for their case:\n" + unsettled)
     req = [s["keyword"] for s in k["secondaries"] if s.get("required", True)]
     opt = [s["keyword"] for s in k["secondaries"] if not s.get("required", True)]
     links = "\n".join(f"  - /{l['target_slug']} ({l['anchor_intent']}) [{l['target_status']}]"
@@ -160,6 +167,9 @@ def build_prompt(b, voice_text, exemplars):
     else:
         extract = ("  (no `extractable` block in this brief. Re-run `seo plan` to add one, "
                    "or the\n   page will be written with no extraction targets.)")
+
+    sources_note = ("\n\nEnd with \"## Sources\": every source_url from the topic facts, "
+                    "as a link titled\nwith the page it points to." if ev.get("topic_facts") else "")
 
     return f"""# Write one page: /{p['slug']}
 
@@ -259,7 +269,7 @@ slug: {p['slug']}
 
 # {p['h1']}
 
-Then the sections above, in order, as H2s.
+Then the sections above, in order, as H2s.{sources_note}
 """
 
 
@@ -288,6 +298,10 @@ def phrase(keyword):
     parts = [form(w) for w in re.findall(r"[a-z0-9']+", keyword.lower())
              if w not in ("in", "a", "an", "the", "of", "for", "to", "on", "at")]
     return re.compile(r"\b" + CONNECTORS.join(parts) + r"\b", re.I)
+
+
+ATTRIBUTION = re.compile(r"\b(?:states? that|states?\b|describes|confirms(?: that)?|"
+                         r"according to|says that|notes that|lists)\b", re.I)
 
 
 def use_ceiling(min_uses, n_words):
@@ -369,6 +383,20 @@ def check_draft(b, text):
                          f"{bar['faq']['min']} to {bar['faq']['max']}")
     if bar["needs_table"] and "|" not in text:
         errs.append("a comparison table is required and there is no table")
+
+    topic = b["evidence"].get("topic_facts") or []
+    if topic:
+        tail = re.split(r"^##\s+Sources\s*$", text, flags=re.M | re.I)
+        if len(tail) < 2:
+            errs.append("topic facts are used but there is no '## Sources' section listing them")
+        else:
+            for url in sorted({f["source_url"] for f in topic}):
+                if url.rstrip("/") not in tail[-1]:
+                    errs.append(f"source missing from '## Sources': {url}")
+        said = ATTRIBUTION.findall(FRONT.sub("", tail[0]))
+        if len(said) > 2:
+            warns.append(f"{len(said)} sentences attribute a fact in the text "
+                         f"(\"{said[0].strip()}\"...). State it plainly; the Sources list carries it.")
 
     for img in b["media"].get("inline", []):
         if f"[IMAGE: {img['type']}" not in text:

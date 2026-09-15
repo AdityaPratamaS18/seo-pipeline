@@ -69,5 +69,19 @@ errs, _, _n = check_draft(b2, text)
 check(not any("missing section" in e and "LLC" in e for e in errs), "not reported missing",
       "; ".join(errs))
 
+print("\nSOURCES GO IN A LIST, NOT IN EVERY SENTENCE")
+b3 = copy.deepcopy(b)
+b3["evidence"]["topic_facts"] = [{"claim": "There is no minimum capital.", "quote": "There isn't minimum capital",
+                                  "source_url": "https://www.moci.gov.qa/faq/", "retrieved_at": "2026-09-15T00:00:00Z"}]
+errs, _, _n = check_draft(b3, draft(6))
+check(any("no '## Sources'" in e for e in errs), "topic facts with no Sources section is an error")
+listed = draft(6) + "\n\n## Sources\n\n- [Establishing Companies](https://www.moci.gov.qa/faq)\n"
+errs, warns, _n = check_draft(b3, listed)
+check(not any("Sources" in e for e in errs), "a Sources section listing the URL passes", "; ".join(errs))
+heavy = listed.replace("pad pad", "MOCI states that X. Invest Qatar describes Y. MOCI confirms Z. pad", 1)
+errs, warns, _n = check_draft(b3, heavy)
+check(any("attribute a fact" in w for w in warns), "attribution in sentence after sentence is flagged",
+      "; ".join(warns))
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
