@@ -26,6 +26,10 @@ import re
 import sys
 import time
 import urllib.request
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from stages.web import urlopen  # noqa: E402  follows 308 on Python < 3.11
 import urllib.parse
 from urllib.parse import urlparse, urljoin
 
@@ -105,7 +109,7 @@ def fetch_html(url: str, timeout: int = 10) -> tuple[str, str]:
     """Return (html, final_url) after fetching. Returns ('', url) on error."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urlopen(req, timeout=timeout) as resp:
             return resp.read().decode("utf-8", errors="ignore"), resp.url
     except Exception as exc:
         return "", url
@@ -149,7 +153,7 @@ def extract_hreflang_from_http_headers(url: str) -> list[dict]:
     tags = []
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="HEAD")
-        with urllib.request.urlopen(req, timeout=8) as resp:
+        with urlopen(req, timeout=8) as resp:
             link_header = resp.headers.get("Link", "")
             if not link_header:
                 return []

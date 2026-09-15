@@ -17,6 +17,10 @@ import re
 import sys
 import time
 import urllib.request
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from stages.web import urlopen  # noqa: E402  follows 308 on Python < 3.11
 from collections import defaultdict
 from urllib.parse import urljoin, urlparse
 
@@ -46,7 +50,7 @@ THIN_CONTENT_THRESHOLDS = {
 def fetch_page(url: str, timeout: int = 12) -> str:
     try:
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urlopen(req, timeout=timeout) as resp:
             ct = resp.headers.get("Content-Type", "")
             if "text/html" not in ct:
                 return ""

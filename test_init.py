@@ -32,7 +32,20 @@ EXTRACTION = {
 print("\nSKELETON SHAPE")
 d = skeleton("acme.com", EXTRACTION, parse_competitors("other.io"))
 check(d["identity"]["domain"] == "acme.com", "domain is filled from the argument")
-check(d["identity"]["name"] == "acme", "name comes from the package when there is one")
+check(d["identity"]["name"] == "acme", "with no page title, name falls back to the domain")
+
+print("\nTHE BRAND IS READ FROM THE PAGE TITLE")
+from stages.init import brand_name                                  # noqa: E402
+check(brand_name("Top Business Consultancy in Qatar | Mavensmark", "mavensmark.qa") == "Mavensmark",
+      "the title's brand segment wins over a package name like 'mavensmark-web'")
+check(brand_name("Plainday - the daily planner", "plainday.app") == "Plainday",
+      "a leading brand segment is found too")
+check(brand_name("Home", "acme.io") == "acme", "a title without the brand falls back to the domain")
+named = skeleton("mavensmark.qa", {"repo": {"package": {"name": "mavensmark-web"}, "path": ".."},
+                                   "site": {"title": "Audit | Mavensmark"}}, [])
+check(named["identity"]["name"] == "Mavensmark", f"skeleton uses it -> {named['identity']['name']}")
+check(named["tech"].get("repo_path", "").startswith("/"),
+      f"the repo path context read is kept, absolute -> {named['tech'].get('repo_path')}")
 check(d["tech"]["stack"] == "next_app_router", "a detected stack is used")
 check(d["tech"]["routes_dir"] == "src/app", "routes_dir is carried through")
 check(d["meta"]["confirmed_at"] is None, "a skeleton is never born confirmed")

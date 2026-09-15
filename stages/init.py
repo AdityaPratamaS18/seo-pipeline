@@ -114,12 +114,28 @@ def todo(text):
     return f"TODO: {text}"
 
 
+def brand_name(title, domain):
+    """The brand as the site itself writes it.
+
+    Page titles end in the brand ("Business Consultancy in Qatar | Mavensmark"),
+    so the last segment is taken when it matches the domain. The package name was
+    used before this and gave "mavensmark-web", which no reader has ever called
+    the business.
+    """
+    root = domain.split(".")[0]
+    for part in reversed(re.split(r"\s+[|\u2013\u2014-]\s+|\s+:\s+", title or "")):
+        part = part.strip()
+        if part and re.sub(r"[^a-z0-9]", "", part.lower()) == re.sub(r"[^a-z0-9]", "", root):
+            return part
+    return root
+
+
 def skeleton(domain, extraction, competitors):
     """business.json with the evidence filled in and the judgement left open."""
     repo = (extraction or {}).get("repo") or {}
     site = (extraction or {}).get("site") or {}
     sources = ((extraction or {}).get("meta") or {}).get("sources") or []
-    name = (repo.get("package") or {}).get("name") or domain.split(".")[0]
+    name = brand_name(site.get("title"), domain)
 
     known = list(competitors or [])
     for c in (extraction or {}).get("known_competitors", []) or []:
@@ -191,7 +207,11 @@ def skeleton(domain, extraction, competitors):
     if tiers:
         doc["pricing"] = {"tiers": tiers}
 
-    for key, val in (("repo_path", repo.get("repo_path")),
+    # context records the repo as `path`. Stored absolute, because the
+    # publisher resolves it from wherever it happens to be run.
+    repo_path = repo.get("repo_path") or repo.get("path")
+    for key, val in (("repo_path", os.path.abspath(os.path.expanduser(repo_path))
+                      if repo_path else None),
                      ("routes_dir", repo.get("routes_dir")),
                      ("content_dir", repo.get("content_dir")),
                      ("content_format", repo.get("content_format")),

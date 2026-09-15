@@ -24,7 +24,9 @@ import re
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request
+
+from stages.web import urlopen
 
 try:
     from bs4 import BeautifulSoup
@@ -252,7 +254,11 @@ def main():
     ap.add_argument("--domain", help="your live domain, e.g. mysite.com")
     ap.add_argument("--competitors", help="comma separated competitor domains you already know, "
                                          "e.g. acme.com,other.io")
-    ap.add_argument("--out", help="write the extraction JSON here")
+    # Saved by default: `seo init` reads this path to fill the skeleton, and a
+    # stage whose output only exists with a flag nobody was told about left
+    # every site that followed the setup steps with an empty skeleton.
+    ap.add_argument("--out", default="context/extraction.json",
+                    help="where to write the extraction (default context/extraction.json)")
     ap.add_argument("--no-site", action="store_true", help="skip the network entirely")
     a = ap.parse_args()
 

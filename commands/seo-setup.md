@@ -7,7 +7,7 @@ Set up a new site, end to end, up to the first gate.
 1. `seo doctor`. Fix anything it marks FAIL before going further. A missing package is a
    one-line pip install; missing DataForSEO credentials only matter at stage 1, so they can wait.
 2. Ask which domain, and whether the repo is on this machine. A domain is enough.
-3. `seo context --domain <domain> [--repo <path>] [--competitors a.com,b.com] --out context/extraction.json`
+3. `seo context --domain <domain> [--repo <path>] [--competitors a.com,b.com]`
 4. `seo init --domain <domain> [--competitors a.com,b.com]`. This scaffolds the folders, copies
    the voice guide, and drafts `context/business.json` with the evidenced fields filled and the
    judgement fields marked TODO.

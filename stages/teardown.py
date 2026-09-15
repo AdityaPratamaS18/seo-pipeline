@@ -47,7 +47,9 @@ import json
 import re
 import sys
 from urllib.parse import urljoin, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request
+
+from stages.web import urlopen
 
 try:
     from bs4 import BeautifulSoup

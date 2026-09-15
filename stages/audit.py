@@ -30,7 +30,9 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request
+
+from stages.web import urlopen
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AUDIT = os.path.join(HERE, "scripts", "audit")
