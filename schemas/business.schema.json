@@ -468,6 +468,28 @@
         },
         "logo": {
           "type": "string"
+        },
+        "renderer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "command"
+          ],
+          "description": "A site's own figure renderer, when it has one. `seo media render` writes the checked figure specs to a JSON file and runs this command. The renderer is the site-specific part: it draws in the site's real design, and the pipeline keeps the specs honest.",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "Shell command with {specs} (a JSON array of {slug, type, title, items:[{t,b}], bg, h}) and {out} (the directory to write images into)."
+            }
+          }
+        },
+        "cover": {
+          "enum": [
+            "render",
+            "photo"
+          ],
+          "default": "render",
+          "description": "'photo' when covers are sourced photographs: the pipeline then does not render one and says where to place it."
         }
       }
     },

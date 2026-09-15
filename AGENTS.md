@@ -50,7 +50,9 @@ seo keywords keywords/dataset.csv     cluster them
 seo plan                      one brief per page, from the pages that rank now
    GATE 3  seo review build, a person decides, seo review apply decisions.json
 seo write prompt <slug>       the complete instruction for one page
-seo media <slug>              images
+seo media specs <slug>        figures.json: a title and cards per figure, edit it
+seo media check <slug>        every figure's words and numbers are in its section
+seo media <slug>              draw them (the site's renderer if brand.renderer is set)
 seo check                     every checker
    GATE 4  a person reads what the checks flagged, plus a sample
 seo publish <slug>            one page a day

@@ -22,7 +22,9 @@ yours.
     seo review build | apply <f>      GATE 3   the review page
     seo facts init|check|apply <slug> GATE 3   quoted facts about the topic, for pages that explain a law or rule
     seo write prompt|check <slug>     stage 3
-    seo media <slug>                  stage 4  typographic images
+    seo media specs <slug>            stage 4  draft figures.json: a title and cards per figure
+    seo media check <slug>            stage 4  every figure's words and numbers are in its section
+    seo media <slug>                  stage 4  draw them: the site's renderer, or built in
     seo media prompts <slug>          stage 4  prompts for generated art
     seo media collect <slug> --from d stage 4  place what a model generated
     seo publish <slug> [--dry-run]    stage 6
@@ -280,7 +282,7 @@ def main(argv):
         module, extra = DIRECT[cmd]
         # `seo media <slug>` defaults to render, but `seo media prompts <slug>`
         # must pass its own subcommand through rather than gaining a second one.
-        if extra and rest and rest[0] in ("render", "prompts", "collect"):
+        if extra and rest and rest[0] in ("specs", "check", "render", "prompts", "collect"):
             extra = []
         return run(module, extra + rest)
     print(f"unknown command: {cmd}\n")

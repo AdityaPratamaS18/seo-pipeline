@@ -12,12 +12,22 @@ Two things the v1 renderer got wrong for this audience:
      logo and two hex codes, so the templates here are typographic and built
      from brand colours alone.
 
-CONTENT COMES FROM THE DRAFT, NEVER FROM THE MODEL. Each image is built by
-extracting the real list or table under its section heading. If that section has
-nothing extractable, the image is SKIPPED and reported, because an illustration
-that says something the page does not is worse than no illustration.
+CONTENT COMES FROM THE DRAFT, AND IS CHECKED. A figure is a spec before it is an
+image: `specs` drafts a title and cards from the section (numbered H3s for steps,
+a list and the sentence introducing it for cards), a person edits them into a
+figure that makes a point, and `check` fails any card whose words or numbers are
+not in that section. `render` refuses until the check passes. An image that says
+something the page does not is worse than no image, and nobody re-reads one.
 
-    python3 -m stages.media render <slug>                  typographic, free, offline
+WHO DRAWS IT. A site with its own renderer names it in business.json
+brand.renderer.command; it receives the checked specs and draws them in the
+site's real design. Otherwise the built-in renderer draws them from
+brand.colors, light or dark ground. brand.cover "photo" skips the rendered cover
+for sites whose covers are photographs.
+
+    python3 -m stages.media specs <slug>                   draft figures.json from the draft
+    python3 -m stages.media check <slug>                   every figure's words are in its section
+    python3 -m stages.media render <slug>                  draw them: the site's renderer, or built in
     python3 -m stages.media prompts <slug>                 write prompts for generated art
     python3 -m stages.media collect <slug> --from <dir>    place what an image model made
 
@@ -40,7 +50,10 @@ import argparse
 import json
 import os
 import re
+import shlex
+import subprocess
 import sys
+import tempfile
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from PIL import Image, ImageDraw, ImageFont
@@ -110,101 +123,222 @@ def extract_table(body):
     return parsed[:6]
 
 
+# ── figure specs: written, checked, then drawn ────────────────────────────
+#
+# A figure used to be drawn straight from the first list under its section, with
+# the section heading as its title. On a Mavensmark article that put the list of
+# sectors EXCLUDED from foreign ownership under "Who can own an LLC in Qatar",
+# and numbered four of step one's notes as if they were the six steps. Every
+# check passed, because nothing read what an image says.
+#
+# So a figure is now a spec first: a title that makes a point, and cards with a
+# heading and a line of body. It is drafted from the draft, edited by whoever is
+# writing, checked against the section it sits in, and only then drawn. The
+# shape is deliberately the one a site renderer can take as-is:
+#   {slug, type, title, items: [{t, b}], bg, h}
+
+def paragraphs_after(body, start):
+    rest = body[start:]
+    nxt = re.search(r"^#{2,3}\s+", rest, re.M)
+    chunk = rest[:nxt.start()] if nxt else rest
+    for para in re.split(r"\n\s*\n", chunk):
+        para = para.strip()
+        if para and not para.startswith(("-", "*", "[IMAGE", "|", "#")) and not re.match(r"^\d+\.", para):
+            return para
+    return ""
+
+
+def first_sentence(text):
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    m = re.match(r"(.+?[.!?])(\s|$)", text)
+    return (m.group(1) if m else text).strip()
+
+
+def draft_figure(md, spec, slug, index):
+    """A starting spec for one planned figure, or (None, reason)."""
+    heading = spec["placement_section"]
+    body = section_body(md, heading)
+    if not body.strip():
+        return None, f"section '{heading[:40]}' is not in the draft"
+    h3s = list(re.finditer(r"^###\s+(.+)$", body, re.M))
+    steps = [m for m in h3s if re.match(r"^\d+[.)]\s", m.group(1))]
+    if spec["type"] == "steps" and len(steps) >= 2:
+        items = []
+        for m in steps:
+            t = re.sub(r"^\d+[.)]\s*", "", m.group(1)).strip()
+            items.append({"t": t, "b": first_sentence(paragraphs_after(body, m.end()))})
+        title = heading
+    else:
+        lm = re.search(r"((?:^[^\n]*\S[^\n]*\n)?)((?:^\s*(?:[-*+]|\d+\.)\s+.+\n?)+)", body, re.M)
+        if not lm:
+            return None, f"no numbered H3 steps or list under '{heading[:34]}' to build from"
+        lead = lm.group(1).strip().rstrip(":")
+        raw = re.findall(r"^\s*(?:[-*+]|\d+\.)\s+(.+)$", lm.group(2), re.M)
+        items = []
+        for it in raw:
+            it = re.sub(r"\*\*(.+?)\*\*", r"\1", it).strip()
+            head, _, tail = it.partition(". ")
+            items.append({"t": head.rstrip("."), "b": tail})
+        title = lead or heading
+    return {"slug": f"{slug}-{spec['type']}-{index}", "type": spec["type"], "section": heading,
+            "title": title, "items": items, "alt": spec.get("alt", ""),
+            "bg": spec.get("bg"), "h": None}, None
+
+
+CONTENT = re.compile(r"[a-z0-9']{4,}")
+DASH = re.compile("[\u2013\u2014]")
+
+
+def _stem(w):
+    return w[:-3] + "y" if w.endswith("ies") else w[:-1] if w.endswith("s") and not w.endswith("ss") else w
+
+
+def check_figure(fig, md):
+    """(errors, warnings) for one figure against the section it sits in."""
+    errs, warns = [], []
+    body = section_body(md, fig.get("section", ""))
+    if not body.strip():
+        return [f"{fig['slug']}: its section '{fig.get('section')}' is not in the draft"], []
+    have = {_stem(w) for w in CONTENT.findall(body.lower())}
+    nums = set(re.findall(r"\d[\d,.]*", body))
+    n = len(fig.get("items") or [])
+    if not 2 <= n <= 6:
+        errs.append(f"{fig['slug']}: {n} card(s). A figure holds 2 to 6, or it is not a figure.")
+    if len(fig.get("title", "")) > 70:
+        errs.append(f"{fig['slug']}: the title runs {len(fig['title'])} characters. A figure title is "
+                    "a line, not a paragraph: 70 at most.")
+    listed = {re.sub(r"\W+", " ", x).strip().lower()
+              for x in re.findall(r"^\s*(?:[-*+]|\d+\.)\s+(.+)$", body, re.M)}
+    heads = [re.sub(r"\W+", " ", it.get("t", "")).strip().lower() for it in fig.get("items", [])]
+    if heads and all(h in listed for h in heads) and not any(it.get("b") for it in fig.get("items", [])):
+        errs.append(f"{fig['slug']}: every card repeats a bullet already in the section. A figure that "
+                    "restates the list beside it is worse than no figure: show what the prose says.")
+    if fig.get("title", "").strip().lower() == fig.get("section", "").strip().lower():
+        errs.append(f"{fig['slug']}: the title is the section heading. Say what the figure shows: "
+                    "a heading over a list of exclusions reads as the opposite of the text.")
+    for part in [fig.get("title", "")] + [x for it in fig.get("items", []) for x in (it.get("t", ""), it.get("b", ""))]:
+        if DASH.search(part):
+            errs.append(f"{fig['slug']}: a dash in '{part[:40]}'")
+        for num in re.findall(r"\d[\d,.]*", part):
+            if num.rstrip(".,") not in {x.rstrip(".,") for x in nums}:
+                errs.append(f"{fig['slug']}: '{num}' in '{part[:40]}' is not in the section")
+    for it in fig.get("items", []):
+        words = [_stem(w) for w in CONTENT.findall((it.get("t", "") + " " + it.get("b", "")).lower())]
+        if not words:
+            errs.append(f"{fig['slug']}: an empty card")
+            continue
+        grounded = sum(1 for w in words if w in have) / len(words)
+        if grounded < 0.6:
+            missing = sorted({w for w in words if w not in have})[:5]
+            errs.append(f"{fig['slug']}: card '{it.get('t', '')[:30]}' says things its section does not "
+                        f"({', '.join(missing)})")
+        if not it.get("b"):
+            warns.append(f"{fig['slug']}: card '{it.get('t', '')[:30]}' has no body line")
+    return errs, warns
+
+
+def figures_path(drafts, slug):
+    return os.path.join(drafts, slug, "figures.json")
+
+
 # ── templates ─────────────────────────────────────────────────────────────
+def luminance(rgb):
+    return (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255
+
+
+def mix(a, b, t):
+    return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
 def render(spec, out_path, colors, title, items, table):
-    bg = hexrgb(spec.get("bg") or colors["surfaces"][0])
-    ink, paper = hexrgb(colors["ink"]), hexrgb(colors["paper"])
-    img = Image.new("RGB", (W * S, H * S), bg)
-    d = ImageDraw.Draw(img)
-    f_title, f_h, f_b, f_n = font(FONT_B, 40), font(FONT_B, 23), font(FONT_R, 16), font(FONT_B, 30)
+    """Draw one image. `items` are (heading, body) pairs from a checked spec."""
+    ground = hexrgb(spec.get("bg") if (spec.get("bg") or "").startswith("#")
+                    else colors["surfaces"][0])
+    ink, paper, accent = hexrgb(colors["ink"]), hexrgb(colors["paper"]), hexrgb(colors["accent"])
+    dark = luminance(ground) < 0.45
+    # On a dark ground the cards are a lift of the ground and the type is the
+    # paper colour, the way a site's dark sections are built. Light keeps ink on
+    # paper cards.
+    text = paper if dark else ink
+    card = mix(ground, paper, 0.08) if dark else paper
+    edge = mix(ground, paper, 0.18) if dark else mix(paper, ink, 0.08)
+    muted = mix(text, ground, 0.3)
+    f_title, f_h, f_b, f_n = font(FONT_B, 40), font(FONT_B, 23), font(FONT_R, 17), font(FONT_B, 18)
 
     t = spec["type"]
-    # A cover owns the whole frame and sets its own type. Every other kind gets
-    # the shared title strip along the top.
-    if t != "cover":
-        for i, line in enumerate(wrap(d, title, f_title, W - 140)[:2]):
-            d.text((70 * S, (58 + i * 48) * S), line, font=f_title, fill=ink)
-        top = 58 + 48 * min(2, len(wrap(d, title, f_title, W - 140))) + 34
+    probe = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    if t == "cover":
+        height = H
     else:
-        top = 0
+        title_lines = wrap(probe, title, f_title, W - 140)[:2]
+        top = 70 + 14 + 48 * len(title_lines) + 30
+        n = max(1, len(items))
+        cols = n if n <= 4 else 3            # five or six read as two rows of three
+        rows = (n + cols - 1) // cols
+        cw = (W - 140 - (cols - 1) * 20) / cols
+        need = 0
+        for head, body in items:
+            h = 26 + (34 if t == "steps" else 0)
+            h += 29 * len(wrap(probe, head, f_h, cw - 48)) + 8
+            h += 25 * len(wrap(probe, body, f_b, cw - 48)) + 26
+            need = max(need, h)
+        # The canvas fits the content. A fixed 630 left a dead band under short
+        # cards and clipped long ones.
+        height = top + rows * need + (rows - 1) * 20 + 56
+
+    img = Image.new("RGB", (W * S, height * S), ground)
+    d = ImageDraw.Draw(img)
 
     if t == "cover":
-        # The hero used to be rendered as a "cards" image with no cards, which
-        # drew one empty rounded rectangle across the frame: most of a 1200x630
-        # image spent on dead space under a repeat of the H1 the reader had just
-        # read. A cover has to earn the top of a page, so it is composed.
         pad = 76
-        band_x0, band_x1 = pad, W - pad
         f_cover = font(FONT_B, 66)
-        f_k = font(FONT_B, 16)
-        lines = wrap(d, title, f_cover, band_x1 - band_x0 - 96)[:3]
-
-        # The band fills the frame rather than floating in it, and the type sits
-        # on it with room above and below.
-        d.rounded_rectangle([band_x0 * S, 56 * S, band_x1 * S, (H - 56) * S],
-                            radius=26 * S, fill=paper)
-
-        kicker = (spec.get("kicker") or "").strip().upper()
+        lines = wrap(d, title, f_cover, W - 2 * pad - 96)[:3]
+        d.rounded_rectangle([pad * S, 56 * S, (W - pad) * S, (H - 56) * S], radius=26 * S, fill=card)
         block = len(lines) * 76
-        y = 56 + ((H - 112) - block) // 2 + (10 if kicker else 0)
-        if kicker:
-            d.text(((band_x0 + 48) * S, (y - 46) * S), kicker,
-                   font=f_k, fill=hexrgb(colors["accent"]))
+        y = 56 + ((H - 112) - block) // 2
+        # No eyebrow label above the title: the owner's standing rule for all content.
         for i, line in enumerate(lines):
-            d.text(((band_x0 + 48) * S, (y + i * 76) * S), line, font=f_cover, fill=ink)
-        d.rounded_rectangle([(band_x0 + 48) * S, (y + block + 18) * S,
-                             (band_x0 + 48 + 150) * S, (y + block + 27) * S],
-                            radius=5 * S, fill=hexrgb(colors["accent"]))
+            d.text(((pad + 48) * S, (y + i * 76) * S), line, font=f_cover, fill=text)
+        d.rounded_rectangle([(pad + 48) * S, (y + block + 18) * S, (pad + 198) * S, (y + block + 27) * S],
+                            radius=5 * S, fill=accent)
     elif t == "table" and table and len(table) > 1:
-        cols = len(table[0])
-        cw = (W - 140) / cols
+        top = 150
+        cols_t = len(table[0])
+        cw_t = (W - 140) / cols_t
+        for i, line in enumerate(wrap(d, title, f_title, W - 140)[:2]):
+            d.text((70 * S, (58 + i * 48) * S), line, font=f_title, fill=text)
         for r, row in enumerate(table[:6]):
             y = top + r * 62
             if r == 0:
-                d.rounded_rectangle([70 * S, (y - 12) * S, (W - 70) * S, (y + 42) * S],
-                                    radius=8 * S, fill=paper)
-            for c, cell in enumerate(row[:cols]):
-                # Wrap to the column. This used to be cell[:22], which cut every
-                # cell mid-word and, worse, cut prices: "USD 8.99 a month, or U".
-                # A truncated price is not a shorter fact, it is a wrong one.
+                d.rounded_rectangle([70 * S, (y - 12) * S, (W - 70) * S, (y + 42) * S], radius=8 * S, fill=card)
+            for c, cell in enumerate(row[:cols_t]):
                 cf = f_h if r == 0 else f_b
-                for li, line in enumerate(wrap(d, cell, cf, cw - 32)[:2]):
-                    d.text(((86 + c * cw) * S, (y + li * 21) * S), line, font=cf, fill=ink)
-            if r:
-                d.line([70 * S, (y + 46) * S, (W - 70) * S, (y + 46) * S],
-                       fill=paper, width=2 * S)
+                for li, line in enumerate(wrap(d, cell, cf, cw_t - 32)[:2]):
+                    d.text(((86 + c * cw_t) * S, (y + li * 21) * S), line, font=cf, fill=text)
     else:
-        n = max(1, len(items))
-        cw = (W - 140 - (n - 1) * 24) / n
-        # Size the cards to their content and centre the row. Fixed-height cards
-        # leave a block of dead space under short copy, which reads as a
-        # template rather than a designed image.
-        need = 0
-        for head, body in items:
-            h = 26 + (44 if t == "steps" else 0)
-            h += 28 * len(wrap(d, head, f_h, cw - 48)[:4]) + 6
-            h += 22 * len(wrap(d, body, f_b, cw - 48)[:5]) + 26
-            need = max(need, h)
-        card_h = min(need, H - top - 60)
-        card_top = top + max(0, (H - top - 60 - card_h) // 2)
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        for i, line in enumerate(title_lines):
+            d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
         for i, (head, body) in enumerate(items):
-            x = 70 + i * (cw + 24)
-            d.rounded_rectangle([x * S, card_top * S, (x + cw) * S, (card_top + card_h) * S],
-                                radius=14 * S, fill=paper)
-            y = card_top + 26
+            col, row = i % cols, i // cols
+            x = 70 + col * (cw + 20)
+            y0 = top + row * (need + 20)
+            d.rectangle([x * S, y0 * S, (x + cw) * S, (y0 + need) * S], fill=card, outline=edge, width=S)
+            d.rectangle([x * S, y0 * S, (x + cw) * S, (y0 + 5) * S], fill=accent)
+            y = y0 + 26
             if t == "steps":
-                d.text(((x + 24) * S, y * S), str(i + 1), font=f_n, fill=hexrgb(colors["accent"]))
-                y += 44
-            for line in wrap(d, head, f_h, cw - 48)[:4]:
-                d.text(((x + 24) * S, y * S), line, font=f_h, fill=ink)
-                y += 28
-            y += 6
-            for line in wrap(d, body, f_b, cw - 48)[:5]:
-                d.text(((x + 24) * S, y * S), line, font=f_b, fill=ink)
-                y += 22
+                d.text(((x + 24) * S, y * S), f"{i + 1:02d}", font=f_n, fill=accent)
+                y += 34
+            for line in wrap(d, head, f_h, cw - 48):
+                d.text(((x + 24) * S, y * S), line, font=f_h, fill=text)
+                y += 29
+            y += 8
+            for line in wrap(d, body, f_b, cw - 48):
+                d.text(((x + 24) * S, y * S), line, font=f_b, fill=muted)
+                y += 25
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    img.resize((W, H), Image.LANCZOS).save(out_path)
+    img.resize((W, height), Image.LANCZOS).save(out_path)
     return out_path
 
 
@@ -247,13 +381,14 @@ def build_prompts(brief, md, colors, style):
 
 def main():
     ap = argparse.ArgumentParser(description="Make a page's images, typographic or generated.")
-    ap.add_argument("command", choices=["render", "prompts", "collect"])
+    ap.add_argument("command", choices=["specs", "check", "render", "prompts", "collect"])
     ap.add_argument("slug")
     ap.add_argument("--briefs", default="briefs")
     ap.add_argument("--drafts", default="drafts")
     ap.add_argument("--business", default="context/business.json")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--from", dest="src", help="collect: dir holding the generated files")
+    ap.add_argument("--force", action="store_true", help="specs: replace an existing figures.json")
     a = ap.parse_args()
 
     brief = json.load(open(os.path.join(a.briefs, f"{a.slug}.json")))
@@ -263,15 +398,55 @@ def main():
     md = open(md_path, encoding="utf-8").read()
 
     colors = dict(NEUTRAL)
+    brand = {}
     if os.path.exists(a.business):
         b = json.load(open(a.business))
-        c = (b.get("brand") or {}).get("colors") or {}
+        brand = b.get("brand") or {}
+        c = brand.get("colors") or {}
         colors.update({k: v for k, v in c.items() if v})
         if not c:
             print("  note: no brand.colors in business.json, using a neutral palette")
     colors["surfaces"] = colors.get("surfaces") or NEUTRAL["surfaces"]
 
     outdir = os.path.join(a.drafts, a.slug, "images")
+    fpath = figures_path(a.drafts, a.slug)
+
+    if a.command == "specs":
+        if os.path.exists(fpath) and not a.force:
+            sys.exit(f"{fpath} exists and may hold edits. --force replaces it.")
+        figs, skipped = [], []
+        for i, spec in enumerate(brief["media"].get("inline", []), 1):
+            fig, why = draft_figure(md, spec, a.slug, i)
+            (figs.append(fig) if fig else skipped.append((spec["type"], why)))
+        json.dump({"slug": a.slug, "figures": figs}, open(fpath, "w"), indent=2)
+        for fig in figs:
+            print(f"  {fig['slug']}  {fig['type']}, {len(fig['items'])} card(s)\n    title: {fig['title']}")
+        for t, why in skipped:
+            print(f"  SKIPPED  {t}: {why}")
+        print(f"\n  wrote {fpath}. This is a starting point, not a figure: give each a title that says")
+        print("  what it shows and each card a body line from its section, then:")
+        print(f"    seo media check {a.slug}")
+        return 0
+
+    if a.command == "check":
+        if not os.path.exists(fpath):
+            sys.exit(f"no {fpath}. Run: seo media specs {a.slug}")
+        figs = json.load(open(fpath)).get("figures", [])
+        if not figs:
+            sys.exit("figures.json holds no figures. A check that examined nothing has not passed.")
+        te = 0
+        for fig in figs:
+            errs, warns = check_figure(fig, md)
+            if f"[IMAGE: {fig['type']}" not in md:
+                errs.append(f"{fig['slug']}: no [IMAGE: {fig['type']} ...] marker in the draft")
+            print(f"  {'FAIL' if errs else 'ok  '}  {fig['slug']}: {fig['title']}")
+            for e in errs:
+                print(f"          {e}")
+            for w in warns:
+                print(f"    warn  {w}")
+            te += len(errs)
+        print(f"\n  {len(figs)} figure(s), {te} error(s)")
+        return 1 if te else 0
 
     if a.command == "prompts":
         style = ((json.load(open(a.business)).get("brand") or {}).get("image_style")
@@ -324,43 +499,55 @@ def main():
         print(f"\n  {len(placed)} placed, {len(missing)} missing, in {outdir}/")
         return 1 if missing else 0
 
-    tasks, skipped = [], []
+    # render: figures must exist and pass, whoever draws them.
+    if not os.path.exists(fpath):
+        sys.exit(f"no {fpath}. Figures are specified and checked before they are drawn:\n"
+                 f"  seo media specs {a.slug}\n  seo media check {a.slug}")
+    figs = json.load(open(fpath)).get("figures", [])
+    bad = [e for fig in figs for e in check_figure(fig, md)[0]]
+    if bad:
+        sys.exit("figures fail their check, so nothing was drawn:\n" + "\n".join(f"  {e}" for e in bad))
 
-    hero = brief["media"]["hero"]
-    tasks.append(({"type": "cover", "bg": hero.get("bg"),
-                   "kicker": brief["page"].get("page_type", "").replace("_", " ")},
-                  os.path.join(outdir, f"{a.slug}-hero.png"), colors,
-                  brief["page"]["h1"], [], None))
+    tasks, notes = [], []
+    if brand.get("cover") == "photo":
+        notes.append(f"cover is a photo for this site: place {a.slug}-hero.jpg (or .webp) in {outdir}/")
+    else:
+        hero = brief["media"]["hero"]
+        tasks.append(({"type": "cover", "bg": hero.get("bg")},
+                      os.path.join(outdir, f"{a.slug}-hero.png"), colors, brief["page"]["h1"], [], None))
 
-    for i, spec in enumerate(brief["media"].get("inline", []), 1):
-        body = section_body(md, spec["placement_section"])
-        if not body.strip():
-            skipped.append((spec["type"], f"section '{spec['placement_section'][:40]}' not found in the draft"))
-            continue
-        items, table = extract_items(body), extract_table(body)
-        if spec["type"] == "table" and len(table) < 2:
-            skipped.append((spec["type"], "no table in that section to render"))
-            continue
-        if spec["type"] != "table" and not items:
-            skipped.append((spec["type"], f"no list under '{spec['placement_section'][:34]}', "
-                                          "so there is nothing real to draw"))
-            continue
-        tasks.append((spec, os.path.join(outdir, f"{a.slug}-{spec['type']}-{i}.png"),
-                      colors, spec["placement_section"], items, table))
+    renderer = (brand.get("renderer") or {}).get("command")
+    if renderer and figs:
+        # The site draws its own figures in its own design. The pipeline hands it
+        # checked specs; the renderer is the site-specific part.
+        os.makedirs(outdir, exist_ok=True)
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tmp:
+            json.dump(figs, tmp, indent=2)
+        cmd = renderer.replace("{specs}", shlex.quote(tmp.name)).replace("{out}", shlex.quote(os.path.abspath(outdir)))
+        print(f"  site renderer: {cmd}")
+        r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=600)
+        print("\n".join("    " + ln for ln in (r.stdout + r.stderr).strip().splitlines()[-12:]))
+        if r.returncode:
+            sys.exit(f"  the site renderer failed (exit {r.returncode})")
+    else:
+        for fig in figs:
+            tasks.append((fig, os.path.join(outdir, f"{fig['slug']}.png"), colors, fig["title"],
+                          [(it.get("t", ""), it.get("b", "")) for it in fig["items"]], None))
 
     done, failed = [], []
-    with ProcessPoolExecutor(max_workers=a.workers) as ex:
-        for fut in as_completed([ex.submit(job, t) for t in tasks]):
-            path, err = fut.result()
-            (failed if err else done).append((path, err))
+    if tasks:
+        with ProcessPoolExecutor(max_workers=a.workers) as ex:
+            for fut in as_completed([ex.submit(job, t) for t in tasks]):
+                path, err = fut.result()
+                (failed if err else done).append((path, err))
 
     for p, _ in sorted(done):
         print(f"  rendered {os.path.basename(p)}")
-    for t, why in skipped:
-        print(f"  SKIPPED  {t}: {why}")
+    for n in notes:
+        print(f"  note     {n}")
     for p, err in failed:
         print(f"  FAILED   {os.path.basename(p)}: {err}")
-    print(f"\n  {len(done)} image(s) in {outdir}/, {len(skipped)} skipped, {len(failed)} failed")
+    print(f"\n  {len(done)} built-in image(s) in {outdir}/, {len(failed)} failed")
     return 1 if failed else 0
 
 
