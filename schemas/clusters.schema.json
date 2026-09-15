@@ -173,7 +173,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^c[0-9]{3}$"
+            "pattern": "^c([0-9]{3}|-[0-9a-f]{8}(-[0-9]+)?)$"
           },
           "primary": {
             "$ref": "#/$defs/keyword"

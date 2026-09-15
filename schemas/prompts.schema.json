@@ -54,7 +54,7 @@
             "description": "A fixed set on purpose. A prompt set made only of 'best X' questions measures one narrow thing and reports it as visibility."
           },
           "intent": { "enum": ["informational", "commercial", "transactional", "navigational"] },
-          "source_cluster": { "type": ["string", "null"], "pattern": "^c[0-9]{3}$|^$" },
+          "source_cluster": { "type": ["string", "null"], "pattern": "^c([0-9]{3}|-[0-9a-f]{8}(-[0-9]+)?)$|^$" },
           "expect_mention": {
             "type": "boolean",
             "description": "Should this brand plausibly appear? Not every prompt should. Including prompts you SHOULD NOT win is what stops a set being self-flattering, and absence on those is a correct result rather than a failure."

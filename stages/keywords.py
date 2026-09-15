@@ -151,6 +151,23 @@ def kw_key(keyword):
                      if w not in QUERY_STOP)
 
 
+def cluster_id(keyword, taken=()):
+    """An id that belongs to the query, not to where it landed in this run.
+
+    Ids were c001, c002 by position, so a rebuild renumbered every cluster and a
+    brief pointing at c014 pointed at a different page's cluster without any error.
+    Derived from the primary's word set, a rebuild gives the same cluster the same
+    id, and a cluster that no longer exists matches nothing instead of the wrong one.
+    """
+    import hashlib
+    base = "c-" + hashlib.sha1(" ".join(sorted(kw_key(keyword))).encode()).hexdigest()[:8]
+    cid, n = base, 1
+    while cid in taken:                  # two primaries with one word set; kept apart
+        n += 1
+        cid = f"{base}-{n}"
+    return cid
+
+
 def lookup(keyword, table):
     """The slug in `table` targeting this query, matched exactly or by kw_key."""
     k = keyword.lower()
@@ -365,8 +382,8 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
 
     clusters, dropped = cluster(folded, threshold, min_volume, max_difficulty)
 
-    out = []
-    for i, c in enumerate(clusters, 1):
+    out, ids = [], set()
+    for c in clusters:
         p, secs = c["primary"], c["secondaries"]
         urls = c["pivot_urls"]
 
@@ -416,9 +433,11 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
         if len(results) < 3:
             ptype, conf = "mixed", min(conf, 0.5)
         coverage = len({r["domain"] for r in results})
+        cid = cluster_id(p["keyword"], ids)
+        ids.add(cid)
 
         out.append({
-            "id": f"c{i:03d}",
+            "id": cid,
             "primary": {k: v for k, v in p.items()
                         if k in ("keyword", "volume", "difficulty", "cpc", "ranked_by")},
             "secondaries": [{k: v for k, v in s.items()
