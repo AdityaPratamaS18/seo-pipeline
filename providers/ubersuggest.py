@@ -35,7 +35,7 @@ import re
 import sys
 from urllib.parse import urlparse
 
-from providers.dataforseo_labs import ranking_page_filter, write_csv
+from providers.dataforseo_labs import ranking_page_filter, write_csv, write_meta
 from providers.dataforseo_serp import FEATURE_TYPES, host, slugify
 
 
@@ -138,6 +138,9 @@ def cmd_keywords(a):
             uniq[k] = r
     out = list(uniq.values())
     write_csv(out, a.out)
+    write_meta(a.out, "ubersuggest",
+               f"worldwide index, kept only keywords naming: {a.require}" if a.require
+               else "worldwide index")
     comps = sorted({r["competitor"] for r in out})
     print(f"\n  {len(out)} rows, {len({r['keyword'] for r in out})} unique keywords, "
           f"{len(comps)} competitor(s)")

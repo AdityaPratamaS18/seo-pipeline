@@ -263,6 +263,13 @@ def ranking_page_filter(rows, competitors_path):
     return kept, dropped
 
 
+def write_meta(path, provider, location, language="en"):
+    """Where a dataset came from, beside it. clusters.json records this rather
+    than assuming, so a Ubersuggest dataset is never labelled a US DataForSEO one."""
+    json.dump({"provider": provider, "location": str(location), "language": language},
+              open(path + ".meta.json", "w"), indent=2)
+
+
 def write_csv(rows, path):
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", newline="", encoding="utf-8") as f:
@@ -336,6 +343,7 @@ def main():
 
     if a.out:
         write_csv(list(uniq.values()), a.out)
+        write_meta(a.out, "dataforseo_labs", a.location, a.language)
         print(f"  wrote {a.out}")
     return 0
 

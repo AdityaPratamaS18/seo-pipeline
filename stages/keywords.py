@@ -54,6 +54,23 @@ STOPW = {"with", "your", "that", "this", "from", "into", "them", "they", "what",
          "actually", "without", "everything", "anything", "something", "plain", "english"}
 
 
+SHORT = {"the", "and", "for", "not", "any", "who", "via", "its", "our", "you", "are",
+         "has", "was", "but", "all", "can", "one", "per", "own", "off", "out", "use",
+         "get", "how", "why", "new", "top", "set"}
+
+
+def stem(word):
+    """Singular form, enough to treat "businesses" and "business" as one word."""
+    w = word.lower()
+    if len(w) > 4 and w.endswith("ies"):
+        return w[:-3] + "y"
+    if len(w) > 4 and re.search(r"(s|x|z|ch|sh)es$", w):
+        return w[:-2]
+    if len(w) > 3 and w.endswith("s") and not w.endswith("ss"):
+        return w[:-1]
+    return w
+
+
 def relevance_terms(business):
     """Terms that make a keyword plausibly this business's problem.
 
@@ -67,10 +84,18 @@ def relevance_terms(business):
     for seg in business.get("audience", {}).get("segments", []):
         src.append(seg.get("name", ""))
         src += seg.get("pains", [])
+    # What the business sells is its subject by definition. Leaving features out
+    # meant "debt" never counted as a Mavensmark term, so a do_not_claim line
+    # about guaranteed debt recovery excluded its own debt recovery service.
+    for feat in business.get("product", {}).get("features", []):
+        src += [feat.get("name", ""), feat.get("does", "")]
+    # Same word rule as exclude_terms. When this side kept a four-letter floor
+    # and exclusion took three, "tax" from a not_for line excluded every
+    # corporate tax keyword for a firm selling tax compliance.
     terms = set()
     for t in src:
-        for w in re.findall(r"[a-z]{4,}", (t or "").lower()):
-            if w not in STOPW:
+        for w in re.findall(r"[a-z]{3,}", (t or "").lower()):
+            if w not in STOPW and w not in SHORT:
                 terms.add(w)
     return terms
 
@@ -87,21 +112,59 @@ def exclude_terms(business):
     """
     out = set()
     aud = business.get("audience", {})
+    # Three letters, not four: the four-letter floor meant "VAT" in a do_not_claim
+    # line never excluded anything. Safe now that exclusion matches whole words.
     for t in aud.get("not_for", []) + business.get("constraints", {}).get("do_not_claim", []):
-        for w in re.findall(r"[a-z]{4,}", (t or "").lower()):
-            if w not in STOPW and w not in ("that", "anyone", "looking", "people", "want"):
+        for w in re.findall(r"[a-z]{3,}", (t or "").lower()):
+            if w not in STOPW and w not in SHORT and \
+                    w not in ("that", "anyone", "looking", "people", "want"):
                 out.add(w)
     return out
 
 
 def is_relevant(keyword, terms, must=None, exclude=()):
     k = keyword.lower()
-    if any(x in k for x in exclude):
-        return False
+    # Whole words, compared singular. As substrings, "fees" excluded "coffees"
+    # and "court" excluded "courtesy".
+    if exclude:
+        banned = {stem(x) for x in exclude}
+        if any(stem(w) in banned for w in re.findall(r"[a-z]+", k)):
+            return False
     k = keyword.lower()
     if must:
         return bool(must.search(k))
     return any(t in k for t in terms)
+
+
+QUERY_STOP = {"a", "an", "the", "in", "of", "for", "to", "on", "at", "and", "or", "is",
+              "are", "how", "what", "best", "top", "my", "your", "with", "by"}
+
+
+def kw_key(keyword):
+    """A query reduced to its words: order, stopwords and plurals ignored.
+
+    "starting a business in qatar" and "starting business qatar" are one query
+    to a searcher and to Google. Compared as strings they are two, so a live
+    page's keywords went unnoticed and the batch re-proposed them.
+    """
+    return frozenset(stem(w) for w in re.findall(r"[a-z0-9']+", keyword.lower())
+                     if w not in QUERY_STOP)
+
+
+def lookup(keyword, table):
+    """The slug in `table` targeting this query, matched exactly or by kw_key."""
+    k = keyword.lower()
+    if k in table:
+        return table[k], k
+    key = kw_key(k)
+    for other, slug in table.items():
+        if kw_key(other) == key:
+            return slug, other
+    return None, None
+
+
+def page_path(slug):
+    return "/" + slug.lstrip("/")
 
 
 def load_existing(path):
@@ -253,7 +316,8 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
         # a keyword. do_not_claim sentences name the core topic ("that doot
         # treats or assesses ADHD"), so a naive word split put "adhd" itself on
         # the exclusion list and threw away the entire subject.
-        overlap = excl & terms
+        term_stems = {stem(t) for t in terms}
+        overlap = {x for x in excl if stem(x) in term_stems}
         if overlap:
             print(f"             kept despite appearing in do_not_claim, because they are "
                   f"the subject: {', '.join(sorted(overlap))}")
@@ -325,14 +389,24 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
             ptype, _, _ = classify(u, p["keyword"])
             results.append({"rank": 99, "url": u, "domain": u.split("/")[0], "page_type": ptype})
 
-        risk = []
-        pk = p["keyword"].lower()
-        if owns.get(pk):
-            risk.append(f"BLOCKED: /{owns[pk]} owns this as its primary")
-        elif mentions.get(pk):
-            risk.append(f"note: /{mentions[pk]} lists this among its secondaries. "
-                        "A mention, not a claim. Consider whether that page should "
-                        "drop it, or whether this should be a section there instead")
+        # Every member is checked, not only the primary. Members share a SERP, so
+        # a live page owning ANY of them owns the intent: on a Qatar run a cluster
+        # led by "accounting companies in qatar" carried "accounting firm qatar",
+        # the live primary of the accounting service page, and was proposed anyway.
+        risk, blocked = [], None
+        for member in [p["keyword"]] + [x["keyword"] for x in secs]:
+            slug, hit = lookup(member, owns)
+            if slug:
+                same = "" if hit == member.lower() else f" as \"{hit}\""
+                risk.append(f"BLOCKED: {page_path(slug)} owns \"{member}\"{same} as its primary")
+                blocked = blocked or (slug, member)
+                continue
+            slug, hit = lookup(member, mentions)
+            if slug:
+                same = "" if hit == member.lower() else f" as \"{hit}\""
+                risk.append(f"note: {page_path(slug)} lists \"{member}\"{same} among its secondaries. "
+                            "A mention, not a claim. Consider whether that page should "
+                            "drop it, or whether this should be a section there instead")
 
         ptype, conf = dominant(results)
         # Confidence must match evidence. With fewer than 3 observed ranking
@@ -373,11 +447,11 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
                 "max_difficulty": max([p["difficulty"]] + [s["difficulty"] for s in secs]),
                 "competitor_coverage": coverage,
             },
-            "status": "rejected" if owns.get(p["keyword"].lower()) else "idea",
+            "status": "rejected" if blocked else "idea",
             "assigned_slug": None,
-            "rejected_reason": (f"/{owns[p['keyword'].lower()]} already targets this as its "
+            "rejected_reason": (f"{page_path(blocked[0])} already targets \"{blocked[1]}\" as its "
                                 "primary. Two pages on one query split the authority.")
-                               if owns.get(p["keyword"].lower()) else None,
+                               if blocked else None,
             "cannibalisation_risk": risk,
         })
 
@@ -487,6 +561,13 @@ def main():
                  f"({len(dropped)} dropped) or the dataset has no URLs to measure overlap with. "
                  "Refusing to write an empty clusters.json.")
 
+    try:
+        source = json.load(open(a.dataset + ".meta.json"))
+    except (OSError, json.JSONDecodeError):
+        source = {"provider": "dataforseo_labs", "location": "2840", "language": "en"}
+        print(f"  note: no {a.dataset}.meta.json, so the source is recorded as the "
+              "DataForSEO default (US). Regenerate the dataset to record the real one.")
+
     doc = {
         "meta": {
             "schema_version": "1.0",
@@ -498,10 +579,10 @@ def main():
                 "overlap_threshold": a.threshold,
                 "difficulty_ceiling": a.max_difficulty,
                 "min_volume": a.min_volume,
-                "location": "2840",
-                "language": "en",
+                "location": source.get("location") or "unknown",
+                "language": source.get("language") or "en",
             },
-            "providers": ["dataforseo_labs"],
+            "providers": [source.get("provider") or "manual"],
             "competitors_analysed": [
                 {"domain": c,
                  "keywords_pulled": sum(1 for r in rows if r.get("competitor") == c),
