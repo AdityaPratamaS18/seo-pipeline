@@ -76,6 +76,38 @@ IMAGE_KINDS = [
 ]
 
 
+class Blocked(Exception):
+    """The server answered, but with a bot check or an empty shell, not the page."""
+
+
+# Phrases a bot check or firewall shows instead of the page. Only trusted on a page
+# with little text: a real article can mention "captcha", and Cloudflare injects its
+# challenge script into ordinary pages too.
+BLOCK_TITLES = re.compile(r"just a moment|attention required|access denied|security check|"
+                          r"are you a robot|robot or human|you have been blocked|forbidden|"
+                          r"request rejected|pardon our interruption|verify you are human|"
+                          r"ddos-guard|please wait", re.I)
+BLOCK_TEXT = re.compile(r"enable javascript and cookies to continue|checking your browser|"
+                        r"verify you are (a )?human|incapsula incident|request unsuccessful|"
+                        r"access to this page has been denied|sucuri website firewall|"
+                        r"press (and|&) hold|cf-browser-verification|captcha-delivery|px-captcha", re.I)
+
+
+def blocked_reason(html, title, words, h2s):
+    """Why this response is not the page, or None.
+
+    A bot check answers 200, so it used to be torn down like an article: one site
+    measured at 121 words, which fed the word median and a "depth alone is a real
+    opening" gap that did not exist."""
+    if words < 500 and BLOCK_TITLES.search(title or ""):
+        return f"a bot check (title '{title[:40]}')"
+    if words < 500 and BLOCK_TEXT.search(html[:200000]):
+        return f"a bot check ('{BLOCK_TEXT.search(html[:200000]).group(0)}')"
+    if words < 150 and h2s == 0:
+        return f"no readable article ({words} words, no sections), a block page or an app shell"
+    return None
+
+
 def fetch(url):
     req = Request(url, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
     with urlopen(req, timeout=25) as r:
@@ -171,6 +203,11 @@ def teardown(url):
                 for h in body.find_all(re.compile(r"^h[1-6]$"))
                 if h.get_text(strip=True)]
 
+    title = soup.title.get_text(strip=True) if soup.title else ""
+    why = blocked_reason(html, title, words, sum(1 for h in headings if h["level"] == 2))
+    if why:
+        raise Blocked(why)
+
     images = []
     for img in body.find_all("img"):
         src = img.get("src") or img.get("data-src") or ""
@@ -228,7 +265,7 @@ def teardown(url):
 
     return {
         "url": final_url,
-        "title": (soup.title.get_text(strip=True) if soup.title else ""),
+        "title": title,
         "word_count": words,
         "reading_minutes": round(words / 230, 1),
         "headings": headings,

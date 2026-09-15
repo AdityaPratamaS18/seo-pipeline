@@ -133,9 +133,15 @@ def measure(cluster, cache, serps_dir="serps", want=5):
             p = TD.teardown(u)
             cache[u] = p
             pages.append(p)
+        except TD.Blocked as e:
+            failed.append((u, f"blocked, {e}"))
         except Exception as e:                                       # noqa: BLE001
             failed.append((u, f"{type(e).__name__}"))
     ok = [p for p in pages if "error" not in p and not p.get("suspect_extraction")]
+    # Counted out of the bar before, but never reported, so a brief built on two
+    # pages looked like one built on five.
+    failed += [(p["url"], "rendered client side, too little text to measure")
+               for p in pages if "error" not in p and p.get("suspect_extraction")]
     # Forum and UGC results rank, but they are not pages you beat on depth. A
     # Reddit thread in the set drags the median down and tells a writer to aim
     # lower than the real editorial competition. Keep them as SERP evidence,
@@ -743,7 +749,7 @@ def main():
               + (f", read {n} competitor(s)"))
         for u, why in failed:
             print(f"      {'excluded' if 'excluded' in why else 'could not read'}: "
-                  f"{u.split('/')[2]} ({why.split(',')[0]})")
+                  f"{u.split('/')[2]} ({why if why.startswith('blocked') else why.split(',')[0]})")
     for prim, why in skipped:
         print(f"    SKIPPED  {prim}: {why}")
     print(f"\n  {len(written)} brief(s) in {a.out}/, all decision=pending (GATE 3)")
