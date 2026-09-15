@@ -28,6 +28,11 @@ can be drafted in parallel and still hold together.
 **`brief.evidence` is the complete set of facts a page may assert.** Every price, percentage
 and quantity in a draft traces back to it.
 
+**Length is a bar only until it stops helping.** Against 5,000 word competitors the brief caps
+the target at what that kind of page needs, carries the topics the ranking pages share instead,
+and plans the layout a long page is scanned by: contents, takeaways, subheads, a break every few
+hundred words.
+
 **A rival's price is checked on their own site when the page is made**, not stored. A price
 typed into a config file once is repeated by every page until someone notices it is wrong. A
 vendor price goes stale after 14 days, and the writer and the publisher both refuse a stale one.

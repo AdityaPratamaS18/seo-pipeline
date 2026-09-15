@@ -1,0 +1,2687 @@
+{
+ "about": "Real teardowns of the pages ranking for ADHD planner and app queries, 2026-09-09, trimmed to what the planner reads. Headings and counts only.",
+ "pages": [
+  {
+   "url": "https://www.getinflow.io/post/best-apps-for-adhd",
+   "title": "The 12 Best Apps for ADHD in 2026: A Guide to Finding What Works for You",
+   "word_count": 6521,
+   "h2_count": 27,
+   "image_count": 27,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 10,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "1. Inflow: The Science-Backed Program for Your Brain"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & Benefits"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 3,
+     "text": "Want to see how Inflow can help you manage ADHD?"
+    },
+    {
+     "level": 2,
+     "text": "2. Tiimo: Visual Daily Planner"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "3. Done ADHD: Medication Management & Care"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "4. Univi: AI-Powered Coaching and Journaling"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "5. Sunsama: The All-in-One Daily Planner for Professionals"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "6. Forest: Stay Focused, Plant a Tree"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "7. Brain.fm: Functional Music to Focus"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "8. Freedom: Block Distractions Across All Devices"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "9. Structured \u2014 Daily Planner: Visual Time-Blocking"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "10. Time Timer (official app): Making Time Visible"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "11. EndeavorOTC: A Game-Based Digital Therapeutic"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "12. Brili Routines: Guided Daily Schedules"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "Finding the Right Tool is a Journey, Not a Destination"
+    },
+    {
+     "level": 3,
+     "text": "Your Actionable Next Steps"
+    },
+    {
+     "level": 3,
+     "text": "Building a Sustainable System"
+    },
+    {
+     "level": 3,
+     "text": "Your ADHD toolkit starts here."
+    },
+    {
+     "level": 3,
+     "text": "Your voice matters!"
+    },
+    {
+     "level": 3,
+     "text": "Related articles"
+    },
+    {
+     "level": 3,
+     "text": "6 Best Alternatives to Liven for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "6 Best Alternatives to Routinery for ADHD"
+    },
+    {
+     "level": 2,
+     "text": "1. Inflow: The Science-Backed Program for Your Brain"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & Benefits"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 3,
+     "text": "Want to see how Inflow can help you manage ADHD?"
+    },
+    {
+     "level": 2,
+     "text": "2. Tiimo: Visual Daily Planner"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "3. Done ADHD: Medication Management & Care"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "4. Univi: AI-Powered Coaching and Journaling"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "5. Sunsama: The All-in-One Daily Planner for Professionals"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "6. Forest: Stay Focused, Plant a Tree"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "7. Brain.fm: Functional Music to Focus"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 3,
+     "text": "Considerations"
+    },
+    {
+     "level": 2,
+     "text": "8. Freedom: Block Distractions Across All Devices"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "9. Structured \u2014 Daily Planner: Visual Time-Blocking"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "10. Time Timer (official app): Making Time Visible"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "11. EndeavorOTC: A Game-Based Digital Therapeutic"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "12. Brili Routines: Guided Daily Schedules"
+    },
+    {
+     "level": 3,
+     "text": "Key Features & User Experience"
+    },
+    {
+     "level": 2,
+     "text": "Finding the Right Tool is a Journey, Not a Destination"
+    },
+    {
+     "level": 3,
+     "text": "Your Actionable Next Steps"
+    },
+    {
+     "level": 3,
+     "text": "Building a Sustainable System"
+    },
+    {
+     "level": 3,
+     "text": "Your ADHD toolkit starts here."
+    },
+    {
+     "level": 2,
+     "text": "Related articles:"
+    },
+    {
+     "level": 3,
+     "text": "6 Best Alternatives to Noom for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "6 Best Alternatives to ADHD Online (Mentavi Health)"
+    }
+   ],
+   "images": [
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.morgen.so/blog-posts/best-daily-planner-for-adhd",
+   "title": "5 Best Daily Planners for ADHD & How to Choose One in 2026",
+   "word_count": 3691,
+   "h2_count": 13,
+   "image_count": 34,
+   "table_count": 5,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 11,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "What is ADHD, and How Does It Affect Daily Planning?"
+    },
+    {
+     "level": 2,
+     "text": "Top 5 Daily Planners for ADHD: At a Glance"
+    },
+    {
+     "level": 2,
+     "text": "1. Morgen: Best Daily Planner for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Morgen Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Morgen Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Morgen Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "2. Sunsama"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Sunsama Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Sunsama Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who is Sunsama Best For?"
+    },
+    {
+     "level": 2,
+     "text": "3. Akiflow"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Akiflow Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Akiflow Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Is Akiflow Best For?"
+    },
+    {
+     "level": 2,
+     "text": "4. Tiimo"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Tiimo Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Tiimo Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Is Tiimo Best For?"
+    },
+    {
+     "level": 2,
+     "text": "5. Reclaim.ai"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Reclaim.ai Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Reclaim.ai Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who is Reclaim.ai Best For?"
+    },
+    {
+     "level": 2,
+     "text": "What Makes Daily Planners Essential for ADHD"
+    },
+    {
+     "level": 2,
+     "text": "How to Choose the Best Daily Planner for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "Complete Life Visibility"
+    },
+    {
+     "level": 3,
+     "text": "Clear Capacity Visualization"
+    },
+    {
+     "level": 3,
+     "text": "Decision-Making Support"
+    },
+    {
+     "level": 3,
+     "text": "Flexible Rescheduling Features"
+    },
+    {
+     "level": 3,
+     "text": "Energy-based scheduling"
+    },
+    {
+     "level": 3,
+     "text": "Progress Tracking and Celebration"
+    },
+    {
+     "level": 2,
+     "text": "What are Common Planning Mistakes?"
+    },
+    {
+     "level": 2,
+     "text": "How Can You Build ADHD-friendly Planning Habits?"
+    },
+    {
+     "level": 2,
+     "text": "Stay Focused Every Day with Morgen - The All-in-One ADHD Planner"
+    },
+    {
+     "level": 2,
+     "text": "Read more from Morgen"
+    },
+    {
+     "level": 3,
+     "text": "10 Best AI Planning Assistants in 2026"
+    },
+    {
+     "level": 3,
+     "text": "9 Best Shared Calendar Apps Compared in 2026"
+    },
+    {
+     "level": 3,
+     "text": "9 Best AI Calendars Apps in 2026 (Tested)"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": [
+    {
+     "columns": [
+      "Tool",
+      "Best for",
+      "Standout ADHD feature",
+      "Starting price",
+      "G2 rating",
+      "Capterra rating"
+     ],
+     "rows": 5
+    },
+    {
+     "columns": [
+      "Plan",
+      "Monthly",
+      "Yearly"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Pricing"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Pricing"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Pricing"
+     ],
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "url": "https://www.amazon.com/ADHD-Daily-Planner-Neurodivergent-Adults/dp/B0CG78SLJL",
+   "title": "Amazon.com : ADHD Daily Planner for Neurodivergent Adults - Productivity Daily Planner & Task Management to Stay Organized and Focused (Rainbow) : Office Products",
+   "word_count": 3430,
+   "h2_count": 15,
+   "image_count": 72,
+   "table_count": 4,
+   "video_count": 6,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 40,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 3,
+     "text": "Purchase options and add-ons"
+    },
+    {
+     "level": 2,
+     "text": "Customers who viewed this item also viewed"
+    },
+    {
+     "level": 2,
+     "text": "Sustainability features"
+    },
+    {
+     "level": 2,
+     "text": "The Forest Stewardship Council"
+    },
+    {
+     "level": 2,
+     "text": "Sustainability features"
+    },
+    {
+     "level": 2,
+     "text": "The Forest Stewardship Council"
+    },
+    {
+     "level": 2,
+     "text": "Product description"
+    },
+    {
+     "level": 2,
+     "text": "Product Videos"
+    },
+    {
+     "level": 3,
+     "text": "Warranty & Support"
+    },
+    {
+     "level": 3,
+     "text": "Feedback"
+    },
+    {
+     "level": 2,
+     "text": "Where did you see a lower price?"
+    },
+    {
+     "level": 2,
+     "text": "Similar brands on Amazon"
+    },
+    {
+     "level": 2,
+     "text": "Customer reviews"
+    },
+    {
+     "level": 3,
+     "text": "Customers say"
+    },
+    {
+     "level": 2,
+     "text": "Price"
+    },
+    {
+     "level": 2,
+     "text": "About this Item"
+    },
+    {
+     "level": 2,
+     "text": "Product Description"
+    },
+    {
+     "level": 2,
+     "text": "Options Available"
+    },
+    {
+     "level": 3,
+     "text": "Color"
+    },
+    {
+     "level": 2,
+     "text": "Feedback"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "banner"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "banner"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": [
+    {
+     "columns": [
+      "Brand",
+      "Templatables"
+     ],
+     "rows": 9
+    },
+    {
+     "columns": [
+      "Brand Name",
+      "Model Year",
+      "Target Audience",
+      "Recommended Uses For Product",
+      "Manufacturer",
+      "Number of Packs",
+      "Unit Count",
+      "Number of Items"
+     ],
+     "rows": 12
+    },
+    {
+     "columns": [
+      "Format",
+      "Calendar Type",
+      "Paper Size",
+      "Binding",
+      "Special Features",
+      "Ruling Type"
+     ],
+     "rows": 5
+    },
+    {
+     "columns": [
+      "Item Weight",
+      "Item Dimensions L x W",
+      "Item Dimensions L x W x Thickness",
+      "Paper Dimensions"
+     ],
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "url": "https://lunatask.app/adhd",
+   "title": "Best ADHD Planner and Productivity App | Lunatask",
+   "word_count": 3388,
+   "h2_count": 10,
+   "image_count": 7,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": true,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "What is ADHD?"
+    },
+    {
+     "level": 2,
+     "text": "How ADHD impacts productivity?"
+    },
+    {
+     "level": 2,
+     "text": "How can Lunatask help?"
+    },
+    {
+     "level": 3,
+     "text": "Externalize memory"
+    },
+    {
+     "level": 3,
+     "text": "Leave prioritization to us"
+    },
+    {
+     "level": 3,
+     "text": "Build healthy habits"
+    },
+    {
+     "level": 3,
+     "text": "Reflect as you go"
+    },
+    {
+     "level": 3,
+     "text": "Stay in touch with people you care about"
+    },
+    {
+     "level": 3,
+     "text": "All-in-one"
+    },
+    {
+     "level": 3,
+     "text": "Create a day plan with everything"
+    },
+    {
+     "level": 3,
+     "text": "Minimize distractions"
+    },
+    {
+     "level": 3,
+     "text": "Don't forget to take an umbrella"
+    },
+    {
+     "level": 3,
+     "text": "Wait, there's more!"
+    },
+    {
+     "level": 2,
+     "text": "Other tips for ADHD"
+    },
+    {
+     "level": 2,
+     "text": "Where can I learn more about ADHD?"
+    },
+    {
+     "level": 2,
+     "text": "Don't just take our word for it"
+    },
+    {
+     "level": 2,
+     "text": "5500+"
+    },
+    {
+     "level": 2,
+     "text": "4,500,000+"
+    },
+    {
+     "level": 2,
+     "text": "4.7/5.0"
+    },
+    {
+     "level": 2,
+     "text": "Get the app now"
+    }
+   ],
+   "images": [
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "screenshot"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.additudemag.com/mobile-apps-for-adhd-minds/",
+   "title": "ADHD Apps: Mobile Resources for ADD Minds",
+   "word_count": 3379,
+   "h2_count": 30,
+   "image_count": 2,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "Forgetful? Disorganized? Time-blind? These ADHD apps and resources won\u2019t cure your ADHD symptoms, but they can"
+    },
+    {
+     "level": 2,
+     "text": "ADHD Apps Help Manage My Life"
+    },
+    {
+     "level": 2,
+     "text": "1. RescueTime"
+    },
+    {
+     "level": 2,
+     "text": "2. Focus@Will"
+    },
+    {
+     "level": 2,
+     "text": "3. Freedom"
+    },
+    {
+     "level": 2,
+     "text": "4. Evernote"
+    },
+    {
+     "level": 2,
+     "text": "5. Mint"
+    },
+    {
+     "level": 2,
+     "text": "6. Google Voice"
+    },
+    {
+     "level": 2,
+     "text": "7. Boomerang for Gmail"
+    },
+    {
+     "level": 2,
+     "text": "8. Dropbox"
+    },
+    {
+     "level": 2,
+     "text": "9. IFTTT (If This Then That)"
+    },
+    {
+     "level": 2,
+     "text": "10. Unroll.me"
+    },
+    {
+     "level": 2,
+     "text": "11. ScheduleOnce"
+    },
+    {
+     "level": 2,
+     "text": "12. Finish"
+    },
+    {
+     "level": 2,
+     "text": "13. Priority Matrix"
+    },
+    {
+     "level": 2,
+     "text": "14. AutoSilent"
+    },
+    {
+     "level": 2,
+     "text": "15. FreakyAlarm"
+    },
+    {
+     "level": 2,
+     "text": "16. Wake N Shake"
+    },
+    {
+     "level": 2,
+     "text": "17. Todoist"
+    },
+    {
+     "level": 2,
+     "text": "18. SimpleMind"
+    },
+    {
+     "level": 2,
+     "text": "19. Dragon"
+    },
+    {
+     "level": 2,
+     "text": "20. Voice Dictation for Mac"
+    },
+    {
+     "level": 2,
+     "text": "21. WriteRoom"
+    },
+    {
+     "level": 2,
+     "text": "22. Brainsparker"
+    },
+    {
+     "level": 2,
+     "text": "23. Sleep as Android"
+    },
+    {
+     "level": 2,
+     "text": "24. Sleep Cycle"
+    },
+    {
+     "level": 2,
+     "text": "25. Podcast Players"
+    },
+    {
+     "level": 2,
+     "text": "ADHD Apps & Tools: Read These Next"
+    },
+    {
+     "level": 3,
+     "text": "Mother\u2019s Day Gift Ideas We Love"
+    },
+    {
+     "level": 3,
+     "text": "How Cognitive Behavioral Therapy (CBT) Works"
+    },
+    {
+     "level": 3,
+     "text": "Holderness Family Values: 9 ADHD Truths (with a Side of Laughter)"
+    },
+    {
+     "level": 3,
+     "text": "ADDitude's Top 10 Webinars of 2022"
+    },
+    {
+     "level": 3,
+     "text": "ADHD Newsletter"
+    },
+    {
+     "level": 3,
+     "text": "Teens with ADHD"
+    },
+    {
+     "level": 2,
+     "text": "The Adult\u2019s Guide to Stronger Executive Functions"
+    },
+    {
+     "level": 2,
+     "text": "Subscribe to ADDitude's Free Newsletters"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://add.org/adhd-planner/",
+   "title": "ADHD Planners for Adults: Tools for Organization & Productivity - ADDA - Attention Deficit Disorder Association",
+   "word_count": 3291,
+   "h2_count": 10,
+   "image_count": 15,
+   "table_count": 1,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 8,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "Time & Productivity"
+    },
+    {
+     "level": 2,
+     "text": "What Are the Benefits of an ADHD Planner?"
+    },
+    {
+     "level": 2,
+     "text": "Physical vs. Digital: Choosing the Right ADHD Planner for You"
+    },
+    {
+     "level": 2,
+     "text": "What Actually Makes an ADHD Planner Work?"
+    },
+    {
+     "level": 3,
+     "text": "Brain dump/capture space"
+    },
+    {
+     "level": 3,
+     "text": "No hourly scheduling"
+    },
+    {
+     "level": 3,
+     "text": "High flexibility"
+    },
+    {
+     "level": 3,
+     "text": "Low visual clutter"
+    },
+    {
+     "level": 3,
+     "text": "No guilt architecture"
+    },
+    {
+     "level": 3,
+     "text": "Task carry-forward mechanism"
+    },
+    {
+     "level": 3,
+     "text": "Priority markers"
+    },
+    {
+     "level": 3,
+     "text": "Minimal optional trackers"
+    },
+    {
+     "level": 3,
+     "text": "Reward/dopamine hooks"
+    },
+    {
+     "level": 3,
+     "text": "Consistent layout week to week"
+    },
+    {
+     "level": 2,
+     "text": "Crafting Your Perfect ADHD Planner"
+    },
+    {
+     "level": 2,
+     "text": "Best ADHD Planners for Adults\u2014Reviewed & Compared"
+    },
+    {
+     "level": 3,
+     "text": "Planner Pad (Physical)"
+    },
+    {
+     "level": 3,
+     "text": "Panda Planner (Physical)"
+    },
+    {
+     "level": 3,
+     "text": "Passion Planner (Physical)"
+    },
+    {
+     "level": 3,
+     "text": "Happy Planner (Physical)"
+    },
+    {
+     "level": 3,
+     "text": "Notion (Digital)"
+    },
+    {
+     "level": 3,
+     "text": "Structured App (Digital)"
+    },
+    {
+     "level": 2,
+     "text": "Beyond the Planner: ADHD-Friendly Organizing Tips"
+    },
+    {
+     "level": 2,
+     "text": "Adding ADHD Planners to Your Organizational Toolkit"
+    },
+    {
+     "level": 2,
+     "text": "References"
+    },
+    {
+     "level": 3,
+     "text": "You may also like"
+    },
+    {
+     "level": 3,
+     "text": "7 Comments"
+    },
+    {
+     "level": 3,
+     "text": "Leave A ReplyCancel reply"
+    },
+    {
+     "level": 2,
+     "text": "Request Refund"
+    },
+    {
+     "level": 3,
+     "text": "Wait! Download The 5 Pillars To Manage Your ADHD"
+    },
+    {
+     "level": 3,
+     "text": "We Use Cookies Here"
+    }
+   ],
+   "images": [
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "stock photo"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "photo of a person"
+    },
+    {
+     "kind": "chart or graph"
+    }
+   ],
+   "tables": [
+    {
+     "columns": [
+      "Planner",
+      "Type",
+      "Brain Dump",
+      "Undated",
+      "Hourly Grid",
+      "Price",
+      "Best For"
+     ],
+     "rows": 6
+    }
+   ]
+  },
+  {
+   "url": "https://www.erincondren.com/inspiration-center-best-planner-adhd",
+   "title": "Choosing the Best Planner for an ADHD Brain | Erin Condren",
+   "word_count": 3199,
+   "h2_count": 6,
+   "image_count": 10,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "How to Choose the Best Planner for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "Simplicity and Clarity"
+    },
+    {
+     "level": 3,
+     "text": "Visual Appeal"
+    },
+    {
+     "level": 3,
+     "text": "Customizability and Flexible Layouts"
+    },
+    {
+     "level": 3,
+     "text": "Task Lists and Checklists"
+    },
+    {
+     "level": 3,
+     "text": "Space for Goal Setting and Progress Tracking"
+    },
+    {
+     "level": 3,
+     "text": "Time Blocking Sections for Time Management"
+    },
+    {
+     "level": 3,
+     "text": "Paper Planner vs. Digital Planner"
+    },
+    {
+     "level": 2,
+     "text": "The Best Planners for ADHD"
+    },
+    {
+     "level": 3,
+     "text": "Weekly LifePlanner\u2122"
+    },
+    {
+     "level": 3,
+     "text": "Daily LifePlanner\u2122"
+    },
+    {
+     "level": 3,
+     "text": "Monthly Planner"
+    },
+    {
+     "level": 3,
+     "text": "PetitePlanner Folio System"
+    },
+    {
+     "level": 3,
+     "text": "Guided Journals"
+    },
+    {
+     "level": 3,
+     "text": "Academic Planner"
+    },
+    {
+     "level": 2,
+     "text": "Tips for Using a Planner with ADHD"
+    },
+    {
+     "level": 3,
+     "text": "Utilize Color-Coding"
+    },
+    {
+     "level": 3,
+     "text": "Break Down Larger Tasks"
+    },
+    {
+     "level": 3,
+     "text": "Create Routines"
+    },
+    {
+     "level": 3,
+     "text": "Include Breaks"
+    },
+    {
+     "level": 3,
+     "text": "Stay Flexible"
+    },
+    {
+     "level": 2,
+     "text": "Managing ADHD as an Adult"
+    },
+    {
+     "level": 3,
+     "text": "Prioritize Tasks"
+    },
+    {
+     "level": 3,
+     "text": "Set Realistic Goals"
+    },
+    {
+     "level": 3,
+     "text": "Create Consistent Routines"
+    },
+    {
+     "level": 2,
+     "text": "Shop now. Pay in 4.Always interest-free."
+    },
+    {
+     "level": 2,
+     "text": "Pay in 4 interest-free payments"
+    }
+   ],
+   "images": [
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.morgen.so/blog-posts/adhd-productivity-apps",
+   "title": "Best ADHD Apps for Focus, Planning & Time Management (2026)",
+   "word_count": 3047,
+   "h2_count": 10,
+   "image_count": 38,
+   "table_count": 6,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 10,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "1. Morgen: Best ADHD Productivity App for Structured Planning"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Morgen Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Morgen Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Morgen Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "2. Motion"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Motion Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Motion Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Motion Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "3. Tiimo"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Tiimo Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Tiimo Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Tiimo Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "4. Sunsama"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Sunsama Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Sunsama Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Sunsama Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "5. Todoist"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where Todoist Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where Todoist Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who Todoist Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "6. FLOWN"
+    },
+    {
+     "level": 3,
+     "text": "Key Features"
+    },
+    {
+     "level": 3,
+     "text": "Pricing"
+    },
+    {
+     "level": 3,
+     "text": "Where FLOWN Shines"
+    },
+    {
+     "level": 3,
+     "text": "Where FLOWN Falls Short"
+    },
+    {
+     "level": 3,
+     "text": "Customer Reviews"
+    },
+    {
+     "level": 3,
+     "text": "Who FLOWN Is Best For"
+    },
+    {
+     "level": 2,
+     "text": "7. Goblin Tools"
+    },
+    {
+     "level": 2,
+     "text": "How to Choose the Best ADHD Productivity App"
+    },
+    {
+     "level": 3,
+     "text": "Visual Time Representation for Time Blindness"
+    },
+    {
+     "level": 3,
+     "text": "Deep Integrations to Reduce Context-Switching"
+    },
+    {
+     "level": 3,
+     "text": "AI Assistance Level: Autopilot vs. Copilot"
+    },
+    {
+     "level": 3,
+     "text": "Prioritization Systems for Decision Fatigue"
+    },
+    {
+     "level": 3,
+     "text": "Reminders and Alarms for Time-Blocking"
+    },
+    {
+     "level": 2,
+     "text": "Build Better Daily Routines With Morgen"
+    },
+    {
+     "level": 2,
+     "text": "Read more from Morgen"
+    },
+    {
+     "level": 3,
+     "text": "10 Best AI Planning Assistants in 2026"
+    },
+    {
+     "level": 3,
+     "text": "9 Best Shared Calendar Apps Compared in 2026"
+    },
+    {
+     "level": 3,
+     "text": "9 Best AI Calendars Apps in 2026 (Tested)"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": [
+    {
+     "columns": [
+      "Tool",
+      "Best For",
+      "Standout Feature",
+      "Price",
+      "G2 Rating (/5)",
+      "Capterra Rating (/5)"
+     ],
+     "rows": 7
+    },
+    {
+     "columns": [
+      "Plan",
+      "Yearly",
+      "Monthly"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Price"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Price"
+     ],
+     "rows": 2
+    },
+    {
+     "columns": [
+      "Plan",
+      "Price"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Plan",
+      "Price"
+     ],
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "url": "https://www.neural-revolution.com/feeds/blog/apps-professional-adhd-coaching-features",
+   "title": "Best ADHD Apps for Adults: Top Picks for 2026",
+   "word_count": 2431,
+   "h2_count": 8,
+   "image_count": 8,
+   "table_count": 6,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": true,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "Key Takeaways"
+    },
+    {
+     "level": 2,
+     "text": "What Makes an ADHD App Actually Work for Adults"
+    },
+    {
+     "level": 3,
+     "text": "Low-Friction Entry Is Non-Negotiable"
+    },
+    {
+     "level": 3,
+     "text": "Time Blindness Needs More Than One Notification"
+    },
+    {
+     "level": 3,
+     "text": "Task Breakdown and Visible Next Actions"
+    },
+    {
+     "level": 3,
+     "text": "External Accountability Changes the Equation"
+    },
+    {
+     "level": 2,
+     "text": "Best ADHD Apps for Adults: Our Top Picks for 2026"
+    },
+    {
+     "level": 3,
+     "text": "Inflow \u2014 Best Overall ADHD App"
+    },
+    {
+     "level": 3,
+     "text": "EndeavorOTC \u2014 Best FDA-Cleared Digital Treatment"
+    },
+    {
+     "level": 3,
+     "text": "Focusmate \u2014 Best for Body Doubling and Accountability"
+    },
+    {
+     "level": 3,
+     "text": "RescueTime \u2014 Best for Time Awareness"
+    },
+    {
+     "level": 3,
+     "text": "Goblin Tools (Magic ToDo) \u2014 Best for Task Initiation"
+    },
+    {
+     "level": 3,
+     "text": "Remember the Milk \u2014 Best for Task Management Without Overwhelm"
+    },
+    {
+     "level": 2,
+     "text": "How to Use ADHD Apps Without Building Another System You'll Abandon"
+    },
+    {
+     "level": 3,
+     "text": "Start With One Problem, One Tool"
+    },
+    {
+     "level": 3,
+     "text": "The Restart Problem Is Real \u2014 Plan for It"
+    },
+    {
+     "level": 2,
+     "text": "When Apps Aren't Enough: The Case for Human-Level Support"
+    },
+    {
+     "level": 2,
+     "text": "Frequently Asked Questions"
+    },
+    {
+     "level": 3,
+     "text": "What are the best apps for ADHD management?"
+    },
+    {
+     "level": 3,
+     "text": "Are there free ADHD apps that actually work?"
+    },
+    {
+     "level": 3,
+     "text": "Can ADHD apps replace medication or therapy?"
+    },
+    {
+     "level": 3,
+     "text": "Why do I download ADHD apps but never use them?"
+    },
+    {
+     "level": 3,
+     "text": "What features matter most in an ADHD app for adults?"
+    },
+    {
+     "level": 3,
+     "text": "How long should I try an ADHD app before deciding if it works?"
+    },
+    {
+     "level": 2,
+     "text": "Read Related Blogs"
+    },
+    {
+     "level": 2,
+     "text": "Transform Your Focus with Professional ADHD Coaching Solutions"
+    }
+   ],
+   "images": [
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "chart or graph"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "screenshot"
+    },
+    {
+     "kind": "diagram"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": [
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    },
+    {
+     "columns": [
+      "Detail",
+      "Info"
+     ],
+     "rows": 3
+    }
+   ]
+  },
+  {
+   "url": "https://laureldenise.com/collections/best-selling-planners",
+   "title": "Best-Selling Planners & Customer Favorites | Laurel Denise | laurel denise",
+   "word_count": 2288,
+   "h2_count": 4,
+   "image_count": 18,
+   "table_count": 0,
+   "video_count": 4,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": true,
+   "faq_schema": true,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "Looking for the 2027 Collection?"
+    },
+    {
+     "level": 2,
+     "text": "The Planners Our Community Loves Most"
+    },
+    {
+     "level": 3,
+     "text": "100,000+ Happy Customers"
+    },
+    {
+     "level": 3,
+     "text": "Giving Back"
+    },
+    {
+     "level": 3,
+     "text": "Hassle-free Returns"
+    },
+    {
+     "level": 2,
+     "text": "Get Inspired by Our Community Gallery!"
+    },
+    {
+     "level": 2,
+     "text": "Frequently asked planner questions"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "illustration"
+    },
+    {
+     "kind": "illustration"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.healthline.com/health/favorite-healthy-adhd-management-finds",
+   "title": "The Best ADHD Management Tools",
+   "word_count": 1396,
+   "h2_count": 6,
+   "image_count": 17,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": true,
+   "faq_schema": true,
+   "images_missing_alt": 16,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 3,
+     "text": "The most important tool of all"
+    },
+    {
+     "level": 2,
+     "text": "Timers"
+    },
+    {
+     "level": 2,
+     "text": "Fidget toys"
+    },
+    {
+     "level": 2,
+     "text": "Journals and calendars"
+    },
+    {
+     "level": 2,
+     "text": "Apps"
+    },
+    {
+     "level": 3,
+     "text": "Bonus reminder"
+    },
+    {
+     "level": 2,
+     "text": "Frequently asked questions about ADHD tools"
+    },
+    {
+     "level": 3,
+     "text": "What is the best way to manage ADHD?"
+    },
+    {
+     "level": 3,
+     "text": "Can you control ADHD without medication?"
+    },
+    {
+     "level": 3,
+     "text": "What is the 30-minute rule for ADHD?"
+    },
+    {
+     "level": 3,
+     "text": "Can caffeine help with ADHD symptoms?"
+    },
+    {
+     "level": 3,
+     "text": "Can certain things make ADHD symptoms worse?"
+    },
+    {
+     "level": 2,
+     "text": "Takeaway"
+    },
+    {
+     "level": 3,
+     "text": "How we reviewed this article:"
+    }
+   ],
+   "images": [
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "chart or graph"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "icon"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.wonderstruct.co/insights/the-best-adhd-planners-for-professionals-in-2026",
+   "title": "The Best ADHD Planners for Professionals in 2026 | Wonderstruct",
+   "word_count": 121,
+   "h2_count": 1,
+   "image_count": 3,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [
+    {
+     "level": 2,
+     "text": "Related posts"
+    },
+    {
+     "level": 3,
+     "text": "The Best ADHD Planners for Professionals in 2026"
+    },
+    {
+     "level": 3,
+     "text": "Hire for Success: Top 10 In-Demand Infrastructure Roles for 2026"
+    },
+    {
+     "level": 3,
+     "text": "Proposal Best Practices: How to Write, and Win, Proposals for AEC Projects"
+    }
+   ],
+   "images": [
+    {
+     "kind": "unclassified"
+    },
+    {
+     "kind": "stock photo"
+    },
+    {
+     "kind": "unclassified"
+    }
+   ],
+   "tables": []
+  },
+  {
+   "url": "https://www.reddit.com/r/adhdwomen/comments/19cluwh/i_have_seen_so_many_adhd_planners_that_just_dont/",
+   "title": "Reddit",
+   "word_count": 0,
+   "h2_count": 0,
+   "image_count": 0,
+   "table_count": 0,
+   "video_count": 0,
+   "list_item_count": null,
+   "para_words_median": null,
+   "para_words_max": null,
+   "faq_visible": false,
+   "faq_schema": false,
+   "images_missing_alt": 0,
+   "suspect_extraction": false,
+   "headings": [],
+   "images": [],
+   "tables": []
+  }
+ ]
+}

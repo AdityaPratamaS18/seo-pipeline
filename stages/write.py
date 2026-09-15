@@ -117,6 +117,52 @@ def exemplar_text(ref):
 
 
 # ── prompt ────────────────────────────────────────────────────────────────
+def length_text(bar):
+    """The length instruction, and on a long SERP, what to cover instead."""
+    ceiling = bar.get("word_ceiling")
+    cap = f" and no more than {ceiling:,}" if ceiling else ""
+    long_serp = bar.get("long_serp")
+    if long_serp:
+        text = (f"The ranking pages run long: a {long_serp['median_words']:,} word median, the longest "
+                f"{long_serp['longest_words']:,}. Do not match that. Pages that long pad, repeat and\n"
+                f"list everything twice. **Target {bar['word_target']:,} words**{cap}, and win on coverage "
+                "and density:\nthe topics below, each given the space it earns, and nothing said twice.")
+    else:
+        text = (f"Median is {bar['median_words']:,} words. **Target {bar['word_target']:,}**{cap}, and beat "
+                "the\nmedian by being more useful, not by padding. A shorter, better page beats a longer, "
+                "worse one.")
+    cov = bar.get("coverage") or []
+    if cov:
+        n = len(bar.get("competitors") or [])
+        text += ("\n\nWhat the ranking pages cover (a heading on at least two of them). Cover each, in a "
+                 "line or a\nsection as it deserves, inside the structure below:\n"
+                 + "\n".join(f"  - {c['topic']} ({c['pages']} of {n})" for c in cov))
+    return text
+
+
+def layout_text(b):
+    lay = b.get("layout")
+    if not lay:
+        return ""
+    lines = []
+    if lay.get("contents"):
+        lines.append("- After the introduction, a short list of jump links to each H2 (skip it if the "
+                     "site draws its own).")
+    if lay.get("takeaways"):
+        lines.append("- Under the introduction, a \"## Key takeaways\" list of 3 to 5 full sentences, "
+                     "each true on its own.\n  A skimmer who reads only these should leave with the answer.")
+    if lay.get("subheads_every_words"):
+        lines.append(f"- Inside any section past about {lay['subheads_every_words'] * 2} words, H3 "
+                     f"subheads about every {lay['subheads_every_words']} words.")
+    if lay.get("max_prose_run_words"):
+        lines.append(f"- Never more than {lay['max_prose_run_words']} words of unbroken prose: break it "
+                     "with an image marker,\n  a table, a short list, a subhead or a pulled-out point. "
+                     "Only where the content really is\n  a list or a comparison; a list made to break "
+                     "up text reads as filler.")
+    return ("\n## Layout\n\n" + ("This is a long page, and it will be scanned before it is read.\n"
+            if lay.get("long_page") else "") + "\n".join(lines) + "\n") if lines else ""
+
+
 def build_prompt(b, voice_text, exemplars):
     p, k, bar, ang, ev = b["page"], b["keywords"], b["the_bar"], b["angle"], b["evidence"]
     prim = k["primary"]
@@ -240,8 +286,7 @@ What the ranking pages fail to do, which is your opening:
 The pages currently ranking:
 {comps}
 
-Median is {bar['median_words']:,} words. **Target {bar['word_target']:,}**, and beat the
-median by being more useful, not by padding. A shorter, better page beats a longer, worse one.
+{length_text(bar)}
 
   Images: {bar['image_target']}, counting the cover, which `seo media` makes. Place only the markers below.
 {rhythm}
@@ -253,7 +298,7 @@ median by being more useful, not by padding. A shorter, better page beats a long
 Open like this: {b['structure']['opening']}
 
 {secs}
-
+{layout_text(b)}
 ## The ONLY facts you may assert
 
 Every number, price, product capability and competitor claim in your draft must
@@ -309,6 +354,53 @@ Then the sections above, in order, as H2s.{sources_note}
 
 
 # ── check ─────────────────────────────────────────────────────────────────
+BREAK = re.compile(r"^(#{2,6}\s|\||\[IMAGE|!\[|>|[-*+]\s|\d+[.)]\s|<)")
+
+
+def prose_runs(text):
+    """Words in each stretch of prose between anything that breaks it up."""
+    runs, cur = [], 0
+    for block in re.split(r"\n\s*\n", FRONT.sub("", text)):
+        b = block.strip()
+        if not b:
+            continue
+        if BREAK.match(b) or b.startswith("# "):
+            if cur:
+                runs.append(cur)
+            cur = 0
+            continue
+        cur += len(b.split())
+    if cur:
+        runs.append(cur)
+    return runs
+
+
+def check_layout(b, text):
+    lay = b.get("layout") or {}
+    errs, warns = [], []
+    limit = lay.get("max_prose_run_words")
+    if limit:
+        worst = max(prose_runs(text) or [0])
+        if worst > limit * 2:
+            errs.append(f"a stretch of {worst} words of unbroken prose, against {limit}. A reader scanning "
+                        "a long page skips it whole.")
+        elif worst > limit * 1.3:
+            warns.append(f"a stretch of {worst} words of unbroken prose, against {limit}")
+    if lay.get("takeaways"):
+        head = text[:max(1500, len(text) // 4)]
+        if not re.search(r"^#{2,3}\s+(key takeaways|in short|at a glance|the short version)", head, re.M | re.I):
+            warns.append("no key takeaways near the top. A long page is scanned first, and a skimmer "
+                         "leaves if the top does not answer.")
+    every = lay.get("subheads_every_words")
+    if every:
+        parts = re.split(r"^##\s+(.+)$", FRONT.sub("", text), flags=re.M)
+        for heading, body in zip(parts[1::2], parts[2::2]):
+            n = len(re.sub(r"[#*_>|\[\]()]", " ", body).split())
+            if n > every * 2.5 and not re.search(r"^###\s+", body, re.M):
+                warns.append(f"'{heading.strip()[:40]}' runs {n} words with no subheads")
+    return errs, warns
+
+
 def words(text):
     body = FRONT.sub("", text)
     body = re.sub(r"```.*?```", "", body, flags=re.S)
@@ -386,10 +478,32 @@ def check_draft(b, text):
                 errs.append(f"{field} is {len(val)} chars, needs {rng[0]} to {rng[1]}")
 
     n = words(text)
-    if n < bar["median_words"]:
-        errs.append(f"{n:,} words is below the {bar['median_words']:,} median it has to beat")
+    floor = bar.get("word_floor", bar["median_words"])
+    ceiling = bar.get("word_ceiling")
+    if n < floor:
+        errs.append(f"{n:,} words is below the {floor:,} " + (
+            "floor for this page" if bar.get("long_serp") else "median it has to beat"))
     elif n < bar["word_target"] * 0.85:
         warns.append(f"{n:,} words against a {bar['word_target']:,} target")
+    # Only a floor was checked, so a writer chasing a 5,000 word SERP produced a
+    # 5,000 word page. Past the ceiling is padding, and well past it fails.
+    if ceiling and n > ceiling * 1.25:
+        errs.append(f"{n:,} words, well past the {ceiling:,} ceiling. Cut what is said twice.")
+    elif ceiling and n > ceiling:
+        warns.append(f"{n:,} words, past the {ceiling:,} ceiling")
+
+    body_words = set(re.findall(r"[a-z0-9']+", FRONT.sub("", text).lower()))
+    from stages.keywords import stem
+    stems = {stem(w) for w in body_words}
+    for c in bar.get("coverage") or []:
+        from stages.keywords import kw_key
+        key = kw_key(c["topic"])
+        if key and len(key & stems) / len(key) < 0.6:
+            warns.append(f"'{c['topic']}' is covered by {c['pages']} ranking pages and not visibly here")
+
+    errs_l, warns_l = check_layout(b, text)
+    errs += errs_l
+    warns += warns_l
 
     prim = k["primary"]["keyword"].lower()
     body = FRONT.sub("", text)

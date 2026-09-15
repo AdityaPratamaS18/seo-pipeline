@@ -244,7 +244,7 @@ def semantic(kind, doc):
         bar = doc["the_bar"]
         if len(bar["competitors"]) < 2:
             errs.append("the_bar was computed from fewer than 2 competitors, so it is not a bar.")
-        if bar["word_target"] < bar["median_words"]:
+        if bar["word_target"] < bar["median_words"] and not bar.get("long_serp"):
             warns.append(f"word_target {bar['word_target']} is below the median {bar['median_words']}. "
                          "Deliberate, or an error?")
         if bar.get("needs_table") and not bar.get("table_compares"):

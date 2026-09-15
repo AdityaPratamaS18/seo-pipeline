@@ -115,6 +115,12 @@ days and anything else after a year: the writer and `seo publish` both refuse a 
 re-verify right before publishing. If a quote is gone, the price changed: update the fact and the
 draft. The page says "Prices as of <Month Year>" beside the first price or the table.
 
+**A long SERP is not a length to match.** When the ranking pages run past the template's
+`max_words`, the brief caps the target, lists the topics they share under `the_bar.coverage`, and
+sets `layout` (contents, key takeaways, subheads, no long runs of prose). Cover every topic, stay
+under `word_ceiling`, and break the page up the way `layout` says. Figures come from what the
+outline can carry, not from how many images the rivals show.
+
 **A check reporting zero units examined is a failure, not a pass.**
 
 **A file still containing `TODO:` cannot be confirmed.** `validate.py` rejects it.

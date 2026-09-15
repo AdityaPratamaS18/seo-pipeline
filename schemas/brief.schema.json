@@ -256,6 +256,54 @@
           "minimum": 1,
           "description": "Beat the median without padding. Padding to a number is worse than being shorter and better."
         },
+        "word_floor": {
+          "type": "integer",
+          "description": "The draft fails below this. The median, unless the median is past the template's ceiling, when it is 80% of the target: a page that covers the ground in fewer words is the point."
+        },
+        "word_ceiling": {
+          "type": "integer",
+          "description": "The draft is warned above this, and fails a quarter past it. Length past the target is padding."
+        },
+        "long_serp": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "median_words": {
+              "type": "integer"
+            },
+            "longest_words": {
+              "type": "integer"
+            },
+            "why": {
+              "type": "string"
+            }
+          },
+          "description": "Set when the ranking pages run past where this kind of page stops getting more useful. The target is capped and the page is judged on coverage instead of length."
+        },
+        "coverage": {
+          "type": "array",
+          "description": "Topics at least two ranking pages give a heading to, most common first. What a page has to cover, whatever its length.",
+          "items": {
+            "type": "object",
+            "required": [
+              "topic",
+              "pages"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "topic": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 2
+              }
+            }
+          }
+        },
         "image_target": {
           "type": "integer",
           "minimum": 0
@@ -657,7 +705,10 @@
                 "format": "date-time"
               },
               "verified_at": {
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "date-time"
               }
             }
@@ -781,6 +832,38 @@
               }
             }
           }
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "How the page is broken up, decided with its length. A long page is scanned, not read: it needs a way to jump, a place to stop, and something other than prose every few hundred words.",
+      "properties": {
+        "long_page": {
+          "type": "boolean"
+        },
+        "contents": {
+          "type": "boolean",
+          "description": "A list of jump links to each H2 after the introduction, unless the site renders one itself."
+        },
+        "takeaways": {
+          "type": "boolean",
+          "description": "Three to five key takeaways under the introduction, each a full sentence that stands alone."
+        },
+        "max_prose_run_words": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "The most words of unbroken prose before an image, table, list, callout or subhead."
+        },
+        "subheads_every_words": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "A section longer than about twice this carries H3 subheads. Null for a site that cannot render them."
         }
       }
     },

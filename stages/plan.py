@@ -261,18 +261,91 @@ def med(values):
     return v[len(v) // 2] if v else 0
 
 
+# Where more words stop helping the reader, for a template that does not say.
+DEFAULT_MAX_WORDS = 3000
+# One visual for about this many words of the page's own target, not the rivals'.
+WORDS_PER_VISUAL = 500
+MAX_IMAGES = 10
+GENERIC_HEADINGS = re.compile(r"^(faq|frequently asked|conclusion|final thoughts|summary|in summary|"
+                              r"related|table of contents|contents|about the author|share|subscribe|"
+                              r"what (our )?clients say|testimonials|references|sources|get in touch|"
+                              r"contact|next steps|key takeaways|the bottom line|bottom line|read more|"
+                              r"more from|related (posts|articles|reading)|you (may|might) also like|"
+                              r"popular posts|latest posts|recent posts)\b", re.I)
+# Headings that repeat inside every item of a list page. Two pages both having
+# "Key features" under each app is not a topic either of them covers.
+ITEM_HEADINGS = re.compile(r"^(key )?(features|pros|cons|pros and cons|pricing|price|cost|reviews?|"
+                           r"customer reviews|overview|introduction|verdict|our verdict|best for|"
+                           r"who it'?s for|why we like it|drawbacks|downsides|rating)$", re.I)
+
+
+def coverage(ok, limit=12):
+    """Topics that at least two ranking pages each give a heading to.
+
+    When the ranking pages run to 5,000 words, matching their length produces a
+    page that pads and repeats the way they do. What a reader needs from them is
+    what they cover, so the brief carries that instead: the subjects most of them
+    treat, which a shorter page can cover more densely. A heading is reduced to
+    its words before any colon ("2. Tiimo: Visual Daily Planner" is Tiimo). A page
+    repeating its own headings counts once, and so does a site ranking twice: two
+    posts from one blog sharing a sidebar is not two publishers agreeing."""
+    from stages.keywords import kw_key
+    topics = []                                   # [label, key, set of sites]
+    for p in ok:
+        site = re.sub(r"^www\.", "", p["url"].split("/")[2]) if "://" in p["url"] else p["url"]
+        seen = set()
+        for h in p.get("headings", []):
+            if h.get("level") not in (2, 3):
+                continue
+            text = re.sub(r"^\s*\d+[.)]\s*", "", h["text"]).split(":")[0].strip(" .?!")
+            if not text or GENERIC_HEADINGS.search(text) or ITEM_HEADINGS.match(text):
+                continue
+            key = kw_key(text)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            for t in topics:
+                if len(key & t[1]) / len(key | t[1]) >= 0.5:
+                    t[2].add(site)
+                    if len(text) < len(t[0]):
+                        t[0] = text
+                    break
+            else:
+                topics.append([text, key, {site}])
+    common = [t for t in topics if len(t[2]) >= 2]
+    common.sort(key=lambda t: (-len(t[2]), len(t[0])))
+    return [{"topic": t[0], "pages": len(t[2])} for t in common[:limit]]
+
+
 def build_bar(ok, template):
     words = sorted(p["word_count"] for p in ok)
     median = words[len(words) // 2]
-    target = max(median + max(200, median // 5), template["min_words"])
+    floor_words = template["min_words"]
+    ceiling = max(template.get("max_words") or DEFAULT_MAX_WORDS, floor_words)
+    wanted = max(median + max(200, median // 5), floor_words)
+    # Beating a 5,000 word median by a fifth is a 6,000 word page nobody finishes.
+    # Past the template's ceiling the page covers what they cover, in fewer words.
+    target = min(wanted, ceiling)
+    long_serp = wanted > ceiling
+    scale = min(1.0, target / max(median, 1))
     using_tables = sum(1 for p in ok if p["table_count"])
     return {
         "median_words": median,
         "word_target": target,
-        # Count only images that carry meaning. Icon-heavy pages report 16
-        # images where two are explanatory, and targeting 8 would have a writer
-        # commissioning filler.
-        "image_target": max(3, sorted(meaningful_images(p) for p in ok)[len(ok) // 2]),
+        # A draft under the median loses, unless the median is past the ceiling, in
+        # which case a draft near the target is the point.
+        "word_floor": median if not long_serp else round(target * 0.8),
+        "word_ceiling": round(target * 1.15),
+        "long_serp": ({"median_words": median, "longest_words": words[-1],
+                       "why": f"the ranking pages run to a {median:,} word median, past the "
+                              f"{ceiling:,} words where this kind of page stops getting more useful. "
+                              "Match what they cover, not how long they are."}
+                      if long_serp else None),
+        "coverage": coverage(ok),
+        # By the page's own length. Competitor image counts on long pages are mostly
+        # logos and screenshots of each item, and copying the median had a writer
+        # commissioning filler. Replaced by what the outline can carry in make_brief.
+        "image_target": min(MAX_IMAGES, max(3, 1 + -(-target // WORDS_PER_VISUAL))),
         # A template whose own sections ask for a comparison table needs one, whatever
         # the competitors do. Without this the brief contradicted itself: `needs_table`
         # false, a "How they compare" section, and a table image in `media`.
@@ -285,7 +358,9 @@ def build_bar(ok, template):
         # fifty words with nothing between them. Measured, so it is a bar rather
         # than a style opinion.
         "rhythm": {
-            "list_items": med(p.get("list_item_count", 0) for p in ok),
+            # Scaled to this page's length: 80 list items on a 6,000 word rival is
+            # not a count a 3,000 word page should aim for.
+            "list_items": round(med(p.get("list_item_count", 0) for p in ok) * scale),
             "paragraph_words": max(30, med(p.get("para_words_median", 0) for p in ok)),
             "paragraph_max": max(70, med(p.get("para_words_max", 0) for p in ok)),
         },
@@ -454,13 +529,16 @@ def media_from(template, bar, cluster, business):
                                "alt": head_of(sec)}, palette[(i + 1) % len(palette)]))
         used.add(i)
 
-    # Top up to what the ranking pages actually carry. The templates declare at
-    # most two image slots, so a page competing against eight-image articles
-    # shipped three and read as a wall of text no matter what the bar said.
+    # Top up to what the page's length calls for. The templates declare at most two
+    # image slots, so a long page shipped three and read as a wall of text.
     for i, sec in enumerate(template["sections"]):
         if len(inline) >= target:
             break
         if i in used or sec.get("wants_image"):
+            continue
+        # An FAQ or a source list is not a place for a figure: there is nothing in
+        # it to draw that the questions themselves do not already say.
+        if re.match(r"(frequently asked|sources\b)", sec["heading"], re.I):
             continue
         inline.append(with_bg({"type": "steps" if sec.get("ordered") else "cards",
                                "placement_section": head_of(sec), "alt": head_of(sec)},
@@ -474,10 +552,38 @@ def media_from(template, bar, cluster, business):
             "inline": inline}
 
 
+LONG_PAGE = 1800
+
+
+def layout_for(bar, template, business):
+    """How a page is broken up, decided with its length.
+
+    A long page is read by scanning: a reader jumps to the section they came for,
+    and leaves if the top does not tell them the page has it. So past about 1,800
+    words the brief asks for a contents list, a few key takeaways a skimmer can
+    stop at, subheads inside long sections, and something other than prose (an
+    image, a table, a list, a callout) at least every few hundred words. A site
+    whose renderer cannot draw a subhead turns that off in its profile's
+    defaults.json under "layout"."""
+    long_page = bar["word_target"] >= LONG_PAGE
+    lay = {"long_page": long_page,
+           "contents": long_page or len(template["sections"]) >= 7,
+           "takeaways": long_page,
+           "max_prose_run_words": 350,
+           "subheads_every_words": 300 if long_page else None}
+    lay.update(PROFILES.defaults(business).get("layout") or {})
+    return lay
+
+
 def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
                promptset=None):
     prim = cluster["primary"]["keyword"]
     slug = cluster.get("assigned_slug") or slugify(prim)
+    media = media_from(template, bar, cluster, business)
+    # The count the writer is told is the count the outline carries, cover included.
+    # The target from length decides how many are planned; a template with five
+    # sections cannot carry eight figures, and saying eight made a writer invent slots.
+    bar["image_target"] = 1 + len(media["inline"])
     return {
         "meta": {
             "schema_version": "1.0",
@@ -536,7 +642,8 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
         "extractable": extractable_for(cluster, business, bar, promptset),
         "evidence": evidence_for(business, cluster["page_type"]),
         "links": links,
-        "media": media_from(template, bar, cluster, business),
+        "media": media,
+        "layout": layout_for(bar, template, business),
         "voice": voice_from(business),
     }
 
@@ -743,7 +850,8 @@ def main():
     print(f"  batch {batch}: {len(written)} brief(s) written, {len(skipped)} skipped")
     for slug, bar, n, failed in written:
         print(f"    {slug}")
-        print(f"      bar: beat {bar['median_words']:,} median words with {bar['word_target']:,}, "
+        print(f"      bar: {'cover a' if bar.get('long_serp') else 'beat'} {bar['median_words']:,} "
+              f"median words {'in' if bar.get('long_serp') else 'with'} {bar['word_target']:,}, "
               f"{bar['image_target']} images"
               + (", a table" if bar["needs_table"] else "")
               + (f", read {n} competitor(s)"))

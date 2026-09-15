@@ -142,7 +142,7 @@ def card(b):
   <p class="why">{esc(ang['why_this_page_exists'])}</p>
   <ul class="gaps">{gaps}</ul>
   <div class="bar">
-    <span>beat <b>{bar['median_words']:,}</b> median with <b>{bar['word_target']:,}</b> words</span>
+    <span>{'cover a' if bar.get('long_serp') else 'beat'} <b>{bar['median_words']:,}</b> median {'in' if bar.get('long_serp') else 'with'} <b>{bar['word_target']:,}</b> words</span>
     <span><b>{bar['image_target']}</b> images</span>
     <span>table: <b>{'yes' if bar['needs_table'] else 'no'}</b></span>
     <span>FAQ: <b>{'yes' if bar['faq']['required'] else 'no'}</b></span>
