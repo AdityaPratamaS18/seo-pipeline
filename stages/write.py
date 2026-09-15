@@ -114,7 +114,8 @@ def build_prompt(b, voice_text, exemplars):
     unsettled = "\n".join(f"  - {q}" for q in ev.get("open_questions") or [])
     if unsettled:
         topic += ("\n\nThe research could not settle these. Do not assert an answer to any of "
-                  "them;\nsay the reader should confirm for their case:\n" + unsettled)
+                  "them. Where\nsources disagree, give each side with its source, then say the "
+                  "reader should confirm for their case:\n" + unsettled)
     req = [s["keyword"] for s in k["secondaries"] if s.get("required", True)]
     opt = [s["keyword"] for s in k["secondaries"] if not s.get("required", True)]
     links = "\n".join(f"  - /{l['target_slug']} ({l['anchor_intent']}) [{l['target_status']}]"

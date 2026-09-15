@@ -44,7 +44,8 @@ FACT = {"id": "f01", "claim": "Withholding tax is 5% of the total amount.", "quo
         "source_url": "https://example.gov/law", "publisher_kind": "law",
         "retrieved_at": "2026-09-15T00:00:00Z"}
 DOC = {"meta": {"slug": "wht", "generated_at": "2026-09-15T00:00:00Z", "approved_at": None},
-       "facts": [FACT], "open_questions": []}
+       "facts": [FACT], "open_questions": [{"question": "Whether one owner is enough.",
+                                            "why": "Source A says two, source B says one."}]}
 check(not review(DOC)[0], "a traced fact has no errors")
 bad = copy.deepcopy(DOC)
 bad["facts"][0]["claim"] = "Withholding tax is 10% of the total amount."
@@ -132,6 +133,8 @@ with tempfile.TemporaryDirectory() as t:
         applied = json.load(open(os.path.join("briefs", f"{slug}.json")))
         check(r.returncode == 0 and len(applied["evidence"]["topic_facts"]) == 1,
               "apply merges approved facts into the brief", r.stdout + r.stderr)
+        check(any("Source A says two" in q for q in applied["evidence"]["open_questions"]),
+              "an open question reaches the brief with why it is open, both sides named")
         try:
             W.research_gate(applied)
             check(True, "and then the writer proceeds")

@@ -266,7 +266,10 @@ def cmd_apply(a):
     brief["evidence"]["topic_facts"] = [
         {k: f[k] for k in ("claim", "quote", "source_url", "publisher_kind", "retrieved_at")}
         for f in doc["facts"]]
-    brief["evidence"]["open_questions"] = [q["question"] for q in doc.get("open_questions", [])]
+    # The question and why it is open, together. Passing the question alone let a
+    # writer state one source's side of a disagreement as if it were the answer.
+    brief["evidence"]["open_questions"] = [f"{q['question']} ({q['why']})"
+                                           for q in doc.get("open_questions", [])]
     json.dump(brief, open(bpath, "w"), indent=2)
     print(f"  {len(doc['facts'])} topic fact(s) and {len(doc.get('open_questions', []))} open "
           f"question(s) merged into {bpath}")
