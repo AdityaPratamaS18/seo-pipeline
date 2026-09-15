@@ -222,8 +222,7 @@ def build_prompts(brief, md, colors, style):
     slug = brief["page"]["slug"]
     pal = ", ".join(colors.get("surfaces", [])[:3] + [colors.get("accent", "")])
     base = (style or "clean flat vector illustration, soft rounded shapes, generous "
-                     "negative space, no text, no logos, no人 people, no photorealism")
-    base = base.replace("no人 ", "no ")
+                     "negative space, no text, no logos, no people, no photorealism")
 
     hero = brief["media"]["hero"]
     out.append({
