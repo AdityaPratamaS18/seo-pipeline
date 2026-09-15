@@ -58,6 +58,9 @@ def evidence_numbers(brief, business=None):
     # it, so the quote counts as evidence too.
     for e in ev.get("topic_facts") or []:
         texts += [e["claim"], e["quote"]]
+    # The writer is told to raise each open question as something to confirm, so
+    # the numbers in those questions are given, not invented.
+    texts += list(ev.get("open_questions") or [])
     if business:
         for t in (business.get("pricing") or {}).get("tiers", []):
             texts.append(f"{t['price']}")

@@ -169,7 +169,10 @@ research, and do not choose a different structure. Write the prose.
 ## The keyword
 
 Primary: **{prim['keyword']}** ({prim['volume']:,} searches, difficulty {prim['difficulty']})
-Use it at least {prim['min_uses']} times, including the H1 and one H2. Never force it.
+Use it at least {prim['min_uses']} times, including the H1 and one H2, and no more than
+{use_ceiling(prim['min_uses'], bar['word_target'])}. Never force it. Write keywords the way a person writes, not the
+way they search: "limited liability company in Qatar" counts for "limited liability
+company qatar". Connecting words and plurals may change; the content words may not.
 
 Required secondaries (each must appear at least once):
 {chr(10).join('  - ' + s for s in req) or '  (none)'}
@@ -194,7 +197,7 @@ The pages currently ranking:
 Median is {bar['median_words']:,} words. **Target {bar['word_target']:,}**, and beat the
 median by being more useful, not by padding. A shorter, better page beats a longer, worse one.
 
-  Images: {bar['image_target']} (the placements are given below)
+  Images: {bar['image_target']}, counting the cover, which `seo media` makes. Place only the markers below.
 {rhythm}
   Comparison table required: {'yes, comparing ' + (bar['table_compares'] or '') if bar['needs_table'] else 'no'}
   FAQ: {'yes, ' + str(bar['faq']['min']) + ' to ' + str(bar['faq']['max']) + ' questions, written so they can become FAQPage JSON-LD verbatim' if bar['faq']['required'] else 'not required'}
@@ -266,6 +269,31 @@ def words(text):
     return len(re.sub(r"[#*_>\[\]()]", " ", body).split())
 
 
+CONNECTORS = r"(?:\s+(?:in|a|an|the|of|for|to|on|at|and|with|your))*\s+"
+
+
+def phrase(keyword):
+    """A keyword as a reader would write it, not as a searcher types it.
+
+    Queries drop connecting words: people search "limited liability company qatar"
+    and write "a limited liability company in Qatar". Counting only the query form
+    made a writer produce "the limited liability company Qatar's baseline
+    structure" to satisfy the check. Content words stay in order; connectors and
+    plurals may vary."""
+    def form(w):
+        stem = re.escape(w[:-1]) + r"(?:y|ies)" if w.endswith("y") and len(w) > 3 \
+            else re.escape(w) + r"(?:s|es)?"
+        return stem + r"(?:'s)?"
+    parts = [form(w) for w in re.findall(r"[a-z0-9']+", keyword.lower())
+             if w not in ("in", "a", "an", "the", "of", "for", "to", "on", "at")]
+    return re.compile(r"\b" + CONNECTORS.join(parts) + r"\b", re.I)
+
+
+def use_ceiling(min_uses, n_words):
+    """How often the primary can appear before it reads as stuffing."""
+    return max(min_uses * 3, round(n_words / 200))
+
+
 def check_draft(b, text):
     errs, warns = [], []
     p, k, bar = b["page"], b["keywords"], b["the_bar"]
@@ -294,24 +322,38 @@ def check_draft(b, text):
         warns.append(f"{n:,} words against a {bar['word_target']:,} target")
 
     prim = k["primary"]["keyword"].lower()
-    uses = low.count(prim)
+    body = FRONT.sub("", text)
+    uses = len(phrase(prim).findall(body))
     if uses < k["primary"]["min_uses"]:
         errs.append(f"primary '{prim}' used {uses} time(s), needs {k['primary']['min_uses']}")
+    # Only a floor was checked, so a draft using the primary 26 times in 2,000
+    # words passed. That is the density a reader notices before Google does.
+    ceiling = use_ceiling(k["primary"]["min_uses"], n)
+    if uses > ceiling * 2:
+        errs.append(f"primary '{prim}' used {uses} times in {n:,} words, over twice the "
+                    f"{ceiling} a page this long can carry. It reads as stuffing.")
+    elif uses > ceiling:
+        warns.append(f"primary '{prim}' used {uses} times, above the {ceiling} this length carries")
     h2s = re.findall(r"^##\s+(.+)$", text, re.M)
-    if not any(prim in h.lower() for h in h2s):
+    if not any(phrase(prim).search(h) for h in h2s):
         warns.append(f"primary '{prim}' appears in no H2")
 
     for s in k["secondaries"]:
-        if s.get("required", True) and s["keyword"].lower() not in low:
+        if s.get("required", True) and not phrase(s["keyword"]).search(body):
             errs.append(f"required secondary missing: '{s['keyword']}'")
     for a in k["avoid"]:
         if a.lower() in low:
             errs.append(f"uses '{a}', which belongs to another page (cannibalisation)")
 
+    from stages.keywords import kw_key
     want = [s["heading"] for s in b["structure"]["sections"]]
     got = [h.strip() for h in h2s]
     for h in want:
-        if not any(h.lower()[:26] in g.lower() for g in got):
+        # The same heading asked as a question is the same section. The brief also
+        # tells the writer to answer each direct question under a heading that
+        # asks it, so "What an LLC in Qatar is" rightly became "What is an LLC in
+        # Qatar?" and was reported missing.
+        if not any(h.lower()[:26] in g.lower() or kw_key(h) == kw_key(g) for g in got):
             errs.append(f"missing section: '{h}'")
     if len(got) > len(want) + 2:
         warns.append(f"{len(got)} H2s against {len(want)} planned")
