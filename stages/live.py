@@ -28,7 +28,8 @@ probe is written to drafts/<slug>/live-probe.js: run it in any browser (an
 agent's browser tool, or the devtools console) at both widths with the tab in
 front, save what it returns as a JSON list, and pass that file to --record.
 A hidden tab pauses scroll animations and makes a working page look broken, so a
-result from a hidden tab is refused rather than trusted.
+hidden tab's result is refused when it shows anything invisible. When it shows
+everything visible it stands: hiding a tab cannot make a broken page look fine.
 """
 import argparse
 import json
@@ -227,12 +228,20 @@ def evaluate(results, n_probes):
     errs, warns, invalid = [], [], []
     if not isinstance(results, list) or not results:
         return errs, warns, ["no probe results to judge"]
-    shown = [r for r in results if r.get("visibilityState") == "visible"]
+    # A hidden tab pauses scroll animations, so it can show a working page at
+    # opacity 0. It cannot show a broken page as visible. So a hidden tab's result
+    # counts when every passage it found is visible, and says nothing otherwise.
+    def trusted(r):
+        found = [p for p in r.get("probes") or [] if p.get("found")]
+        return r.get("visibilityState") == "visible" or (found and all(p.get("visible") for p in found))
+
+    shown = [r for r in results if trusted(r)]
     for r in results:
         if r not in shown:
             invalid.append(f"at {r.get('width')}px the tab was '{r.get('visibilityState')}' while "
-                           "checking. A hidden tab pauses scroll animations and shows a working page "
-                           "at opacity 0, so this result says nothing: rerun it with the tab in front.")
+                           "checking, and some passages read as invisible. A hidden tab pauses scroll "
+                           "animations and shows a working page at opacity 0, so this result says "
+                           "nothing: rerun it with the tab in front.")
     widths = [r.get("width") or 0 for r in shown]
     if not any(w >= DESKTOP for w in widths):
         invalid.append(f"no desktop width checked in a visible tab (got {widths}); run it at 1280px")

@@ -95,6 +95,9 @@ check(not errs and any("no phone width" in i for i in inv), "a desktop-only chec
 errs, _, inv = evaluate([result(1280, visible=False, state="hidden"), result(375, visible=False, state="hidden")], 4)
 check(not errs and any("hidden" in i for i in inv),
       "a hidden tab showing everything at opacity 0 is not verified, and not called broken", str(errs + inv))
+errs, _, inv = evaluate([result(1280, state="hidden"), result(375, state="hidden")], 4)
+check(not errs and not inv, "a hidden tab showing everything visible passes: hiding cannot fake that",
+      str(errs + inv))
 errs, _, _ = evaluate([result(1280, found=False), result(375, found=False)], 4)
 check(any("only 0 of 4" in e for e in errs), "a page missing the draft's text fails")
 _, _, inv = evaluate([], 4)
