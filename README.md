@@ -28,6 +28,10 @@ can be drafted in parallel and still hold together.
 **`brief.evidence` is the complete set of facts a page may assert.** Every price, percentage
 and quantity in a draft traces back to it.
 
+**A rival's price is checked on their own site when the page is made**, not stored. A price
+typed into a config file once is repeated by every page until someone notices it is wrong. A
+vendor price goes stale after 14 days, and the writer and the publisher both refuse a stale one.
+
 **Checks are scripts.** Voice, claims, extraction, brief compliance and batch diversity all run
 as code over every page, not a sample.
 

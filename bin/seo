@@ -20,7 +20,8 @@ yours.
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
-    seo facts init|check|apply <slug> GATE 3   quoted facts about the topic, for pages that explain a law or rule
+    seo facts init|check|confirm|apply <slug>  GATE 3   quoted facts: a law a page explains, the
+                                               current prices of products a page names
     seo write prompt|check <slug>     stage 3
     seo media specs <slug>            stage 4  draft figures.json: a title and cards per figure
     seo media check <slug>            stage 4  every figure's words and numbers are in its section
@@ -109,6 +110,22 @@ def state():
             continue
     s["drafts"] = [os.path.basename(os.path.dirname(f))
                    for f in sorted(glob.glob(p("drafts/*/content.md")))]
+    # Facts go stale: a vendor price in 14 days, a law in a year. Reported here so
+    # nobody finds out from a refusal at publish time.
+    s["stale"] = {}
+    b = jload("context/business.json")
+    sys.path.insert(0, HOME)
+    from stages.facts import stale
+    for f in sorted(glob.glob(p("research/*.facts.json"))):
+        d = jload(os.path.relpath(f, WORK))
+        try:
+            old = stale((d or {}).get("facts"), b) if d else []
+        except SystemExit:
+            # A profile named but not found is reported where it matters (plan,
+            # write, publish). Status still answers, on the default limits.
+            old = stale((d or {}).get("facts")) if d else []
+        if old:
+            s["stale"][os.path.basename(f)[:-len(".facts.json")]] = old
     return s
 
 
@@ -135,6 +152,9 @@ def cmd_status():
     else:
         print("  2 plan       no briefs yet")
     print(f"  3 write      {len(s['drafts'])} draft(s)" if s["drafts"] else "  3 write      no drafts yet")
+    for slug, old in s["stale"].items():
+        print(f"  facts        {slug}: {len(old)} stale ({old[0][1]}). "
+              f"seo facts check {slug} --verify")
     print()
     cmd_next(quiet=True)
     return 0
@@ -177,6 +197,10 @@ def cmd_next(quiet=False):
         todo = [sl for sl in approved if sl not in s["drafts"]]
         if todo:
             n, why = f"seo write prompt {todo[0]}", f"{len(todo)} approved brief(s) not yet written"
+        elif s["stale"]:
+            slug = next(iter(s["stale"]))
+            n, why = (f"seo facts check {slug} --verify",
+                      f"{len(s['stale'])} page(s) carry facts too old to publish")
         elif s["drafts"]:
             n, why = "seo check", "drafts exist, run every checker before publishing"
         else:

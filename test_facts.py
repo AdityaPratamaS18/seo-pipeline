@@ -14,7 +14,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from check_claims import check as check_claims
-from stages.facts import review, untraced_numbers
+from stages.facts import now, review, untraced_numbers
 
 results = []
 HOME = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +42,9 @@ check(untraced_numbers("Filing is due within 4 months.", "within four months, or
 
 FACT = {"id": "f01", "claim": "Withholding tax is 5% of the total amount.", "quote": LAW,
         "source_url": "https://example.gov/law", "publisher_kind": "law",
-        "retrieved_at": "2026-09-15T00:00:00Z"}
+        # Today, not a fixed date: facts now go stale, and a fixed date would turn
+        # this suite red a year after it was written.
+        "retrieved_at": now()}
 DOC = {"meta": {"slug": "wht", "generated_at": "2026-09-15T00:00:00Z", "approved_at": None},
        "facts": [FACT], "open_questions": [{"question": "Whether one owner is enough.",
                                             "why": "Source A says two, source B says one."}]}

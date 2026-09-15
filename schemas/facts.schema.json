@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "facts.schema.json",
   "title": "Researched facts for one page",
-  "description": "Facts about the TOPIC of one page: what a law, regulator or official source says. business.json holds facts about the business; this holds facts about the world the page explains. Every fact carries the source's own words, so a reviewer can check a claim against its quote without opening the source, and `seo facts check --verify` can confirm the quote is really there. Approved at GATE 3 with the brief, then merged into brief.evidence.topic_facts by `seo facts apply`.",
+  "description": "Facts about the TOPIC of one page: what a law, regulator or official source says, or what a product the page names costs and does, quoted from that product's own page. business.json holds facts about the business; this holds facts about the world the page explains. Every fact carries the source's own words, so a reviewer can check a claim against its quote without opening the source, and `seo facts check --verify` can confirm the quote is really there. Approved at GATE 3 with the brief, then merged into brief.evidence.topic_facts by `seo facts apply`.",
   "type": "object",
   "required": ["meta", "facts"],
   "additionalProperties": false,
@@ -50,14 +50,22 @@
           "source_title": {"type": "string"},
           "publisher_kind": {
             "enum": ["law", "regulator", "government", "court", "official_statistics",
-                     "professional_body", "secondary"],
-            "description": "Prefer the instrument or the regulator. 'secondary' is allowed and visible as such at review."
+                     "professional_body", "vendor", "secondary"],
+            "description": "Prefer the instrument or the regulator. 'vendor' is a product's own site, the only source for what it costs; it goes stale fastest. 'secondary' is allowed and visible as such at review."
+          },
+          "subject": {
+            "type": "string",
+            "description": "The product a vendor fact is about, as the page names it. Required for 'vendor'."
           },
           "retrieved_at": {"type": "string", "format": "date-time"},
           "verified_at": {
             "type": ["string", "null"],
             "format": "date-time",
-            "description": "When `seo facts check --verify` last found the quote in the source."
+            "description": "When the quote was last found in the source. The writer and the publisher refuse a fact older than its limit: 14 days for 'vendor', a year otherwise."
+          },
+          "verified_via": {
+            "enum": ["fetch", "browser", "person", null],
+            "description": "How: `seo facts check --verify` fetched it, or `seo facts confirm` recorded it read in a browser, for pages that draw their text with JavaScript."
           }
         }
       }

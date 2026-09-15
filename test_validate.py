@@ -94,7 +94,7 @@ case("brief", "no evidence, so the writer may invent anything",
 case("brief", "comparison page with nothing known about the competitor",
      lambda d: (set_in(d, ["page", "page_type"], "comparison"),
                 set_in(d, ["evidence", "competitor_facts"], [])),
-     "invent what the competitor does")
+     "no competitor facts yet")
 case("brief", "a bar measured from one page",
      lambda d: set_in(d, ["the_bar", "competitors"], d["the_bar"]["competitors"][:1]),
      "not a bar")

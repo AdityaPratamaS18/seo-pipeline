@@ -68,6 +68,7 @@ def main():
     ap.add_argument("--briefs", default="briefs")
     ap.add_argument("--drafts", default="drafts")
     ap.add_argument("--business", default="context/business.json")
+    ap.add_argument("--research", default="research")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -78,6 +79,23 @@ def main():
 
     business = json.load(open(a.business))
     tech = business.get("tech", {})
+
+    # Prices can change between writing and publishing. The facts file is read
+    # again here, so a page cannot ship a price older than its limit.
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    facts_path = os.path.join(a.research, f"{a.slug}.facts.json")
+    if os.path.exists(facts_path):
+        from stages.facts import stale
+        old = stale(json.load(open(facts_path)).get("facts"), business)
+        if old:
+            msg = (f"{facts_path} has {len(old)} stale fact(s):\n"
+                   + "".join(f"  {fid}: {why}\n" for fid, why in old)
+                   + f"  Run: seo facts check {a.slug} --verify. If a quote is no longer on its "
+                     "page, the fact changed:\n  update it, re-apply, and fix the draft before "
+                     "publishing.")
+            if not a.dry_run:
+                sys.exit(msg)
+            print("  DRY RUN would refuse: " + msg)
 
     # A profile publisher owns sites the markdown adapters cannot serve, such as
     # one storing articles as objects in a TypeScript array.

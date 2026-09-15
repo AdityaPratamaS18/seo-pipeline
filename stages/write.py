@@ -56,6 +56,18 @@ def research_gate(b, research_dir="research"):
     if have != len(doc.get("facts", [])):
         sys.exit(f"{p} has {len(doc.get('facts', []))} approved fact(s) but the brief carries "
                  f"{have}. Run: seo facts apply {slug}")
+    # A price checked a month ago is a guess about today. Checked here, against the
+    # facts file rather than the brief, so a re-verify counts without re-applying.
+    from stages.facts import stale
+    try:
+        business = json.load(open("context/business.json"))
+    except (OSError, json.JSONDecodeError):
+        business = None
+    old = stale(doc.get("facts"), business)
+    if old:
+        sys.exit(f"{p} has {len(old)} stale fact(s):\n"
+                 + "".join(f"  {fid}: {why}\n" for fid, why in old)
+                 + f"  Run: seo facts check {slug} --verify   (then seo facts apply {slug})")
 
 
 def profile_gate(b, business_path="context/business.json"):
@@ -120,8 +132,7 @@ def build_prompt(b, voice_text, exemplars):
     gaps = "\n".join(f"  - {g}" for g in ang["gaps_to_exploit"])
     facts = "\n".join(f"  - {e['claim']}" for e in ev["product_facts"] + ev["competitor_facts"])
     stats = "\n".join(f"  - {e['claim']}  [{e['source_url']}]" for e in ev["stats"])
-    topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}  "
-                      f"[{'official, may be named' if e.get('publisher_kind') in OFFICIAL else 'do not name in the text'}]\n"
+    topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}  [{naming(e)}]\n"
                       f"      its words: \"{e['quote']}\""
                       for e in ev.get("topic_facts") or [])
     if topic:
@@ -135,6 +146,12 @@ def build_prompt(b, voice_text, exemplars):
                  "authority, about once a section, not on every fact. Never name\na source "
                  "marked \"do not name\" in the text. List every source under a final "
                  "\"## Sources\" heading.\n" + topic)
+    checked = prices_checked(ev.get("topic_facts"))
+    if checked:
+        topic += (f"\n\nPrices marked \"vendor\" were checked on each product's own page in "
+                  f"{checked}. Say so once,\nbeside the first price or the table: \"Prices as of "
+                  f"{checked}.\" A reader trusts a dated price, and\nan undated one is wrong the day "
+                  "the vendor changes it.")
     unsettled = "\n".join(f"  - {q}" for q in ev.get("open_questions") or [])
     if unsettled:
         topic += ("\n\nThe research could not settle these. Do not assert an answer to any of "
@@ -319,6 +336,27 @@ def phrase(keyword):
 
 
 OFFICIAL = {"law", "regulator", "government", "court", "official_statistics"}
+# A product's own site may be named: on a page comparing products, the product is
+# the subject, not a source being promoted.
+NAMEABLE = OFFICIAL | {"vendor"}
+
+
+def naming(fact):
+    kind = fact.get("publisher_kind")
+    if kind == "vendor":
+        return f"{fact.get('subject') or 'the product'}'s own page, name the product"
+    return "official, may be named" if kind in OFFICIAL else "do not name in the text"
+
+
+def prices_checked(facts):
+    """'September 2026', the month the oldest vendor fact was last verified, or None."""
+    from datetime import datetime
+    dates = [f.get("verified_at") or f.get("retrieved_at") for f in facts or []
+             if f.get("publisher_kind") == "vendor"]
+    dates = [d for d in dates if d]
+    if not dates:
+        return None
+    return datetime.fromisoformat(min(dates).replace("Z", "+00:00")).strftime("%B %Y")
 
 
 def use_ceiling(min_uses, n_words):
@@ -412,13 +450,19 @@ def check_draft(b, text):
                     errs.append(f"source missing from '## Sources': {url}")
         body_text = FRONT.sub("", tail[0]).lower()
         for f in topic:
-            if f.get("publisher_kind") in OFFICIAL:
+            if f.get("publisher_kind") in NAMEABLE:
                 continue
             host = re.sub(r"^www\.", "", re.sub(r"^https?://", "", f["source_url"]).split("/")[0])
             name = host.split(".")[0]
             if len(name) > 3 and re.search(rf"\b{re.escape(name)}\b", body_text):
                 warns.append(f"'{name}' is a non-official source named in the text. Keep it in "
                              "Sources only: naming it promotes it.")
+
+        checked = prices_checked(topic)
+        if checked and not re.search(rf"\bas of {checked}\b|\bchecked (in|on) {checked}\b",
+                                     text, re.I):
+            warns.append(f"prices are stated without the month they were checked. Add "
+                         f"\"Prices as of {checked}\" beside the first price or the table.")
 
     for img in b["media"].get("inline", []):
         if f"[IMAGE: {img['type']}" not in text:

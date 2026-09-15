@@ -349,7 +349,8 @@
                 }
               },
               "their_pricing": {
-                "type": "string"
+                "type": "string",
+                "description": "Not used. A rival's price is checked on their own pricing page when a page naming them is made (seo facts), because a price typed here once goes out of date without anyone noticing. Kept so older files still validate."
               },
               "source": {
                 "$ref": "#/$defs/source"

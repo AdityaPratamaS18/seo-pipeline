@@ -135,6 +135,10 @@ def semantic(kind, doc):
             warns.append("tech.stack is 'other', which is the fallback for not detected "
                          "rather than a detection. `seo publish` needs the real one.")
         for a in doc.get("positioning", {}).get("against", []):
+            if a.get("their_pricing"):
+                warns.append(f"positioning.against '{a['competitor']}' has their_pricing, which "
+                             "nothing reads. Prices are checked on the rival's own pricing page "
+                             "when a page naming them is made: seo facts init <slug>.")
             if not a.get("they_win_on"):
                 errs.append(f"competitor '{a['competitor']}' has no they_win_on. "
                             "A comparison that concedes nothing reads as marketing.")
@@ -255,9 +259,13 @@ def semantic(kind, doc):
         if total == 0:
             errs.append("evidence is completely empty. The writer may assert no facts at all, "
                         "which is almost never intended and is how invented statistics get in.")
-        if doc["page"]["page_type"] in ("comparison", "alternatives") and not ev["competitor_facts"]:
-            errs.append(f"a {doc['page']['page_type']} page with zero competitor_facts will have to "
-                        "invent what the competitor does.")
+        vendor = [f for f in ev.get("topic_facts") or [] if f.get("publisher_kind") == "vendor"]
+        if doc["page"]["page_type"] in ("comparison", "alternatives") \
+                and not ev["competitor_facts"] and not vendor:
+            # Before `seo facts apply` a brief has no vendor facts yet, and the writer
+            # refuses it until it does, so this is the state a new brief is in.
+            warns.append(f"a {doc['page']['page_type']} page with no competitor facts yet. "
+                         f"Check each product on its own site: seo facts init {doc['page']['slug']}")
 
         prim = doc["keywords"]["primary"]["keyword"].lower()
         if prim in [a.lower() for a in doc["keywords"]["avoid"]]:

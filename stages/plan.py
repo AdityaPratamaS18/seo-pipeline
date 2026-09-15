@@ -355,16 +355,16 @@ def evidence_for(business, page_type):
     # missing from this list, so a brief for "best ADHD planners" shipped with
     # zero competitor facts and every planner in the list would have been
     # invented. If a page type names rivals, it gets evidence about them.
+    #
+    # Their PRICES are not taken from business.json. A price typed there once was
+    # repeated by every page for as long as the file lived. Prices arrive as vendor
+    # facts, quoted from each product's pricing page when the page is made, and go
+    # stale in days (stages/facts.py).
     if page_type in ("comparison", "alternatives", "listicle", "use_case"):
         for i, a in enumerate(business.get("positioning", {}).get("against", [])):
             src = a.get("source", {}).get("ref", "positioning.against")
             for w in a["they_win_on"]:
                 comp.append({"claim": f"{a['competitor']} is better at {w}.",
-                             "competitor": a["competitor"],
-                             "source_url": src if src.startswith("http") else f"positioning.against[{i}]",
-                             "retrieved_at": iso(now())})
-            if a.get("their_pricing"):
-                comp.append({"claim": f"{a['competitor']} costs {a['their_pricing']}.",
                              "competitor": a["competitor"],
                              "source_url": src if src.startswith("http") else f"positioning.against[{i}]",
                              "retrieved_at": iso(now())})
@@ -721,7 +721,10 @@ def main():
         json.dump(brief, open(path, "w"), indent=2)
         written.append((slug, bar, len(ok), failed))
         if PROFILES.requires_topic_facts(business, c["page_type"]):
-            print(f"    {slug}: a {c['page_type'].replace('_', ' ')} needs researched facts before "
+            from stages.facts import NAMES_PRODUCTS
+            what = ("current prices checked on each product's own site"
+                    if c["page_type"] in NAMES_PRODUCTS else "researched facts")
+            print(f"    {slug}: a {c['page_type'].replace('_', ' ')} needs {what} before "
                   f"it can be written:  seo facts init {slug}")
 
     json.dump(cache, open(a.cache, "w"))

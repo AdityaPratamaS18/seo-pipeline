@@ -4,6 +4,7 @@ Researched facts for one page, with the source's own words behind each one.
 
     seo facts init <slug>             research/<slug>.facts.json, listing what the brief needs
     seo facts check <slug> [--verify] every number traces to its quote; --verify finds the quote in the source
+    seo facts confirm <slug> <id>...  a quote read in a browser, where a plain fetch cannot see it
     seo facts apply <slug>            after a person approves, merge into the brief's evidence
 
 WHY THIS EXISTS
@@ -27,6 +28,20 @@ number in a claim must appear in its quote, as digits or as words ("five
 percent"). `--verify` fetches each source and confirms the quote is really in
 it, reading PDFs through pdftotext, because the best sources for law and
 regulation are PDFs.
+
+PRICES ARE CHECKED WHEN THE PAGE IS MADE
+
+A page that names other products (a comparison, alternatives, a "best X" list, a
+pricing page) states what they cost. Those prices used to live in business.json,
+typed once and trusted forever, so every page repeated whatever a rival charged
+the day someone wrote it down. Now they are facts like any other: quoted from the
+vendor's own pricing page (publisher_kind "vendor", subject = the product), and
+verified in the source. A vendor fact goes stale after 14 days, and a stale fact
+stops both the writer and the publisher until `--verify` finds the quote again.
+If the quote is gone, the price changed, and the page changes with it.
+
+Laws and official guidance change too, just more slowly: those go stale after a
+year. A profile can set other limits in defaults.json as facts_max_age_days.
 
 HOW TO RESEARCH
 
@@ -64,6 +79,54 @@ WORDS = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six":
 
 def now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+# Page types that name other products, and so state facts about them, prices first.
+NAMES_PRODUCTS = ("comparison", "alternatives", "listicle", "pricing_page")
+
+# How long a fact stays true enough to publish, by the kind of source. A vendor
+# changes a price with a deploy; a law changes with a gazette.
+MAX_AGE_DAYS = {"vendor": 14}
+DEFAULT_MAX_AGE_DAYS = 365
+
+
+def max_age(kind, business=None):
+    limits = dict(MAX_AGE_DAYS)
+    if business:
+        from stages import profiles
+        limits.update(profiles.defaults(business).get("facts_max_age_days") or {})
+    return int(limits.get(kind, limits.get("default", DEFAULT_MAX_AGE_DAYS)))
+
+
+def _dt(s):
+    return datetime.fromisoformat(s.replace("Z", "+00:00")) if s else None
+
+
+def stale(facts, business=None, at=None):
+    """Facts too old to publish, as (id, why). Works on a facts file's `facts` or a
+    brief's `topic_facts`.
+
+    A vendor fact must have been found in its source: a price nobody confirmed on
+    the vendor's page is a price someone remembered. Other facts age from when they
+    were last verified, or retrieved if a source could never be read."""
+    at = at or datetime.now(timezone.utc)
+    out = []
+    for i, f in enumerate(facts or []):
+        fid = f.get("id") or f"topic_facts[{i}]"
+        kind = f.get("publisher_kind") or "secondary"
+        limit = max_age(kind, business)
+        if kind == "vendor" and not f.get("verified_at"):
+            out.append((fid, f"a {f.get('subject') or 'vendor'} price never found in its source"))
+            continue
+        seen = _dt(f.get("verified_at") or f.get("retrieved_at"))
+        if not seen:
+            out.append((fid, "no retrieved or verified date"))
+            continue
+        age = (at - seen).days
+        if age > limit:
+            what = f"{f.get('subject')} " if f.get("subject") else ""
+            out.append((fid, f"{what}{kind} fact last checked {age} days ago, the limit is {limit}"))
+    return out
 
 
 def path_for(slug, research_dir="research"):
@@ -140,6 +203,9 @@ def review(doc):
         if normalise(f.get("claim")) == normalise(f.get("quote")):
             warns.append(f"{f.get('id')}: claim and quote are identical. Fine for a short rule, "
                          "but a claim is usually the plain-words version.")
+        if f.get("publisher_kind") == "vendor" and not (f.get("subject") or "").strip():
+            errs.append(f"{f.get('id')}: a vendor fact needs `subject`, the product it is about. "
+                        "A price with no product attached cannot be put in a table row.")
         if f.get("publisher_kind") == "secondary":
             warns.append(f"{f.get('id')}: secondary source ({f.get('source_url')}). Prefer the "
                          "instrument or the regulator where one exists.")
@@ -176,6 +242,13 @@ def needs_from(brief):
         if s["heading"].lower().startswith("frequently asked"):
             continue
         out.append(f"what \"{s['heading']}\" needs to state as fact ({s['purpose']})")
+    if brief["page"].get("page_type") in NAMES_PRODUCTS:
+        named = sorted({c["competitor"] for c in brief["evidence"].get("competitor_facts", [])
+                        if c.get("competitor")})
+        out.append("the current price of every product the page names"
+                   + (f" ({', '.join(named)}, and any others the page lists)" if named else "")
+                   + ", quoted from that product's own pricing page: publisher_kind \"vendor\", "
+                     "subject = the product. Plan names and billing period too.")
     out.append("every number, deadline, fee, percentage or penalty the page will state")
     return out
 
@@ -225,17 +298,34 @@ def cmd_check(a):
                 except Exception as e:                              # noqa: BLE001
                     cache[url] = e
             text = cache[url]
+            vendor = f.get("publisher_kind") == "vendor"
             if isinstance(text, Exception):
-                warns.append(f"{f['id']}: could not read {url} ({type(text).__name__}: "
-                             f"{str(text)[:60]}), so its quote is unverified")
+                msg = (f"{f['id']}: could not read {url} ({type(text).__name__}: "
+                       f"{str(text)[:60]}), so its quote is unverified")
+                if vendor:
+                    # A price is the one fact that must be confirmed current.
+                    errs.append(msg + ". Open it in a browser, and if the quote is there: "
+                                f"seo facts confirm {a.slug} {f['id']}")
+                else:
+                    warns.append(msg)
                 continue
             if normalise(f["quote"]) in text:
                 f["verified_at"] = now()
+                f["verified_via"] = "fetch"
             else:
                 f["verified_at"] = None
+                f["verified_via"] = None
                 errs.append(f"{f['id']}: quote not found in {url}. Copy it exactly, or the "
-                            "claim rests on words the source does not contain.")
+                            "claim rests on words the source does not contain."
+                            + (" Pricing pages often draw prices with JavaScript, which a fetch "
+                               "cannot see: open it in a browser, and if the quote is there, "
+                               f"seo facts confirm {a.slug} {f['id']}. If it is not, the price "
+                               "changed: update the fact and the draft." if vendor else ""))
         json.dump(doc, open(p, "w"), indent=2)
+
+    for fid, why in stale(doc.get("facts"), load_business(a.business)):
+        warns.append(f"{fid}: stale, {why}. The writer and the publisher refuse it until "
+                     f"seo facts check {a.slug} --verify finds it again.")
 
     for e in errs:
         print(f"  FAIL  {e}")
@@ -251,6 +341,37 @@ def cmd_check(a):
     return 1 if errs else 0
 
 
+def load_business(path):
+    try:
+        return json.load(open(path))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def cmd_confirm(a):
+    """Record that a person or an agent read each quote on the live source.
+
+    A fetch sees the HTML a server sends. Most SaaS pricing pages draw their prices
+    with JavaScript, so the fetch finds no price and `--verify` fails on a quote
+    that is really there. This is the way through, and it is deliberately explicit:
+    it names the facts, records how they were checked, and still has to pass the
+    same freshness limit as a fetch."""
+    p = path_for(a.slug, a.research)
+    if not os.path.exists(p):
+        sys.exit(f"no facts file at {p}")
+    doc = json.load(open(p))
+    byid = {f["id"]: f for f in doc.get("facts", [])}
+    missing = [i for i in a.ids if i not in byid]
+    if missing:
+        sys.exit(f"no fact(s) {', '.join(missing)} in {p}")
+    for i in a.ids:
+        byid[i]["verified_at"] = now()
+        byid[i]["verified_via"] = a.via
+        print(f"  {i}: confirmed in {byid[i]['source_url']} ({a.via})")
+    json.dump(doc, open(p, "w"), indent=2)
+    return 0
+
+
 def cmd_apply(a):
     p = path_for(a.slug, a.research)
     if not os.path.exists(p):
@@ -264,7 +385,8 @@ def cmd_apply(a):
         sys.exit("fix these first:\n" + "\n".join(f"  {e}" for e in errs))
     brief, bpath = load_brief(a.slug, a.briefs)
     brief["evidence"]["topic_facts"] = [
-        {k: f[k] for k in ("claim", "quote", "source_url", "publisher_kind", "retrieved_at")}
+        {k: f[k] for k in ("claim", "quote", "source_url", "publisher_kind", "retrieved_at",
+                           "verified_at", "subject") if f.get(k) is not None}
         for f in doc["facts"]]
     # The question and why it is open, together. Passing the question alone let a
     # writer state one source's side of a disagreement as if it were the answer.
@@ -279,18 +401,24 @@ def cmd_apply(a):
 def main():
     ap = argparse.ArgumentParser(description="Researched, quoted facts for one page.")
     sub = ap.add_subparsers(dest="command", required=True)
-    for name in ("init", "check", "apply"):
+    for name in ("init", "check", "confirm", "apply"):
         s = sub.add_parser(name)
         s.add_argument("slug")
         s.add_argument("--briefs", default="briefs")
         s.add_argument("--research", default="research")
+        s.add_argument("--business", default="context/business.json")
         if name == "init":
             s.add_argument("--force", action="store_true")
         if name == "check":
             s.add_argument("--verify", action="store_true",
                            help="fetch every source and confirm each quote is in it")
+        if name == "confirm":
+            s.add_argument("ids", nargs="+", help="fact ids whose quotes were read on the source")
+            s.add_argument("--via", default="browser", choices=["browser", "person"],
+                           help="how the quote was read")
     a = ap.parse_args()
-    return {"init": cmd_init, "check": cmd_check, "apply": cmd_apply}[a.command](a)
+    return {"init": cmd_init, "check": cmd_check, "confirm": cmd_confirm,
+            "apply": cmd_apply}[a.command](a)
 
 
 if __name__ == "__main__":

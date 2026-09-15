@@ -11,7 +11,8 @@ None of that belongs in a fork. A profile is a folder:
 
     <profile>/
       page-templates.json     templates added to, or replacing, the defaults
-      defaults.json           cta_label, topic_facts_required: [page types]
+      defaults.json           cta_label, topic_facts_required: [page types],
+                              facts_max_age_days: {publisher_kind: days}
       publishers/<name>.py    publish(slug, brief, draft_md, business, root, dry_run)
 
 Folders are found through SEO_PROFILES (colon separated directories that each
@@ -82,8 +83,15 @@ def defaults(business):
     return _json(os.path.join(d, "defaults.json"), {}) if d else {}
 
 
+# Without a profile saying otherwise, a page that names other products needs their
+# current prices checked on their own sites before it is written.
+DEFAULT_FACTS_REQUIRED = ("comparison", "alternatives", "listicle", "pricing_page")
+
+
 def requires_topic_facts(business, page_type):
-    return page_type in (defaults(business).get("topic_facts_required") or [])
+    d = defaults(business)
+    required = d["topic_facts_required"] if "topic_facts_required" in d else DEFAULT_FACTS_REQUIRED
+    return page_type in (required or [])
 
 
 def cta_label(business):

@@ -626,7 +626,7 @@
         },
         "topic_facts": {
           "type": "array",
-          "description": "Facts about the page's TOPIC (a law, a regulator's rule), each with the source's own words. Merged from research/<slug>.facts.json by `seo facts apply` after a person approves it.",
+          "description": "Facts about the page's TOPIC (a law, a regulator's rule, a named product's current price), each with the source's own words. Merged from research/<slug>.facts.json by `seo facts apply` after a person approves it.",
           "items": {
             "type": "object",
             "required": [
@@ -649,8 +649,15 @@
               "publisher_kind": {
                 "type": "string"
               },
+              "subject": {
+                "type": "string"
+              },
               "retrieved_at": {
                 "type": "string",
+                "format": "date-time"
+              },
+              "verified_at": {
+                "type": ["string", "null"],
                 "format": "date-time"
               }
             }

@@ -66,9 +66,6 @@ def evidence_numbers(brief, business=None):
             texts.append(f"{t['price']}")
         for m in (business.get("proof") or {}).get("metrics", []):
             texts.append(m["claim"])
-        for a in business.get("positioning", {}).get("against", []):
-            if a.get("their_pricing"):
-                texts.append(a["their_pricing"])
     nums = set()
     for t in texts:
         for m in re.finditer(r"\d[\d,]*(?:\.\d+)?", t):
@@ -116,8 +113,10 @@ def check(md, brief, business=None):
                          "so anything said about them is unsourced")
 
     # Required by the schema for these page types, worth restating at draft time.
+    vendor = [f for f in brief["evidence"].get("topic_facts") or []
+              if f.get("publisher_kind") == "vendor"]
     if brief["page"]["page_type"] in ("comparison", "alternatives") \
-            and not brief["evidence"]["competitor_facts"]:
+            and not brief["evidence"]["competitor_facts"] and not vendor:
         errs.append("a comparison page whose brief carries no competitor_facts: "
                     "the writer had nothing true to say about the rival")
     return errs, warns

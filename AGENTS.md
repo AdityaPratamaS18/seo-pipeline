@@ -103,6 +103,16 @@ with the source's exact words in `quote`, run `seo facts check <slug> --verify`,
 the person for approval. The writer refuses the brief until `seo facts apply <slug>` has run.
 Where sources disagree, record it under `open_questions` instead of picking one.
 
+**A page that names other products checks their prices when it is made.** Comparisons,
+alternatives, "best X" lists and pricing pages need each product's current price quoted from its
+own pricing page, as a `vendor` fact with `subject` set to the product. Never take a rival's price
+from `business.json`, memory or a review site. `seo facts check <slug> --verify` fetches each page;
+when a price is drawn by JavaScript and the fetch cannot see it, open the page in a browser, and
+only if the quote is there run `seo facts confirm <slug> <id>`. A vendor fact is stale after 14
+days and anything else after a year: the writer and `seo publish` both refuse a stale fact, so
+re-verify right before publishing. If a quote is gone, the price changed: update the fact and the
+draft. The page says "Prices as of <Month Year>" beside the first price or the table.
+
 **A check reporting zero units examined is a failure, not a pass.**
 
 **A file still containing `TODO:` cannot be confirmed.** `validate.py` rejects it.
