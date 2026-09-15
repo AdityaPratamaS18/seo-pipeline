@@ -56,6 +56,24 @@ seo check                     every checker
 seo publish <slug>            one page a day
 ```
 
+### Using Ubersuggest instead of DataForSEO
+
+If the person has the Ubersuggest MCP connected, it can fill stage 1 instead. The MCP answers
+you, not a script, so save each response as a JSON file and import the files:
+
+```
+serp_analysis per seed        -> save to serps/raw/ubersuggest/, then  seo ubersuggest serp serps/raw/ubersuggest/*.json
+domain_keywords per rival     -> save to keywords/raw/ubersuggest/
+page_keywords per big rival's ranking page, same folder
+seo ubersuggest keywords keywords/raw/ubersuggest/*.json --require <market terms>
+```
+
+For a single-country site Ubersuggest usually has no data scoped to that country, so call it
+without `locId` and pass `--require` with the words that name the market (for example
+`qatar,doha`), or the dataset fills with worldwide keywords. For global firms use
+`page_keywords` on their pages for that market, since a domain pull returns their biggest
+markets first. Save every row a response returned; never trim or edit the data you save.
+
 Run `seo audit basic <domain>` and `seo links scan` whenever you like. They are independent of
 writing and cost nothing.
 

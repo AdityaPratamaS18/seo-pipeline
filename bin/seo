@@ -16,6 +16,7 @@ yours.
     seo serp "<kw>" "<kw>" ...        stage 1  fetch real SERPs for your seed queries
     seo competitors serps/*.json      stage 1  who is really ranking, from those SERPs
     seo pull <domains>                stage 1  their keywords, narrowed to the ranking page
+    seo ubersuggest keywords|serp <f> stage 1  the same files, from saved Ubersuggest MCP responses
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
@@ -52,6 +53,7 @@ DIRECT = {
     "init": ("stages.init", []),
     "serp": ("providers.dataforseo_serp", []),
     "pull": ("providers.dataforseo_labs", ["ranked"]),
+    "ubersuggest": ("providers.ubersuggest", []),
 }
 
 

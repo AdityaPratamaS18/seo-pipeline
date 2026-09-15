@@ -59,7 +59,7 @@ def slugify(kw):
 
 def host(url):
     try:
-        return (urlparse(url).hostname or "").lower().lstrip("www.") or ""
+        return (urlparse(url).hostname or "").lower().removeprefix("www.")
     except ValueError:
         return ""
 
