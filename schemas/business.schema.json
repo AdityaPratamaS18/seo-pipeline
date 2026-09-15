@@ -70,6 +70,10 @@
           "type": "string",
           "description": "Where a CTA points. plan.py reads this; without it every brief falls back to the bare domain, which is rarely where a signup lives."
         },
+        "cta_label": {
+          "type": "string",
+          "description": "The words on the CTA. A consultancy books a call; a SaaS product starts a trial. Falls back to 'Try it', which only suits the second."
+        },
         "currency": {
           "type": "string",
           "default": "USD"

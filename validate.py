@@ -118,6 +118,12 @@ def semantic(kind, doc):
         inferred = [f["name"] for f in feats if f["source"]["type"] == "inferred"]
         if inferred:
             warns.append(f"features with inferred sources cannot be cited as fact: {', '.join(inferred)}")
+        voice = doc.get("voice") or {}
+        if not voice.get("pov"):
+            warns.append("voice.pov is not set, so every brief tells the writer to use "
+                         "\"we\". Set it, and voice.exemplars to two or three real pages.")
+        if not doc["identity"].get("cta_label"):
+            warns.append("identity.cta_label is not set, so every CTA reads 'Try it'.")
         tech = doc.get("tech", {})
         if tech.get("stack") == "other" and not tech.get("repo_path"):
             warns.append("tech.stack is 'other', which is the fallback for not detected "

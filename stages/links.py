@@ -29,6 +29,7 @@ import json
 import os
 import re
 import sys
+from urllib.parse import urlparse
 
 MD_LINK = re.compile(r"\[[^\]]*\]\((/[a-z0-9/-]*)\)")
 HREF = re.compile(r'href="(/[^"#?]*)"')
@@ -76,6 +77,23 @@ def live_routes(business):
                     if slug in ("index", "_index"):
                         slug = os.path.basename(dirpath)
                     routes[f"{prefix}/{slug}"] = os.path.join(dirpath, f)
+    # The published sitemap, read by `seo context`. A site that renders pages
+    # from data (/services/[slug] fed by a TypeScript array) has one route file
+    # for twelve pages, so the repo alone offered a Mavensmark brief no link
+    # targets at all. A sitemap URL has no source file to read links from, so
+    # it is a target only.
+    domain = (business.get("identity", {}).get("domain") or "").lower().removeprefix("www.")
+    try:
+        site = json.load(open(os.path.join("context", "extraction.json"))).get("site") or {}
+    except (OSError, json.JSONDecodeError):
+        site = {}
+    for u in site.get("sitemap_urls") or []:
+        parsed = urlparse(u)
+        if domain and (parsed.hostname or "").lower().removeprefix("www.") != domain:
+            continue
+        route = parsed.path.rstrip("/") or "/"
+        if route not in routes and not ASSET.search(route):
+            routes[route] = ""
     routes["__wildcards__"] = wildcards
     return routes
 

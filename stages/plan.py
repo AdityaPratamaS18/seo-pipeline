@@ -83,10 +83,43 @@ def load_inputs(clusters_path, business_path):
 
 
 # ── the bar, measured not guessed ─────────────────────────────────────────
-def measure(cluster, cache):
-    urls = [r["url"] for r in cluster["serp_evidence"]["top_results"]][:5]
+def serp_urls(cluster, serps_dir="serps"):
+    """Organic URLs from saved real SERPs for any keyword in the cluster.
+
+    Competitor-overlap evidence for a long-tail cluster is often two pages, and
+    one of them blocks bots. A saved SERP is the better evidence anyway: it is
+    what actually ranks, not which tracked rival happens to. Platforms and
+    forums are left out, since they are not pages a writer beats on depth.
+    """
+    from providers.dataforseo_serp import slugify
+    from stages.competitors import kind
+    out = []
+    members = [cluster["primary"]["keyword"]] + [s["keyword"] for s in cluster.get("secondaries", [])]
+    for kw in members:
+        try:
+            dump = json.load(open(os.path.join(serps_dir, f"{slugify(kw)}.json")))
+        except (OSError, json.JSONDecodeError):
+            continue
+        for r in sorted(dump.get("results", []), key=lambda r: r.get("position") or 99):
+            if r.get("type") == "organic" and r.get("url") and \
+                    kind(r.get("domain", "")) not in ("platform", "community"):
+                out.append(r["url"])
+    return out
+
+
+def measure(cluster, cache, serps_dir="serps", want=5):
+    urls = [r["url"] for r in cluster["serp_evidence"]["top_results"]]
+    seen = set()
+    candidates = []
+    for u in urls + serp_urls(cluster, serps_dir):
+        key = u.split("://")[-1].removeprefix("www.").rstrip("/")
+        if key not in seen:
+            seen.add(key)
+            candidates.append(u)
     pages, failed = [], []
-    for u in urls:
+    for u in candidates:
+        if sum(1 for p in pages if "error" not in p and not p.get("suspect_extraction")) >= want:
+            break
         if u in cache:
             pages.append(cache[u])
             continue
@@ -164,12 +197,17 @@ def extractable_for(cluster, business, bar, promptset):
         # honest: it is what the page is for.
         # "What is adhd planner for adults?" is a template failing at articles, and
         # the whole point of this field is a question a person would actually ask.
-        term = topic(prim)
+        term = headline_case(topic(prim), business, cluster.get("_acronyms", ()))
+        term = term[0].lower() + term[1:] if term[:2] != term[:2].upper() else term
         head = re.split(r"\s+(for|with|in|of|to|on)\s+", term)[0].split()[-1]
         if head.endswith("s") and not head.endswith(("ss", "us", "is")):
             q = f"What are {term}?"
         else:
-            q = f"What is {'an' if term[:1].lower() in 'aeiou' else 'a'} {term}?"
+            first = term.split()[0]
+            # An acronym takes its article from how the letter is said: an LLC, a QFC.
+            vowel = (first[:1] in "AEFHILMNORSX") if first.isupper() and len(first) > 1 \
+                else term[:1].lower() in "aeiou"
+            q = f"What is {'an' if vowel else 'a'} {term}?"
         questions.append({"question": q, "source": "human", "answer_within_words": 60})
 
     table = None
@@ -329,8 +367,15 @@ def sections_from(template, bar, cluster, business):
         # The substituted keyword arrives lowercased from the provider, so a
         # template heading came out "The best adhd apps for adults" and carried
         # that casing into the draft and into the rendered images.
-        heading = (s["heading"].replace("{primary}", headline_case(prim, business))
-                   .replace("{topic}", headline_case(topic(prim), business))
+        acr = cluster.get("_acronyms", ())
+        head = s["heading"]
+        if head.startswith("How to {topic}") and not STEMS.match(prim):
+            # "How to {topic}" needs a verb. A noun keyword gave "How to LLC in
+            # Qatar, step by step"; only a keyword that arrived as "how to ..."
+            # is known to carry one.
+            head = "{topic}" + head[len("How to {topic}"):]
+        heading = (head.replace("{primary}", headline_case(prim, business, acr))
+                   .replace("{topic}", headline_case(topic(prim), business, acr))
                    .replace("{product}", business["identity"]["name"])
                    .replace("{competitor}", comp))
         out.append({
@@ -348,11 +393,15 @@ def media_from(template, bar, cluster, business):
     # Cased the same way as the section headings. This function substitutes the
     # keyword itself, so without this the image titles and alt text kept the
     # provider's lowercase "adhd" after the headings had been fixed.
-    prim = headline_case(cluster["primary"]["keyword"], business)
+    raw = cluster["primary"]["keyword"]
+    prim = headline_case(raw, business, cluster.get("_acronyms", ()))
     target = max(2, bar["image_target"] - 1)          # the hero is the other one
 
     def head_of(sec):
-        return (sec["heading"].replace("{primary}", prim).replace("{topic}", topic(prim)))
+        head = sec["heading"]
+        if head.startswith("How to {topic}") and not STEMS.match(raw):
+            head = "{topic}" + head[len("How to {topic}"):]
+        return head.replace("{primary}", prim).replace("{topic}", topic(prim))
 
     inline, used = [], set()
     for i, sec in enumerate(template["sections"]):
@@ -417,7 +466,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             "slug": slug,
             "url": "/" + slug,
             "page_type": cluster["page_type"],
-            "h1": headline_case(prim, business),
+            "h1": headline_case(prim, business, cluster.get("_acronyms", ())),
             "meta_title_max": 60,
             "meta_description_range": [150, 160],
         },
@@ -450,7 +499,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             "cta": {"placement": "end_and_contextual",
                     "url": business.get("identity", {}).get("cta_url")
                            or f"https://{business['identity']['domain']}",
-                    "label": "Try it"},
+                    "label": business["identity"].get("cta_label") or "Try it"},
         },
         "extractable": extractable_for(cluster, business, bar, promptset),
         "evidence": evidence_for(business, cluster["page_type"]),
@@ -460,7 +509,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
     }
 
 
-def headline_case(keyword, business):
+def headline_case(keyword, business, acronyms=()):
     """Sentence-case a keyword, capitalising the way the site already does.
 
     `prim[0].upper() + prim[1:]` produced "Planner for adhd", which no editor
@@ -498,6 +547,12 @@ def headline_case(keyword, business):
                 learn(v)
 
     learn(business)
+    # Acronyms from the ranking pages' own titles. business.json only knows the
+    # site's vocabulary, so "llc in qatar" became "Llc in Qatar" in every heading
+    # while all five ranking pages write LLC. Acronyms only: a title-cased title
+    # is not evidence that "Limited" is a proper noun.
+    for a in acronyms:
+        forms.setdefault(a.lower(), a)
     words = [forms.get(w.lower(), w) for w in keyword.split()]
     if words and words[0] == words[0].lower():
         words[0] = words[0][0].upper() + words[0][1:]
@@ -563,7 +618,8 @@ def main():
 
     cache = json.load(open(a.cache)) if os.path.exists(a.cache) else {}
     live = LINKS.live_routes(business)
-    print(f"  {len(live)} live route(s) available as internal link targets")
+    print(f"  {len([r for r in live if r != '__wildcards__'])} live route(s) available "
+          "as internal link targets")
     todo = [c for c in clusters_doc["clusters"] if c["status"] in ("idea", "planned")][:a.limit]
     if not todo:
         sys.exit("no clusters with status idea or planned. Nothing to plan.")
@@ -587,6 +643,8 @@ def main():
             continue
 
         ok, failed = measure(c, cache)
+        c["_acronyms"] = sorted({w for p in ok for w in re.findall(r"\b[A-Z]{2,5}\b", p.get("title") or "")
+                                 if w.lower() in prim.lower().split()})
         if len(ok) < 2:
             skipped.append((prim, f"only {len(ok)} competitor page(s) could be read "
                                   f"({len(failed)} failed). A bar from under 2 pages is not a bar."))
@@ -598,7 +656,10 @@ def main():
         if bar["needs_video"]:
             bar["video_gap_accepted"] = True
 
-        avoid = sorted(all_primaries - {prim})[:10]
+        # Never the page's own keywords: a merged cluster's old primary is now this
+        # page's required secondary, and the brief told the writer to avoid it.
+        own = {prim} | {s["keyword"] for s in c.get("secondaries", [])}
+        avoid = sorted(all_primaries - own)[:10]
 
         # Link to pages that ARE LIVE first, ranked by shared vocabulary. Only
         # linking to siblings in the same batch meant a one-page batch got no

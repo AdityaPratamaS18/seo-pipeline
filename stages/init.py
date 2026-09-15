@@ -169,6 +169,7 @@ def skeleton(domain, extraction, competitors):
             "name": name,
             "domain": domain,
             "one_liner": todo("one sentence, in the owner's words, on what this is and who for"),
+            "cta_label": todo("the words on the button, e.g. 'Start free' or 'Book a consultation'"),
             "category": todo("the category a buyer would search, e.g. 'daily planner'"),
         },
         "product": {
@@ -200,6 +201,10 @@ def skeleton(domain, extraction, competitors):
         # value for "not detected", and validate.py warns when it is set without
         # a repo behind it, because the publisher needs the real one.
         "tech": {"stack": repo.get("stack") or "other"},
+        # pov is an enum, so it cannot hold a TODO; validate.py warns until it is
+        # set. Exemplars can, and a brief pointing at no real page is worse than
+        # one that says so.
+        "voice": {"exemplars": [todo("a published page that sounds right, path or URL")]},
     }
 
     if known:

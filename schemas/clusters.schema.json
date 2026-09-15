@@ -43,6 +43,13 @@
           "format": "date-time",
           "description": "GATE 2. Null means these clusters are not approved and the planner must refuse them."
         },
+        "confirmed_by": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Who approved GATE 2. Same field as business.json, so both gates record a person, not only a time."
+        },
         "method": {
           "type": "object",
           "required": [
