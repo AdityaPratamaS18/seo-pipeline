@@ -125,6 +125,9 @@ def semantic(kind, doc):
         if not voice.get("pov"):
             warns.append("voice.pov is not set, so every brief tells the writer to use "
                          "\"we\". Set it, and voice.exemplars to two or three real pages.")
+        if not ((doc.get("brand") or {}).get("colors") or {}).get("surfaces"):
+            warns.append("brand.colors is not set, so every image renders in a neutral palette "
+                         "rather than the site's colours.")
         if not doc["identity"].get("cta_label"):
             warns.append("identity.cta_label is not set, so every CTA reads 'Try it'.")
         tech = doc.get("tech", {})

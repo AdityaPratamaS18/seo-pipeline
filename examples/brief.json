@@ -235,7 +235,7 @@
     "hero": {
       "concept": "A single overwhelming task shown breaking into three small ones",
       "alt": "Breaking one overwhelming task into smaller steps to stop procrastinating with ADHD",
-      "bg": "#a7d8ec",
+      "bg": "#dfe7f5",
       "text": null
     },
     "inline": [
@@ -243,19 +243,19 @@
         "type": "steps",
         "placement_section": "Break the ADHD procrastination cycle in the next ten minutes",
         "alt": "Three steps to break the ADHD procrastination cycle",
-        "bg": "#f7d774"
+        "bg": "#efe9dc"
       },
       {
         "type": "cards",
         "placement_section": "What ADHD task paralysis actually feels like",
         "alt": "Three common signs of ADHD task paralysis",
-        "bg": "#f9cdd0"
+        "bg": "#f1e3e3"
       },
       {
         "type": "diagram",
         "placement_section": "Why writing it down is the step people skip",
         "alt": "Where a task gets lost between thinking it and doing it",
-        "bg": "#84eaa4"
+        "bg": "#e3efe6"
       }
     ]
   },

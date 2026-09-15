@@ -177,7 +177,7 @@
     "hero": {
       "concept": "A visual for best to do list apps",
       "alt": "best to do list apps",
-      "bg": "#a7d8ec",
+      "bg": "#dfe7f5",
       "text": null
     },
     "inline": [
@@ -185,13 +185,13 @@
         "type": "cards",
         "placement_section": "The list",
         "alt": "The list",
-        "bg": "#f9cdd0"
+        "bg": "#f1e3e3"
       },
       {
         "type": "table",
         "placement_section": "How they compare",
         "alt": "How they compare",
-        "bg": "#84eaa4"
+        "bg": "#e3efe6"
       }
     ]
   },

@@ -198,7 +198,7 @@
     "hero": {
       "concept": "A visual for how to stop procrastinating adhd",
       "alt": "how to stop procrastinating adhd",
-      "bg": "#a7d8ec",
+      "bg": "#dfe7f5",
       "text": null
     },
     "inline": [
@@ -206,7 +206,7 @@
         "type": "steps",
         "placement_section": "How to stop procrastinating adhd, step by step",
         "alt": "How to stop procrastinating adhd, step by step",
-        "bg": "#84eaa4"
+        "bg": "#e3efe6"
       }
     ]
   },

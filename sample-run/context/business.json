@@ -241,15 +241,15 @@
   },
   "brand": {
     "colors": {
-      "ink": "#075349",
-      "paper": "#faf6ee",
-      "accent": "#84eaa4",
+      "ink": "#1f2a44",
+      "paper": "#f7f7f5",
+      "accent": "#3b6fd8",
       "surfaces": [
-        "#a7d8ec",
-        "#f7d774",
-        "#f9cdd0",
-        "#84eaa4",
-        "#f2ede2"
+        "#dfe7f5",
+        "#efe9dc",
+        "#f1e3e3",
+        "#e3efe6",
+        "#ebe8f3"
       ]
     }
   }

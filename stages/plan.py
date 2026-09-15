@@ -399,8 +399,18 @@ def sections_from(template, bar, cluster, business):
     return out
 
 
+def with_bg(spec, colour):
+    if colour:
+        spec["bg"] = colour
+    return spec
+
+
 def media_from(template, bar, cluster, business):
-    palette = ["#a7d8ec", "#f7d774", "#f9cdd0", "#84eaa4", "#f2ede2"]
+    # Backgrounds come from the site's brand, or are left to the media stage's
+    # neutral palette. This list used to be hardcoded, and it was Doot's pastels,
+    # so every site's images rendered in another business's colours.
+    surfaces = ((business.get("brand") or {}).get("colors") or {}).get("surfaces") or []
+    palette = surfaces or [None]
     # Cased the same way as the section headings. This function substitutes the
     # keyword itself, so without this the image titles and alt text kept the
     # provider's lowercase "adhd" after the headings had been fixed.
@@ -428,8 +438,8 @@ def media_from(template, bar, cluster, business):
             continue
         if len(inline) >= target:
             break
-        inline.append({"type": want, "placement_section": head_of(sec),
-                       "alt": head_of(sec), "bg": palette[(i + 1) % len(palette)]})
+        inline.append(with_bg({"type": want, "placement_section": head_of(sec),
+                               "alt": head_of(sec)}, palette[(i + 1) % len(palette)]))
         used.add(i)
 
     # Top up to what the ranking pages actually carry. The templates declare at
@@ -440,16 +450,15 @@ def media_from(template, bar, cluster, business):
             break
         if i in used or sec.get("wants_image"):
             continue
-        inline.append({"type": "steps" if sec.get("ordered") else "cards",
-                       "placement_section": head_of(sec), "alt": head_of(sec),
-                       "bg": palette[(i + 1) % len(palette)]})
+        inline.append(with_bg({"type": "steps" if sec.get("ordered") else "cards",
+                               "placement_section": head_of(sec), "alt": head_of(sec)},
+                              palette[(i + 1) % len(palette)]))
     # "A visual for <keyword>" is not a concept, it is a restatement, and an image
     # model given it returns stock-shaped filler. Ground the hero in the page's
     # actual angle instead: the gap it exploits is the most visual thing about it.
     concept = (template.get("hero_concept") or
                "the moment someone needs {topic} and cannot start").replace("{topic}", topic(prim))
-    return {"hero": {"concept": concept, "alt": prim,
-                     "bg": palette[0], "text": None},
+    return {"hero": with_bg({"concept": concept, "alt": prim, "text": None}, palette[0]),
             "inline": inline}
 
 
