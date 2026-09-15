@@ -104,25 +104,26 @@ def build_prompt(b, voice_text, exemplars):
     gaps = "\n".join(f"  - {g}" for g in ang["gaps_to_exploit"])
     facts = "\n".join(f"  - {e['claim']}" for e in ev["product_facts"] + ev["competitor_facts"])
     stats = "\n".join(f"  - {e['claim']}  [{e['source_url']}]" for e in ev["stats"])
-    topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}\n"
+    topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}  "
+                      f"[{'official, may be named' if e.get('publisher_kind') in OFFICIAL else 'do not name in the text'}]\n"
                       f"      its words: \"{e['quote']}\""
                       for e in ev.get("topic_facts") or [])
     if topic:
-        # Attribution belongs in the Sources list, not the sentence. Told to "name
-        # the regulator" with each fact, the writer produced "Invest Qatar describes
-        # the LLC as..." and "MOCI states..." in paragraph after paragraph, which
-        # reads like a filing rather than an article.
+        # Naming a ministry or a law adds authority; naming a rival firm's blog
+        # promotes it. So official sources may be named where it strengthens the
+        # point, and everything else lives only in the Sources list. Attribution on
+        # every sentence still reads like a filing, so name sparingly.
         topic = ("\nFacts about the topic, each with the source's own words. State each one "
-                 "plainly and no\nmore strongly than its quote. Do not attribute in the "
-                 "sentence (\"the Ministry states\",\n\"according to\"): list every source "
-                 "under a final \"## Sources\" heading instead, one link\neach. A law is "
-                 "still named where the law is the point (\"under Law No. 11 of 2015\").\n"
-                 + topic)
+                 "no more strongly\nthan its quote. Sources marked official (a law, "
+                 "regulator, ministry, court) may be named\nin the sentence where it adds "
+                 "authority, about once a section, not on every fact. Never name\na source "
+                 "marked \"do not name\" in the text. List every source under a final "
+                 "\"## Sources\" heading.\n" + topic)
     unsettled = "\n".join(f"  - {q}" for q in ev.get("open_questions") or [])
     if unsettled:
         topic += ("\n\nThe research could not settle these. Do not assert an answer to any of "
-                  "them. Where\nofficial guidance differs, say so plainly and give both "
-                  "positions, then say the reader\nshould confirm for their case:\n" + unsettled)
+                  "them. Where\nsources disagree, give both positions, naming official sources, "
+                  "then say the reader\nshould confirm for their case:\n" + unsettled)
     req = [s["keyword"] for s in k["secondaries"] if s.get("required", True)]
     opt = [s["keyword"] for s in k["secondaries"] if not s.get("required", True)]
     links = "\n".join(f"  - /{l['target_slug']} ({l['anchor_intent']}) [{l['target_status']}]"
@@ -301,8 +302,7 @@ def phrase(keyword):
     return re.compile(r"\b" + CONNECTORS.join(parts) + r"\b", re.I)
 
 
-ATTRIBUTION = re.compile(r"\b(?:states? that|states?\b|describes|confirms(?: that)?|"
-                         r"according to|says that|notes that|lists)\b", re.I)
+OFFICIAL = {"law", "regulator", "government", "court", "official_statistics"}
 
 
 def use_ceiling(min_uses, n_words):
@@ -394,10 +394,15 @@ def check_draft(b, text):
             for url in sorted({f["source_url"] for f in topic}):
                 if url.rstrip("/") not in tail[-1]:
                     errs.append(f"source missing from '## Sources': {url}")
-        said = ATTRIBUTION.findall(FRONT.sub("", tail[0]))
-        if len(said) > 2:
-            warns.append(f"{len(said)} sentences attribute a fact in the text "
-                         f"(\"{said[0].strip()}\"...). State it plainly; the Sources list carries it.")
+        body_text = FRONT.sub("", tail[0]).lower()
+        for f in topic:
+            if f.get("publisher_kind") in OFFICIAL:
+                continue
+            host = re.sub(r"^www\.", "", re.sub(r"^https?://", "", f["source_url"]).split("/")[0])
+            name = host.split(".")[0]
+            if len(name) > 3 and re.search(rf"\b{re.escape(name)}\b", body_text):
+                warns.append(f"'{name}' is a non-official source named in the text. Keep it in "
+                             "Sources only: naming it promotes it.")
 
     for img in b["media"].get("inline", []):
         if f"[IMAGE: {img['type']}" not in text:

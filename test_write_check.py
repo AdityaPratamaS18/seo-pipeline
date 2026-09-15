@@ -69,7 +69,7 @@ errs, _, _n = check_draft(b2, text)
 check(not any("missing section" in e and "LLC" in e for e in errs), "not reported missing",
       "; ".join(errs))
 
-print("\nSOURCES GO IN A LIST, NOT IN EVERY SENTENCE")
+print("\nOFFICIAL SOURCES MAY BE NAMED, RIVALS MAY NOT, ALL ARE LISTED")
 b3 = copy.deepcopy(b)
 b3["evidence"]["topic_facts"] = [{"claim": "There is no minimum capital.", "quote": "There isn't minimum capital",
                                   "source_url": "https://www.moci.gov.qa/faq/", "retrieved_at": "2026-09-15T00:00:00Z"}]
@@ -78,10 +78,17 @@ check(any("no '## Sources'" in e for e in errs), "topic facts with no Sources se
 listed = draft(6) + "\n\n## Sources\n\n- [Establishing Companies](https://www.moci.gov.qa/faq)\n"
 errs, warns, _n = check_draft(b3, listed)
 check(not any("Sources" in e for e in errs), "a Sources section listing the URL passes", "; ".join(errs))
-heavy = listed.replace("pad pad", "MOCI states that X. Invest Qatar describes Y. MOCI confirms Z. pad", 1)
-errs, warns, _n = check_draft(b3, heavy)
-check(any("attribute a fact" in w for w in warns), "attribution in sentence after sentence is flagged",
-      "; ".join(warns))
+b3["evidence"]["topic_facts"][0]["publisher_kind"] = "regulator"
+named = listed.replace("pad pad", "The Ministry of Commerce and Industry sets no minimum. moci pad", 1)
+errs, warns, _n = check_draft(b3, named)
+check(not any("non-official" in w for w in warns), "an official source named in the text is fine")
+b3["evidence"]["topic_facts"].append({"claim": "LLCs are common.", "quote": "LLCs are common",
+                                      "source_url": "https://www.propartnergroup.com/qatar/llc/",
+                                      "publisher_kind": "secondary", "retrieved_at": "2026-09-15T00:00:00Z"})
+promo = named.replace("## Sources\n\n", "## Sources\n\n- [LLC](https://www.propartnergroup.com/qatar/llc)\n")
+promo = promo.replace("moci pad", "moci. Propartnergroup explains this well. pad", 1)
+errs, warns, _n = check_draft(b3, promo)
+check(any("propartnergroup" in w for w in warns), "a rival firm named in the text is flagged", "; ".join(warns))
 
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
