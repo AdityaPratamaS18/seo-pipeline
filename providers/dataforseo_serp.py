@@ -24,8 +24,11 @@ WHAT IT KEEPS, and why each field is load bearing:
   domain_authority   left null here. DataForSEO's SERP endpoint does not return
                      it, and a made up number is worse than a missing one.
 
-COST. About $0.002 per keyword on the standard queue, $0.003 live. Ten seeds is
-roughly two cents. The balance is checked before anything is spent.
+COST. About $0.0042 per keyword: live mode plus the AI Overview load, measured on
+a real run of 9 Qatar SERPs. Twelve seeds is about five cents. The balance is
+checked first, and only as many seeds as it covers are fetched. A seed already
+saved in the output directory is skipped, so a rerun after a top-up pays only
+for what is missing. Pass --refresh to fetch them again.
 """
 import argparse
 import json
@@ -88,6 +91,9 @@ def parse(blob, keyword):
     return {"keyword": keyword, "results": rows}, res.get("se_results_count")
 
 
+PER_SERP = 0.0045
+
+
 def fetch(keyword, location=2840, language="en", depth=20):
     payload = [{
         "keyword": keyword,
@@ -110,6 +116,8 @@ def main():
     ap.add_argument("--location", type=int, default=2840, help="2840 = United States")
     ap.add_argument("--language", default="en")
     ap.add_argument("--depth", type=int, default=20, help="how many results to keep")
+    ap.add_argument("--refresh", action="store_true",
+                    help="refetch seeds that are already saved")
     a = ap.parse_args()
 
     seeds = list(a.keywords)
@@ -127,12 +135,29 @@ def main():
               "        page, so with only a handful of seeds almost nothing overlaps and the\n"
               "        clusters come out as singletons. Ten to twelve is a working minimum.\n")
 
+    if not a.refresh:
+        have = [s for s in seeds if os.path.exists(os.path.join(a.out, f"{slugify(s)}.json"))]
+        if have:
+            print(f"  {len(have)} seed(s) already saved in {a.out}/, skipped. --refresh refetches.")
+        seeds = [s for s in seeds if s not in have]
+        if not seeds:
+            print(f"  nothing to fetch.\n  next:  seo competitors {a.out}/*.json")
+            return 0
+
+    # Measured, not quoted: $0.003 was the price list, and a run of 12 seeds
+    # against a $0.0368 balance passed the check and ran dry on the tenth.
     start = balance()
-    est = len(seeds) * 0.003
+    est = len(seeds) * PER_SERP
     if start is not None:
-        print(f"  balance ${start}, about ${est:.3f} for {len(seeds)} SERP(s)")
-        if est > start:
-            sys.exit(f"  that would overdraw the balance (${start}).")
+        print(f"  balance ${start:.4f}, about ${est:.3f} for {len(seeds)} SERP(s)")
+        fits = max(0, int(start // PER_SERP))
+        if fits < len(seeds):
+            if not fits:
+                sys.exit("  the balance does not cover one SERP. Top up at dataforseo.com.")
+            print(f"  the balance covers {fits}. Fetching those and leaving the rest:\n"
+                  + "".join(f"    {s}\n" for s in seeds[fits:])
+                  + "  Top up and rerun the same command; saved seeds are skipped.")
+            seeds = seeds[:fits]
 
     os.makedirs(a.out, exist_ok=True)
     spent, written = 0.0, []

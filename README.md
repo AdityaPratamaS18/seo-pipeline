@@ -58,7 +58,7 @@ been written yet, so it is the cheapest place to kill a page.
 ## Pull competitor keywords the right way
 
 ```bash
-seo serp "adhd planner" "best adhd apps" "adhd to do list"   # real SERPs, ~$0.003 each
+seo serp "adhd planner" "best adhd apps" "adhd to do list"   # real SERPs, ~$0.004 each
 seo competitors serps/*.json                                 # who actually ranks
 seo pull wonderstruct.co lunatask.app morgen.so              # their keywords
 seo keywords keywords/dataset.csv                            # cluster them

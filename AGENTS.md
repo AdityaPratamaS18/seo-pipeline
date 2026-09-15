@@ -91,7 +91,7 @@ Run the checks as scripts, not as another judgement pass.
 
 ## What costs money
 
-Only `seo serp` (about $0.003 a query) and `seo pull` (about $0.012 a domain plus $0.00012 a
+Only `seo serp` (about $0.004 a query) and `seo pull` (about $0.012 a domain plus $0.00012 a
 row). Everything else is free. Both check the account balance before spending and stop rather
 than overdraw.
 

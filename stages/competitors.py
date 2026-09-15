@@ -45,7 +45,9 @@ from urllib.parse import urlparse
 PLATFORM = {"amazon.com", "etsy.com", "ebay.com", "play.google.com", "apps.apple.com",
             "youtube.com", "pinterest.com", "facebook.com", "instagram.com", "tiktok.com",
             "google.com", "linkedin.com", "x.com", "twitter.com", "producthunt.com",
-            "alternativeto.net", "g2.com", "capterra.com", "trustpilot.com", "medium.com"}
+            "alternativeto.net", "g2.com", "capterra.com", "trustpilot.com", "medium.com",
+            "clutch.co", "yelp.com", "crunchbase.com", "glassdoor.com", "indeed.com",
+            "gulftalent.com", "bayt.com", "wikipedia.org"}
 COMMUNITY = {"reddit.com", "quora.com", "stackexchange.com", "stackoverflow.com",
              "discourse.org", "news.ycombinator.com"}
 # Domains that publish about the topic without selling a competing product.
@@ -56,19 +58,37 @@ PUBLISHER_HINT = {"mag", "magazine", "blog", "health", "news", "today", "post",
                   "psychology", "psychiatry", "med", "medical"}
 
 
+# Second-level labels that mark a registry, regulator or university in most
+# countries: moci.gov.qa, ox.ac.uk, beoe.gov.pk. Checking only the final label
+# caught ".gov" and missed every country form, so on a Qatar run the Ministry
+# of Commerce was shortlisted as a rival firm to buy keyword data for.
+INSTITUTION = {"gov", "edu", "ac", "mil", "org", "govt", "gouv", "gob"}
+
+
 def kind(domain, has_product_path=False):
     d = domain.lower()
     if d in PLATFORM:
         return "platform"
     if d in COMMUNITY:
         return "community"
-    if d.endswith(".org") or d.endswith(".edu") or d.endswith(".gov"):
+    labels = d.split(".")
+    if labels[-1] in INSTITUTION or set(labels[1:-1]) & INSTITUTION:
         return "publisher"
     import re as _re
     parts = set(_re.split(r"[.\-]", d.rsplit(".", 1)[0]))
     if parts & PUBLISHER_HINT:
         return "publisher"
     return "product"
+
+
+def own_domain(path="context/business.json"):
+    """The site being worked on. It shows up in its own SERPs, and without this
+    it lands on the shortlist `seo pull` spends money on."""
+    try:
+        d = json.load(open(path))["identity"]["domain"]
+    except Exception:                                               # noqa: BLE001
+        return None
+    return d.lower().removeprefix("www.")
 
 
 def weight(pos):
@@ -82,6 +102,8 @@ def main():
     ap = argparse.ArgumentParser(description="Discover competitors from real SERPs.")
     ap.add_argument("serps", nargs="+", help="SERP dump JSON files")
     ap.add_argument("--out", default="keywords/competitors.json")
+    ap.add_argument("--business", default="context/business.json",
+                    help="read the site's own domain from here, to leave it off the shortlist")
     ap.add_argument("--min-serps", type=int, default=2,
                     help="appear on at least this many SERPs to count as a competitor")
     a = ap.parse_args()
@@ -117,6 +139,9 @@ def main():
             if r.get("domain_authority") is not None:
                 e["da"] = r["domain_authority"] if e["da"] is None else max(e["da"], r["domain_authority"])
 
+    own = own_domain(a.business)
+    you = dom.pop(own, None) if own else None
+
     rows = []
     for dn, e in dom.items():
         rows.append({"domain": dn, "kind": kind(dn), "score": round(e["score"], 2),
@@ -131,6 +156,11 @@ def main():
         groups[r["kind"]].append(r)
 
     print(f"  {len(paths)} SERPs, {len(rows)} distinct domains\n")
+    if you:
+        where = ", ".join(f"{k} #{p}" for k, p in sorted(you["serps"], key=lambda x: x[1]))
+        print(f"  YOU  {own} ranks on {len(you['serps'])} of {len(paths)}: {where}\n")
+    elif own:
+        print(f"  YOU  {own} ranks on none of these {len(paths)} SERPs in the top results\n")
     LABEL = {"product": "PRODUCTS  compete for the same buyer, set your positioning",
              "publisher": "PUBLISHERS  own the content, set the bar you have to clear",
              "community": "COMMUNITY  a gap where no product answers the query well",
@@ -165,7 +195,11 @@ def main():
     json.dump({"meta": {"serps_analysed": [json.load(open(p))["keyword"] for p in paths],
                         "min_serps": a.min_serps,
                         "serp_features": features,
-                        "ai_overview_queries": sorted(ai)},
+                        "ai_overview_queries": sorted(ai),
+                        "own_domain": own,
+                        "own_rankings": [{"keyword": k, "position": p}
+                                         for k, p in sorted(you["serps"], key=lambda x: x[1])]
+                                        if you else []},
                "competitors": rows,
                "track": [r["domain"] for r in shortlist]}, open(a.out, "w"), indent=2)
     print(f"\n  wrote {a.out}")
