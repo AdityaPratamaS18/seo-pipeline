@@ -105,6 +105,7 @@ with tempfile.TemporaryDirectory() as t:
           "a quote the source does not contain fails, even when claim and quote agree", r.stdout)
 
     doc["facts"] = [dict(FACT, source_url=url)]
+    doc["open_questions"] = DOC["open_questions"]
     json.dump(doc, open(fp, "w"))
     r = seo(["apply", slug], t)
     check(r.returncode != 0 and "not approved" in (r.stdout + r.stderr),
