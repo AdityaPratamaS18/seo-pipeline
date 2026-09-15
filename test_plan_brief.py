@@ -113,5 +113,14 @@ with tempfile.TemporaryDirectory() as t:
         json.dump({"meta": {"decision": d}}, open(p, "w"))
         check(plan.gate3_decided(p) == want, f"a {d} brief reads as {want}, so only pending is replanned")
 
+from stages.write import define_text
+t = define_text({"term": "planners for executive functioning", "must_appear_by_word": 120})
+check('"Planners for executive functioning are ..."' in t and "An planners" not in t,
+      "the writer is told 'Planners ... are', with no article", t)
+t = define_text({"term": "LLC in Qatar", "must_appear_by_word": 120})
+check('"An LLC in Qatar is ...")' in t, "and 'An LLC in Qatar is' for a singular acronym", t)
+t = define_text({"term": "brain dump", "must_appear_by_word": 120})
+check('"A brain dump is ...")' in t, "and 'A brain dump is' for a singular word", t)
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)

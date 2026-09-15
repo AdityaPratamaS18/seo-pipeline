@@ -129,6 +129,21 @@ FIGURE_SOURCE = {
 
 
 # ── prompt ────────────────────────────────────────────────────────────────
+def define_text(d):
+    """How to write the definition. "An planners for executive functioning is" was
+    what a fixed "is" and "An" did to a plural term."""
+    from stages.plan import plural_term
+    term = d["term"]
+    if plural_term(term):
+        return (f"Define the term plainly inside the first {d['must_appear_by_word']} words, as "
+                f'"{term[0].upper() + term[1:]} are ...".\n\n')
+    first = term.split()[0]
+    vowel = (first[:1] in "AEFHILMNORSX") if first.isupper() and len(first) > 1 else term[:1].lower() in "aeiou"
+    return (f"Define the term plainly inside the first {d['must_appear_by_word']} words, as "
+            f'"{term} is ...". An article in front ("{"An" if vowel else "A"} {term} is ...")\n'
+            "is fine and usually reads better.\n\n")
+
+
 def length_text(bar):
     """The length instruction, and on a long SERP, what to cover instead."""
     ceiling = bar.get("word_ceiling")
@@ -249,9 +264,7 @@ def build_prompt(b, voice_text, exemplars):
             "Ordinary prose keeps its pronouns. This applies to claim sentences only.\n\n"
             'Do not open a paragraph pointing backwards ("This is why...", "As a\n'
             'result..."). Name the subject in the first sentence instead.\n\n'
-            f"Define the term plainly inside the first {ex['definition']['must_appear_by_word']}"
-            f' words, as "{ex["definition"]["term"]} is ...". An article in front ("An '
-            f'{ex["definition"]["term"]} is ...")\nis fine and usually reads better.\n\n'
+            + define_text(ex["definition"]) +
             f"Answer each of these outright, under a heading that asks it:\n{qs}")
         if tbl:
             extract += ("\n\nBuild a comparison table. Columns: "
