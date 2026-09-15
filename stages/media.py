@@ -51,6 +51,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -296,6 +297,16 @@ def luminance(rgb):
     return (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255
 
 
+def contrast(a, b):
+    """WCAG contrast ratio between two RGB colours, 1 to 21."""
+    def rel(c):
+        ch = [x / 255 for x in c]
+        ch = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in ch]
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+    hi, lo = sorted((rel(a), rel(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 def mix(a, b, t):
     return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
@@ -313,6 +324,13 @@ def render(spec, out_path, colors, title, items, table):
     card = mix(ground, paper, 0.08) if dark else paper
     edge = mix(ground, paper, 0.18) if dark else mix(paper, ink, 0.08)
     muted = mix(text, ground, 0.3)
+    # An accent drawn on something the same lightness vanishes. Doot's mint on its
+    # pastel grounds measures 1.0 to 1, so the title bar disappeared and the step
+    # numbers on cream cards were close to unreadable. Each use takes the accent
+    # only where it can be seen, and the ink otherwise.
+    bar = accent if contrast(accent, ground) >= 1.5 else text
+    strip = accent if contrast(accent, card) >= 1.3 else text
+    mark = accent if contrast(accent, card) >= 3 else text
     f_title, f_h, f_b, f_n = font(FONT_B, 40), font(FONT_B, 23), font(FONT_R, 17), font(FONT_B, 18)
 
     t = spec["type"]
@@ -372,35 +390,35 @@ def render(spec, out_path, colors, title, items, table):
         for i, line in enumerate(lines):
             d.text(((pad + 48) * S, (y + i * 76) * S), line, font=f_cover, fill=text)
         d.rounded_rectangle([(pad + 48) * S, (y + block + 18) * S, (pad + 198) * S, (y + block + 27) * S],
-                            radius=5 * S, fill=accent)
+                            radius=5 * S, fill=strip)
     elif t == "compare":
-        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=bar)
         for i, line in enumerate(title_lines):
             d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
         for c, side in enumerate(sides):
             x = 70 + c * (cw + 20)
             d.rectangle([x * S, top * S, (x + cw) * S, (top + need) * S], fill=card, outline=edge, width=S)
-            d.rectangle([x * S, top * S, (x + cw) * S, (top + 5) * S], fill=accent)
+            d.rectangle([x * S, top * S, (x + cw) * S, (top + 5) * S], fill=strip)
             y = top + 26
             for line in wrap(d, side.get("t", ""), f_h, cw - 48):
                 d.text(((x + 24) * S, y * S), line, font=f_h, fill=text)
                 y += 29
             y += 16
             for pt in side.get("points") or []:
-                d.ellipse([(x + 26) * S, (y + 8) * S, (x + 34) * S, (y + 16) * S], fill=accent)
+                d.ellipse([(x + 26) * S, (y + 8) * S, (x + 34) * S, (y + 16) * S], fill=mark)
                 for line in wrap(d, pt, f_b, cw - 78):
                     d.text(((x + 50) * S, y * S), line, font=f_b, fill=muted if dark else text)
                     y += 25
                 y += 14
     elif t == "checklist":
-        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=bar)
         for i, line in enumerate(title_lines):
             d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
         y0 = top
         for (head, body), rh in zip(items, rows_h):
             d.rectangle([70 * S, y0 * S, (W - 70) * S, (y0 + rh) * S], fill=card, outline=edge, width=S)
             bx, by = 94, y0 + 20
-            d.rounded_rectangle([bx * S, by * S, (bx + 26) * S, (by + 26) * S], radius=6 * S, fill=accent)
+            d.rounded_rectangle([bx * S, by * S, (bx + 26) * S, (by + 26) * S], radius=6 * S, fill=mark)
             # A tick drawn as two strokes, so it needs no glyph the font may lack.
             d.line([((bx + 6) * S, (by + 13) * S), ((bx + 11) * S, (by + 19) * S),
                     ((bx + 20) * S, (by + 7) * S)], fill=card, width=3 * S, joint="curve")
@@ -429,7 +447,7 @@ def render(spec, out_path, colors, title, items, table):
                 for li, line in enumerate(wrap(d, cell, cf, cw_t - 32)[:2]):
                     d.text(((86 + c * cw_t) * S, (y + li * 21) * S), line, font=cf, fill=text)
     else:
-        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=bar)
         for i, line in enumerate(title_lines):
             d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
         for i, (head, body) in enumerate(items):
@@ -437,10 +455,10 @@ def render(spec, out_path, colors, title, items, table):
             x = 70 + col * (cw + 20)
             y0 = top + row * (need + 20)
             d.rectangle([x * S, y0 * S, (x + cw) * S, (y0 + need) * S], fill=card, outline=edge, width=S)
-            d.rectangle([x * S, y0 * S, (x + cw) * S, (y0 + 5) * S], fill=accent)
+            d.rectangle([x * S, y0 * S, (x + cw) * S, (y0 + 5) * S], fill=strip)
             y = y0 + 26
             if t == "steps":
-                d.text(((x + 24) * S, y * S), f"{i + 1:02d}", font=f_n, fill=accent)
+                d.text(((x + 24) * S, y * S), f"{i + 1:02d}", font=f_n, fill=mark)
                 y += 34
             for line in wrap(d, head, f_h, cw - 48):
                 d.text(((x + 24) * S, y * S), line, font=f_h, fill=text)
@@ -452,6 +470,39 @@ def render(spec, out_path, colors, title, items, table):
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     img.resize((W, height), Image.LANCZOS).save(out_path)
+    return out_path
+
+
+def illustration_cover(bg, source, out_path, timeout=60):
+    """A cover that is one illustration on a full-bleed brand colour, with no text.
+
+    For a site whose covers come from its own illustration library. An SVG is
+    rasterised with ImageMagick, since the usual route (a headless browser) hangs
+    on some machines; a PNG is used as it is. The art is fitted inside the frame
+    with room around it, never cropped, because a cropped figure reads as a
+    mistake."""
+    if source.lower().endswith(".svg"):
+        magick = shutil.which("magick") or shutil.which("convert")
+        if not magick:
+            raise RuntimeError("an SVG illustration needs ImageMagick to rasterise it: brew install imagemagick")
+        r = subprocess.run([magick, "-background", "none", "-density", "300", source, "png:-"],
+                           capture_output=True, timeout=timeout)
+        if r.returncode or not r.stdout:
+            raise RuntimeError(f"ImageMagick could not read {source}: {r.stderr.decode()[-160:]}")
+        import io
+        art = Image.open(io.BytesIO(r.stdout)).convert("RGBA")
+    else:
+        art = Image.open(source).convert("RGBA")
+    box = art.getbbox()
+    if box:
+        art = art.crop(box)
+    ground = hexrgb(bg)
+    canvas = Image.new("RGBA", (W * S, H * S), ground + (255,))
+    scale = min(W * S * 0.62 / art.width, H * S * 0.76 / art.height)
+    art = art.resize((max(1, int(art.width * scale)), max(1, int(art.height * scale))), Image.LANCZOS)
+    canvas.alpha_composite(art, ((W * S - art.width) // 2, (H * S - art.height) // 2))
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    canvas.convert("RGB").resize((W, H), Image.LANCZOS).save(out_path)
     return out_path
 
 
@@ -624,6 +675,23 @@ def main():
     tasks, notes = [], []
     if brand.get("cover") == "photo":
         notes.append(f"cover is a photo for this site: place {a.slug}-hero.jpg (or .webp) in {outdir}/")
+    elif brand.get("cover") == "illustration":
+        hero = brief["media"]["hero"]
+        lib = os.path.expanduser(brand.get("illustrations") or "")
+        if not lib or not os.path.isdir(lib):
+            sys.exit("brand.cover is 'illustration' but brand.illustrations is not a folder. Set it to the "
+                     "site's illustration library.")
+        name = hero.get("illustration")
+        if not name or not os.path.exists(os.path.join(lib, name)):
+            have = sorted(f for f in os.listdir(lib) if f.lower().endswith((".svg", ".png")))
+            sys.exit(f"the cover needs media.hero.illustration in the brief, one file from {lib}:\n  "
+                     + ", ".join(have[:60]) + "\n  Pick one that fits this page and no other page uses.")
+        try:
+            done_cover = illustration_cover(hero.get("bg") or colors["surfaces"][0], os.path.join(lib, name),
+                                            os.path.join(outdir, f"{a.slug}-hero.png"))
+            print(f"  rendered {os.path.basename(done_cover)} ({name} on {hero.get('bg')})")
+        except (RuntimeError, subprocess.TimeoutExpired) as e:
+            sys.exit(f"  the cover failed: {e}")
     else:
         hero = brief["media"]["hero"]
         tasks.append(({"type": "cover", "bg": hero.get("bg")},

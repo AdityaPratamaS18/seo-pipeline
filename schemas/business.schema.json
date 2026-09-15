@@ -496,10 +496,15 @@
         "cover": {
           "enum": [
             "render",
-            "photo"
+            "photo",
+            "illustration"
           ],
           "default": "render",
-          "description": "'photo' when covers are sourced photographs: the pipeline then does not render one and says where to place it."
+          "description": "'photo' when covers are sourced photographs: the pipeline then does not render one and says where to place it. 'illustration' when covers are one piece from the site's own library on a brand colour: the brief names the file in media.hero.illustration and the pipeline composes it, with no text."
+        },
+        "illustrations": {
+          "type": "string",
+          "description": "The folder holding the site's illustration library (SVG or PNG), for cover 'illustration'."
         }
       }
     },

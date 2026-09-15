@@ -131,7 +131,7 @@ check(any("3 to 8" in e for e in check_figure({**fig, "items": fig["items"][:2]}
 
 import os
 import tempfile
-from PIL import Image
+from PIL import Image, ImageDraw
 from stages.media import NEUTRAL, render
 with tempfile.TemporaryDirectory() as t:
     c = render({"type": "compare", "items": [{"t": "A", "points": ["one point", "two points"]},
@@ -142,6 +142,42 @@ with tempfile.TemporaryDirectory() as t:
     ci, ki = Image.open(c), Image.open(k)
     check(ci.width == 1200 and 250 < ci.height < 700, f"the built-in renderer draws a comparison ({ci.size})")
     check(ki.width == 1200 and 300 < ki.height < 800, f"and a checklist, sized to its rows ({ki.size})")
+
+from stages.media import contrast, hexrgb
+check(contrast(hexrgb("#84eaa4"), hexrgb("#f7d774")) < 1.5 and contrast(hexrgb("#075349"), hexrgb("#faf6ee")) > 7,
+      "contrast measures a mint accent as invisible on a pastel ground and ink as readable on cream")
+with tempfile.TemporaryDirectory() as t:
+    doot = {"ink": "#075349", "paper": "#faf6ee", "accent": "#84eaa4", "surfaces": ["#84eaa4"]}
+    out = render({"type": "steps", "bg": "#84eaa4"}, os.path.join(t, "s.png"), doot, "Title",
+                 [("First", "one"), ("Second", "two")], None)
+    im = Image.open(out).convert("RGB")
+    # The step number sits at (x + 24, top + 26) on the first card: sample that patch for ink.
+    patch = im.crop((94, 170, 130, 200))
+    darkest = min(sum(px) for px in patch.getdata())
+    check(darkest < 300, f"a step number on a cream card is drawn dark enough to read (darkest {darkest})")
+
+print("\nAN ILLUSTRATION COVER")
+import shutil
+from stages.media import illustration_cover
+with tempfile.TemporaryDirectory() as t:
+    art = Image.new("RGBA", (400, 300), (0, 0, 0, 0))
+    ImageDraw.Draw(art).rectangle([100, 50, 300, 250], fill=(7, 83, 73, 255))
+    art.save(os.path.join(t, "a.png"))
+    out = illustration_cover("#a7d8ec", os.path.join(t, "a.png"), os.path.join(t, "c.png"))
+    im = Image.open(out).convert("RGB")
+    check(im.size == (1200, 630), "a cover is 1200 by 630")
+    check(im.getpixel((20, 20)) == (167, 216, 236) and im.getpixel((600, 315)) == (7, 83, 73),
+          "the art sits centred on a full-bleed brand colour")
+    box = Image.eval(im, lambda v: 255 if v < 100 else 0).convert("L").getbbox()
+    check(box and box[0] > 0 and box[2] < 1200 and box[1] > 0 and box[3] < 630,
+          "trimmed to the art and fitted with room around it, never cropped", str(box))
+    if shutil.which("magick") or shutil.which("convert"):
+        open(os.path.join(t, "a.svg"), "w").write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100">'
+                                                   '<rect x="20" y="10" width="160" height="80" fill="#075349"/></svg>')
+        out = illustration_cover("#f7d774", os.path.join(t, "a.svg"), os.path.join(t, "s.png"))
+        check(Image.open(out).convert("RGB").getpixel((600, 315)) == (7, 83, 73), "an SVG is rasterised too")
+    else:
+        print("  skip  ImageMagick is not installed, so the SVG path is unchecked")
 
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)

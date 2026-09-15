@@ -785,6 +785,10 @@
             "concept": {
               "type": "string"
             },
+            "illustration": {
+              "type": "string",
+              "description": "For a site with brand.cover 'illustration': the file from its library this cover uses. Chosen for the page, and not reused across pages."
+            },
             "alt": {
               "type": "string"
             },
