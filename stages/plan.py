@@ -40,7 +40,12 @@ STOP = {"a", "an", "the", "to", "of", "for", "in", "on", "and", "or"}
 # "How to {primary}, step by step" renders as "How to how to stop
 # procrastinating adhd, step by step".
 STEMS = re.compile(r"^(how to|how do i|how can i|what is|what are|why do i|why does|"
+                   r"how much (?:does|do|is|are)(?: an?| the)?|cost of|price of|"
                    r"best|top \d+|guide to)\s+", re.I)
+
+
+# Only these stems carry a verb, so only these may fill "How to {topic}".
+VERB_STEM = re.compile(r"^(how to|how do i|how can i)\s+", re.I)
 
 
 def topic(keyword):
@@ -381,7 +386,7 @@ def sections_from(template, bar, cluster, business):
         # that casing into the draft and into the rendered images.
         acr = cluster.get("_acronyms", ())
         head = s["heading"]
-        if head.startswith("How to {topic}") and not STEMS.match(prim):
+        if head.startswith("How to {topic}") and not VERB_STEM.match(prim):
             # "How to {topic}" needs a verb. A noun keyword gave "How to LLC in
             # Qatar, step by step"; only a keyword that arrived as "how to ..."
             # is known to carry one.
@@ -421,7 +426,7 @@ def media_from(template, bar, cluster, business):
 
     def head_of(sec):
         head = sec["heading"]
-        if head.startswith("How to {topic}") and not STEMS.match(raw):
+        if head.startswith("How to {topic}") and not VERB_STEM.match(raw):
             head = "{topic}" + head[len("How to {topic}"):]
         return head.replace("{primary}", prim).replace("{topic}", topic(prim))
 

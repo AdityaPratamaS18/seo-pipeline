@@ -285,7 +285,7 @@
           "share": 0.25
         },
         {
-          "heading": "What they changed",
+          "heading": "How they handled {topic}",
           "purpose": "The actual work, reproducible by the reader.",
           "share": 0.4,
           "wants_image": "steps"
@@ -304,7 +304,7 @@
       "needs_faq": true,
       "sections": [
         {
-          "heading": "Frequently asked questions",
+          "heading": "Frequently asked questions about {topic}",
           "purpose": "Every question from the SERP, each answered in two or three sentences, FAQPage marked up.",
           "share": 0.85,
           "repeats": true
@@ -316,6 +316,88 @@
         }
       ],
       "hero_concept": "many questions about {topic} arranged around one calm answer"
+    },
+    "product_page": {
+      "opening": "Say what the product does for this exact need in the first two sentences, and who it is for. The reader searched for a tool, so show one, not a history of the category.",
+      "min_words": 900,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "{product}, the {topic}",
+          "purpose": "The job the reader wants done and how the product does it, from product facts only. This is the page's one keyword heading.",
+          "share": 0.2
+        },
+        {
+          "heading": "How it works",
+          "purpose": "The first session as a new user sees it, step by step, from opening the product to the first thing done.",
+          "share": 0.2,
+          "ordered": true,
+          "wants_image": "steps"
+        },
+        {
+          "heading": "What you get",
+          "purpose": "The features that matter for this need, each tied to the problem it solves. Only features in the evidence; a feature list without the problem is a spec sheet.",
+          "share": 0.2,
+          "wants_image": "cards"
+        },
+        {
+          "heading": "Who it is not for",
+          "purpose": "Where another kind of tool fits better, said plainly. Stated limits make every claim above them believable.",
+          "share": 0.1
+        },
+        {
+          "heading": "What it costs",
+          "purpose": "Plans, price and trial from pricing facts only, with the month they were checked.",
+          "share": 0.1
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "What a buyer asks before signing up: data, devices, cancelling, switching from what they use now.",
+          "share": 0.2
+        }
+      ],
+      "hero_concept": "someone in the middle of {topic} with the product open and doing its job, the screen readable"
+    },
+    "pricing_page": {
+      "opening": "Answer the price in the first two sentences: the range, what the cheapest and dearest options get you, and the month the prices were checked. Then explain.",
+      "min_words": 1100,
+      "needs_table": true,
+      "needs_faq": true,
+      "sections": [
+        {
+          "heading": "The short answer",
+          "purpose": "The range and the one thing that moves a reader from the bottom of it to the top. Quotable on its own.",
+          "share": 0.15
+        },
+        {
+          "heading": "{topic}, option by option",
+          "purpose": "One table: each plan or option, its price and billing period, what it includes, who it suits. Every price is a vendor fact, dated. This is the page's one keyword heading.",
+          "share": 0.3,
+          "wants_image": "table"
+        },
+        {
+          "heading": "What changes the price",
+          "purpose": "Seats, annual billing, usage limits, add-ons. Only what the pricing pages themselves state.",
+          "share": 0.15,
+          "wants_image": "cards"
+        },
+        {
+          "heading": "Costs that are easy to miss",
+          "purpose": "Setup, overages, minimum terms, currency and tax, where a source states them. A gap in the sources is said, not filled.",
+          "share": 0.1
+        },
+        {
+          "heading": "Which option fits",
+          "purpose": "By the reader's situation, not by plan name. Name {product} where it genuinely fits and say where it does not.",
+          "share": 0.15
+        },
+        {
+          "heading": "Frequently asked questions",
+          "purpose": "Free plans, trials, discounts, refunds, what happens at the limit.",
+          "share": 0.15
+        }
+      ],
+      "hero_concept": "a plain price tag beside what each option actually includes, the trade off visible at a glance"
     }
   }
 }
