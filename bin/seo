@@ -20,6 +20,7 @@ yours.
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
+    seo facts init|check|apply <slug> GATE 3   quoted facts about the topic, for pages that explain a law or rule
     seo write prompt|check <slug>     stage 3
     seo media <slug>                  stage 4  typographic images
     seo media prompts <slug>          stage 4  prompts for generated art
@@ -54,6 +55,7 @@ DIRECT = {
     "serp": ("providers.dataforseo_serp", []),
     "pull": ("providers.dataforseo_labs", ["ranked"]),
     "ubersuggest": ("providers.ubersuggest", []),
+    "facts": ("stages.facts", []),
 }
 
 

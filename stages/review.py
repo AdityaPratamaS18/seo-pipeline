@@ -122,7 +122,8 @@ def card(b):
         f"<span style='color:var(--muted)'>{esc(c['notable'])}</span></li>"
         for c in bar["competitors"])
     ev = b["evidence"]
-    n_ev = len(ev["product_facts"]) + len(ev["competitor_facts"]) + len(ev["stats"])
+    n_ev = (len(ev["product_facts"]) + len(ev["competitor_facts"]) + len(ev["stats"])
+            + len(ev.get("topic_facts") or []))
     slug = p["slug"]
     return f"""
 <div class="card" data-slug="{esc(slug)}">

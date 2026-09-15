@@ -40,7 +40,26 @@ def load_brief(slug, briefs_dir):
     return json.load(open(path))
 
 
+def research_gate(b, research_dir="research"):
+    """A page with researched facts cannot be written until they are approved and
+    in the brief. Otherwise the writer sees a whitelist missing the facts the page
+    exists to state, and either writes around them or invents them."""
+    slug = b["page"]["slug"]
+    p = os.path.join(research_dir, f"{slug}.facts.json")
+    if not os.path.exists(p):
+        return
+    doc = json.load(open(p))
+    if not doc["meta"].get("approved_at"):
+        sys.exit(f"{p} exists but is not approved. A person reads each claim beside its "
+                 f"quote and sets meta.approved_at, then: seo facts apply {slug}")
+    have = len(b["evidence"].get("topic_facts") or [])
+    if have != len(doc.get("facts", [])):
+        sys.exit(f"{p} has {len(doc.get('facts', []))} approved fact(s) but the brief carries "
+                 f"{have}. Run: seo facts apply {slug}")
+
+
 def gate(b):
+    research_gate(b)
     if b["meta"]["decision"] != "approved":
         sys.exit(f"brief is '{b['meta']['decision']}', not approved (GATE 3). "
                  "Writing an unapproved brief wastes the gate.")
@@ -62,6 +81,17 @@ def build_prompt(b, voice_text, exemplars):
     gaps = "\n".join(f"  - {g}" for g in ang["gaps_to_exploit"])
     facts = "\n".join(f"  - {e['claim']}" for e in ev["product_facts"] + ev["competitor_facts"])
     stats = "\n".join(f"  - {e['claim']}  [{e['source_url']}]" for e in ev["stats"])
+    topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}\n"
+                      f"      its words: \"{e['quote']}\""
+                      for e in ev.get("topic_facts") or [])
+    if topic:
+        topic = ("\nFacts about the topic, each with the source's own words. State them no more "
+                 "strongly\nthan the quote does, and name the instrument or regulator when you do:\n"
+                 + topic)
+    unsettled = "\n".join(f"  - {q}" for q in ev.get("open_questions") or [])
+    if unsettled:
+        topic += ("\n\nThe research could not settle these. Do not assert an answer to any of "
+                  "them;\nsay the reader should confirm for their case:\n" + unsettled)
     req = [s["keyword"] for s in k["secondaries"] if s.get("required", True)]
     opt = [s["keyword"] for s in k["secondaries"] if not s.get("required", True)]
     links = "\n".join(f"  - /{l['target_slug']} ({l['anchor_intent']}) [{l['target_status']}]"
@@ -159,7 +189,7 @@ come from this list. If something is not here, you do not know it, and you must
 not write it. Do not estimate, do not round, do not infer a statistic.
 
 {facts or '  (no product facts supplied)'}
-{stats}
+{stats}{topic}
 
 If a section needs a fact you do not have, write the section without it and note
 what was missing at the end of your output under "MISSING EVIDENCE".

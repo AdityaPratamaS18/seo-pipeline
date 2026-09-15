@@ -95,6 +95,12 @@ draft leaves the same hole in the other twenty-nine pages.
 multiplier and quantity traces back to it. If a section needs a fact you were not given, write
 the section without it and note what was missing. Never estimate, round, or infer a statistic.
 
+**A page that explains a law or a rule needs researched facts.** `business.json` only knows the
+business. Run `seo facts init <slug>`, fill `research/<slug>.facts.json` from primary sources
+with the source's exact words in `quote`, run `seo facts check <slug> --verify`, and hand it to
+the person for approval. The writer refuses the brief until `seo facts apply <slug>` has run.
+Where sources disagree, record it under `open_questions` instead of picking one.
+
 **A check reporting zero units examined is a failure, not a pass.**
 
 **A file still containing `TODO:` cannot be confirmed.** `validate.py` rejects it.

@@ -635,6 +635,45 @@
               }
             }
           }
+        },
+        "topic_facts": {
+          "type": "array",
+          "description": "Facts about the page's TOPIC (a law, a regulator's rule), each with the source's own words. Merged from research/<slug>.facts.json by `seo facts apply` after a person approves it.",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "quote",
+              "source_url",
+              "retrieved_at"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim": {
+                "type": "string"
+              },
+              "quote": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "publisher_kind": {
+                "type": "string"
+              },
+              "retrieved_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Points the research found unsettled. The writer must not assert them."
         }
       }
     },

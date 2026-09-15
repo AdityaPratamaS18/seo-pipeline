@@ -33,7 +33,7 @@ except ImportError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCHEMA_DIR = os.path.join(HERE, "schemas")
-KINDS = ("business", "clusters", "brief", "prompts")
+KINDS = ("business", "clusters", "brief", "prompts", "facts")
 
 DASH = re.compile(r"[—–]")
 
@@ -196,6 +196,14 @@ def semantic(kind, doc):
             warns.append("no brand check for this brand. If a model cannot answer that, "
                          "nothing else in the set will work.")
 
+    if kind == "facts":
+        from stages.facts import review as review_facts
+        e, w = review_facts(doc)
+        errs += e
+        warns += w
+        if not doc["meta"].get("approved_at"):
+            warns.append("not approved yet. The writer refuses this page until it is.")
+
     if kind == "brief":
         m = doc["meta"]
         if m.get("decision") == "approved" and not m.get("approved_at"):
@@ -216,7 +224,8 @@ def semantic(kind, doc):
 
         # The core anti-fabrication invariant.
         ev = doc["evidence"]
-        total = len(ev["product_facts"]) + len(ev["competitor_facts"]) + len(ev["stats"])
+        total = (len(ev["product_facts"]) + len(ev["competitor_facts"]) + len(ev["stats"])
+                 + len(ev.get("topic_facts") or []))
         if total == 0:
             errs.append("evidence is completely empty. The writer may assert no facts at all, "
                         "which is almost never intended and is how invented statistics get in.")

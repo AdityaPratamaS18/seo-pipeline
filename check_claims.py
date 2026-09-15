@@ -54,6 +54,10 @@ def evidence_numbers(brief, business=None):
     """Every number the writer was actually given, in normalised form."""
     ev = brief["evidence"]
     texts = [e["claim"] for e in ev["product_facts"] + ev["competitor_facts"] + ev["stats"]]
+    # A topic fact's number may be written in the draft the way its source writes
+    # it, so the quote counts as evidence too.
+    for e in ev.get("topic_facts") or []:
+        texts += [e["claim"], e["quote"]]
     if business:
         for t in (business.get("pricing") or {}).get("tiers", []):
             texts.append(f"{t['price']}")
