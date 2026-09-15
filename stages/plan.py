@@ -663,8 +663,8 @@ def main():
         slug = c.get("assigned_slug") or slugify(prim)
 
         if c["page_type"] == "mixed":
-            skipped.append((prim, "SERP is mixed, so the format is undecided. "
-                                  "A human picks the page type before this can be planned."))
+            skipped.append((prim, "SERP is mixed, so the format is undecided. `seo retype` "
+                                  "types it from a real results page, or a person picks."))
             continue
         tpl = templates.get(c["page_type"])
         if not tpl:

@@ -47,6 +47,7 @@ as code over every page, not a sample.
 | 1 pull | `seo pull <domains>` | quarterly |
 | 1 keywords | `seo keywords keywords/dataset.csv` | quarterly |
 | **GATE 2** | you approve `keywords/clusters.json` | quarterly |
+| 1 retype | `seo retype`, then `--apply` | per batch, for its mixed clusters |
 | 2 plan | `seo plan` | per batch |
 | **GATE 3** | `seo review build`, decide, `seo review apply` | per batch |
 | 3 write | `seo write prompt <slug>` | per page, in parallel |

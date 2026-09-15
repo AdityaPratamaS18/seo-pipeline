@@ -80,6 +80,9 @@ def parse(blob, keyword):
                 "domain": it.get("domain") or host(url) or "NODOMAIN",
                 "position": pos,
                 "url": url,
+                # The title is what lets `seo retype` tell a listicle from a guide
+                # on a clean URL. Without it only the path is evidence.
+                "title": it.get("title") or "",
                 "domain_authority": None,
                 "type": "organic",
             })

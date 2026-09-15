@@ -96,7 +96,7 @@ def serp_dump(doc):
                          "domain_authority": None, "type": kind})
             continue
         rows.append({"domain": dom, "position": e.get("position"),
-                     "url": url.replace("http://", "https://", 1),
+                     "url": url.replace("http://", "https://", 1), "title": e.get("title") or "",
                      "domain_authority": e.get("domainAuthority"), "type": "organic"})
     return {"keyword": doc.get("keyword"), "results": rows,
             "source": "ubersuggest", "location": doc.get("location")}

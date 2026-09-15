@@ -18,6 +18,7 @@ yours.
     seo pull <domains>                stage 1  their keywords, narrowed to the ranking page
     seo ubersuggest keywords|serp <f> stage 1  the same files, from saved Ubersuggest MCP responses
     seo keywords <dataset.csv>        stage 1  cluster, once a quarter
+    seo retype [--apply]              stage 1  type the next batch's mixed clusters from real SERPs
     seo plan                          stage 2  briefs from approved clusters
     seo review build | apply <f>      GATE 3   the review page
     seo facts init|check|confirm|apply <slug>  GATE 3   quoted facts: a law a page explains, the
@@ -59,6 +60,7 @@ DIRECT = {
     "pull": ("providers.dataforseo_labs", ["ranked"]),
     "ubersuggest": ("providers.ubersuggest", []),
     "facts": ("stages.facts", []),
+    "retype": ("stages.retype", []),
 }
 
 
@@ -183,9 +185,9 @@ def cmd_next(quiet=False):
             n = "seo keywords <dataset.csv>   (or edit clusters.json to reopen a cluster)"
             why = "every cluster is already planned, rejected or published"
         elif os.path.isdir(p("briefs")):
-            n = "read what `seo plan` skipped, then fix those clusters"
-            why = ("plan ran and wrote nothing. Usually a mixed SERP needing a human to pick "
-                   "the page type, or competitor URLs that no longer resolve")
+            n = "seo retype   (then seo plan again)"
+            why = ("plan ran and wrote nothing. Usually mixed clusters: a real SERP per cluster "
+                   "types most of them, and a person picks the rest")
         else:
             n = "seo plan"
             why = "clusters are approved, nothing planned yet"
