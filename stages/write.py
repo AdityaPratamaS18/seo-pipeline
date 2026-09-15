@@ -157,7 +157,8 @@ def build_prompt(b, voice_text, exemplars):
             'Do not open a paragraph pointing backwards ("This is why...", "As a\n'
             'result..."). Name the subject in the first sentence instead.\n\n'
             f"Define the term plainly inside the first {ex['definition']['must_appear_by_word']}"
-            f' words, as "{ex["definition"]["term"]} is ...".\n\n'
+            f' words, as "{ex["definition"]["term"]} is ...". An article in front ("An '
+            f'{ex["definition"]["term"]} is ...")\nis fine and usually reads better.\n\n'
             f"Answer each of these outright, under a heading that asks it:\n{qs}")
         if tbl:
             extract += ("\n\nBuild a comparison table. Columns: "
