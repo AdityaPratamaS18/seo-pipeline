@@ -115,6 +115,14 @@ publish one a day. Not one page end to end, over and over.
 Drafting is the stage to parallelise: one agent per brief, each following `seo write prompt`.
 Run the checks as scripts, not as another judgement pass.
 
+## Profiles, for businesses the defaults do not fit
+
+The shipped templates and defaults are shaped for a SaaS product. A different kind of business
+(a services firm, a clinic, a law practice) gets its own page types, CTA default, research
+requirements and publisher from a profile folder, without a fork: set `SEO_PROFILES` to the
+directory holding it and name it in business.json as `identity.profile`. A profile that is named
+and not found stops the run. See `stages/profiles.py` for the folder layout.
+
 ## What costs money
 
 Only `seo serp` (about $0.004 a query) and `seo pull` (about $0.012 a domain plus $0.00012 a

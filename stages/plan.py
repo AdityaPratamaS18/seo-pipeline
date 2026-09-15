@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from stages import teardown as TD                                    # noqa: E402
 from stages import links as LINKS                                    # noqa: E402
+from stages import profiles as PROFILES                              # noqa: E402
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(HERE, "defaults", "page-templates.json")
@@ -519,7 +520,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             "cta": {"placement": "end_and_contextual",
                     "url": business.get("identity", {}).get("cta_url")
                            or f"https://{business['identity']['domain']}",
-                    "label": business["identity"].get("cta_label") or "Try it"},
+                    "label": PROFILES.cta_label(business)},
         },
         "extractable": extractable_for(cluster, business, bar, promptset),
         "evidence": evidence_for(business, cluster["page_type"]),
@@ -624,7 +625,10 @@ def main():
     a = ap.parse_args()
 
     clusters_doc, business = load_inputs(a.clusters, a.business)
-    templates = json.load(open(TEMPLATES))["templates"]
+    templates = PROFILES.templates(business)
+    if PROFILES.name_of(business):
+        print(f"  profile '{PROFILES.name_of(business)}': {len(templates)} template(s) from "
+              f"{PROFILES.directory(business)}")
     batch = a.batch or now().strftime("%Y-%m-%d")
 
     promptset = load_prompt_set(a.prompts)
@@ -716,6 +720,9 @@ def main():
         path = os.path.join(a.out, f"{slug}.json")
         json.dump(brief, open(path, "w"), indent=2)
         written.append((slug, bar, len(ok), failed))
+        if PROFILES.requires_topic_facts(business, c["page_type"]):
+            print(f"    {slug}: a {c['page_type'].replace('_', ' ')} needs researched facts before "
+                  f"it can be written:  seo facts init {slug}")
 
     json.dump(cache, open(a.cache, "w"))
 

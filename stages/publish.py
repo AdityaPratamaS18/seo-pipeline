@@ -78,6 +78,19 @@ def main():
 
     business = json.load(open(a.business))
     tech = business.get("tech", {})
+
+    # A profile publisher owns sites the markdown adapters cannot serve, such as
+    # one storing articles as objects in a TypeScript array.
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from stages import profiles
+    custom = profiles.publisher(business)
+    if custom:
+        src = os.path.join(a.drafts, a.slug, "content.md")
+        if not os.path.exists(src):
+            sys.exit(f"no draft at {src}")
+        repo = os.path.expanduser(tech.get("repo_path") or ".")
+        return custom(a.slug, brief, open(src, encoding="utf-8").read(), business, repo, a.dry_run) or 0
+
     stack = tech.get("stack")
     if stack not in ADAPTERS:
         sys.exit(f"no adapter for stack '{stack}'. Known: {', '.join(sorted(ADAPTERS))}.\n"

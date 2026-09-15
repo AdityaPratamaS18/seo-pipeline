@@ -77,6 +77,10 @@
         "currency": {
           "type": "string",
           "default": "USD"
+        },
+        "profile": {
+          "type": "string",
+          "description": "A profile folder (see stages/profiles.py) holding templates, defaults and publishers for this kind of business, found through SEO_PROFILES. Unset means the shipped SaaS defaults."
         }
       }
     },
@@ -593,6 +597,14 @@
             "type": "string"
           },
           "description": "Map canonical names to this site's frontmatter keys, e.g. {\"description\": \"excerpt\"}."
+        },
+        "publisher": {
+          "type": "string",
+          "description": "A publisher from the profile's publishers/ folder, used by seo publish instead of the markdown adapters."
+        },
+        "publisher_config": {
+          "type": "object",
+          "description": "Settings the profile publisher reads. Its own documentation says which."
         }
       }
     },

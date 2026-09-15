@@ -202,6 +202,26 @@ def semantic(kind, doc):
             warns.append("no brand check for this brand. If a model cannot answer that, "
                          "nothing else in the set will work.")
 
+    if kind in ("clusters", "brief"):
+        # page_type is open in the schema so a profile can add types; it is closed
+        # here, against the templates this site actually loads.
+        try:
+            biz = json.load(open(os.path.join("context", "business.json")))
+        except (OSError, json.JSONDecodeError):
+            biz = None
+        from stages import profiles
+        try:
+            known = profiles.page_types(biz)
+        except SystemExit as e:
+            errs.append(str(e))
+            known = None
+        types = ([c["page_type"] for c in doc.get("clusters", [])] if kind == "clusters"
+                 else [doc["page"]["page_type"]])
+        for t in sorted(set(types)) if known else []:
+            if t not in known:
+                errs.append(f"page_type '{t}' has no template for this site. Known: "
+                            f"{', '.join(sorted(known))}")
+
     if kind == "facts":
         from stages.facts import review as review_facts
         e, w = review_facts(doc)

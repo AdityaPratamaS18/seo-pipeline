@@ -58,7 +58,23 @@ def research_gate(b, research_dir="research"):
                  f"{have}. Run: seo facts apply {slug}")
 
 
+def profile_gate(b, business_path="context/business.json"):
+    """A profile can require researched facts for a page type. A legal explainer
+    planned without them has only the business's own facts to state."""
+    try:
+        business = json.load(open(business_path))
+    except (OSError, json.JSONDecodeError):
+        return
+    from stages import profiles
+    slug, ptype = b["page"]["slug"], b["page"]["page_type"]
+    if profiles.requires_topic_facts(business, ptype) and not os.path.exists(
+            os.path.join("research", f"{slug}.facts.json")):
+        sys.exit(f"profile '{profiles.name_of(business)}' requires researched facts for a "
+                 f"{ptype.replace('_', ' ')}.\n  Run: seo facts init {slug}")
+
+
 def gate(b):
+    profile_gate(b)
     research_gate(b)
     if b["meta"]["decision"] != "approved":
         sys.exit(f"brief is '{b['meta']['decision']}', not approved (GATE 3). "

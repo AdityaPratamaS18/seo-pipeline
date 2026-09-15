@@ -430,23 +430,9 @@
       }
     },
     "page_type": {
-      "enum": [
-        "how_to_guide",
-        "listicle",
-        "comparison",
-        "alternatives",
-        "definition",
-        "use_case",
-        "template_or_tool",
-        "product_page",
-        "pricing_page",
-        "case_study",
-        "glossary",
-        "faq_hub",
-        "news",
-        "mixed"
-      ],
-      "description": "A fixed library on purpose. Free-form page types drift across a batch and cannot be templated or taught. Add to this list deliberately, do not let a model invent one."
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*$",
+      "description": "A template name from defaults/page-templates.json or the site's profile, 'mixed' when undecided. Checked against the loaded templates by validate.py, so a profile can add types without a schema change."
     }
   }
 }
