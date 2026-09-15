@@ -492,6 +492,53 @@ def with_bg(spec, colour):
     return spec
 
 
+# What the built-in renderer draws. A site renderer declares its own list in
+# brand.renderer.types; without one it is assumed to take the {t, b} card shape
+# only, which is what the spec format promised it.
+BUILTIN_FIGURES = ("steps", "cards", "checklist", "compare", "table")
+SITE_FIGURES = ("steps", "cards")
+COMPARE_WORDS = re.compile(r"\b(vs\.?|versus|compar\w*|differ\w*|better|trade.?offs?|against|instead|"
+                           r"which (one|option)|option by option|who it is not for)\b", re.I)
+CHECKLIST_WORDS = re.compile(r"\b(documents?|requirements?|required|checklist|what you need|before you|"
+                             r"eligib\w*|prepare|mistakes|easy to miss|red flags|signs|what you get|"
+                             r"what changes)\b", re.I)
+
+
+def drawable(business):
+    renderer = (business.get("brand") or {}).get("renderer") or {}
+    if renderer.get("command"):
+        return tuple(renderer.get("types") or SITE_FIGURES)
+    return BUILTIN_FIGURES
+
+
+def figure_type(sec, allowed, placed, target, neighbours=None):
+    """The figure a section's content calls for, or None when it should have none.
+
+    Every top-up used to be "cards" unless the section was ordered, so a long page
+    carried five identical grids of boxes. The section says what it holds: steps
+    are a sequence, a comparison is two sides, requirements are a checklist, and
+    anything else is cards. A type is never swapped in for variety, since a
+    checklist of reasons is a wrong figure, not a varied one. So when the only
+    fitting type would repeat the figure before it, or take more than half the
+    page's figures, the section gets none, and the layout's prose breaks carry it."""
+    text = f"{sec['heading']} {sec.get('purpose', '')}"
+    if sec.get("ordered"):
+        return "steps" if "steps" in allowed else None
+    if COMPARE_WORDS.search(text):
+        prefs = ["compare", "cards"]
+    elif CHECKLIST_WORDS.search(text):
+        prefs = ["checklist", "cards"]
+    else:
+        prefs = ["cards"]
+    # The figures in the sections either side of this one, on the page. Without
+    # them, the last one planned.
+    near = set(neighbours) if neighbours is not None else ({placed[-1]} if placed else set())
+    for t in prefs:
+        if t in allowed and t not in near and placed.count(t) < max(1, (target + 1) // 2):
+            return t
+    return None
+
+
 def media_from(template, bar, cluster, business):
     # Backgrounds come from the site's brand, or are left to the media stage's
     # neutral palette. This list used to be hardcoded, and it was Doot's pastels,
@@ -511,11 +558,20 @@ def media_from(template, bar, cluster, business):
             head = "{topic}" + head[len("How to {topic}"):]
         return head.replace("{primary}", prim).replace("{topic}", topic(prim))
 
+    allowed = drawable(business)
     inline, used = [], set()
+    at = {}                                          # section index -> figure type
+
+    def beside(i):
+        lower = [j for j in at if j < i]
+        higher = [j for j in at if j > i]
+        return ([at[max(lower)]] if lower else []) + ([at[min(higher)]] if higher else [])
     for i, sec in enumerate(template["sections"]):
         want = sec.get("wants_image")
         if not want:
             continue
+        if want not in allowed and want != "table":
+            want = figure_type(sec, allowed, [x["type"] for x in inline], target, beside(i)) or allowed[0]
         # A page that carries a real table must not also carry a picture of it.
         # The markdown table can be read by a screen reader, selected, and lifted
         # by an answer engine; an image of the same rows can do none of those and
@@ -523,11 +579,14 @@ def media_from(template, bar, cluster, business):
         # is worse than one, whichever is prettier.
         if want == "table" and bar.get("needs_table"):
             continue
+        if want == "table" and "table" not in allowed:
+            want = figure_type(sec, allowed, [x["type"] for x in inline], target, beside(i)) or allowed[0]
         if len(inline) >= target:
             break
         inline.append(with_bg({"type": want, "placement_section": head_of(sec),
                                "alt": head_of(sec)}, palette[(i + 1) % len(palette)]))
         used.add(i)
+        at[i] = want
 
     # Top up to what the page's length calls for. The templates declare at most two
     # image slots, so a long page shipped three and read as a wall of text.
@@ -540,9 +599,15 @@ def media_from(template, bar, cluster, business):
         # it to draw that the questions themselves do not already say.
         if re.match(r"(frequently asked|sources\b)", sec["heading"], re.I):
             continue
-        inline.append(with_bg({"type": "steps" if sec.get("ordered") else "cards",
-                               "placement_section": head_of(sec), "alt": head_of(sec)},
+        kind = figure_type(sec, allowed, [x["type"] for x in inline], target, beside(i))
+        if not kind:
+            continue
+        at[i] = kind
+        inline.append(with_bg({"type": kind, "placement_section": head_of(sec), "alt": head_of(sec)},
                               palette[(i + 1) % len(palette)]))
+    # In page order, so the brief reads the way the page does.
+    order = {head_of(sec): i for i, sec in enumerate(template["sections"])}
+    inline.sort(key=lambda x: order.get(x["placement_section"], 99))
     # "A visual for <keyword>" is not a concept, it is a restatement, and an image
     # model given it returns stock-shaped filler. Ground the hero in the page's
     # actual angle instead: the gap it exploits is the most visual thing about it.

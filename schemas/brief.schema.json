@@ -815,6 +815,8 @@
                 "enum": [
                   "steps",
                   "cards",
+                  "checklist",
+                  "compare",
                   "table",
                   "chart",
                   "diagram"

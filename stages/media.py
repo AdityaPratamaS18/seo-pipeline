@@ -154,12 +154,48 @@ def first_sentence(text):
     return (m.group(1) if m else text).strip()
 
 
+LIST_GROUP = re.compile(r"^([^\n]*\S[^\n]*?):?\s*\n((?:^\s*(?:[-*+]|\d+\.)\s+.+\n?)+)", re.M)
+
+
+def list_groups(body):
+    """(lead line, [items]) for each list in a section that has a line above it."""
+    out = []
+    for m in LIST_GROUP.finditer(body):
+        lead = re.sub(r"^#{3,6}\s+|\*\*", "", m.group(1)).strip().rstrip(":")
+        if lead.startswith(("-", "*", "+", "|", "[IMAGE")) or re.match(r"^\d+\.", lead):
+            continue
+        items = [re.sub(r"\*\*(.+?)\*\*", r"\1", it).strip()
+                 for it in re.findall(r"^\s*(?:[-*+]|\d+\.)\s+(.+)$", m.group(2), re.M)]
+        out.append((lead, items))
+    return out
+
+
+def draft_compare(body, heading, slug, spec, index):
+    """Two sides, each with its points, from two labelled lists in the section.
+
+    Never from a markdown table: the page already shows that table, and a picture
+    of it is the same fact twice, one of them unselectable and one crop from wrong."""
+    if re.search(r"^\s*\|.+\|\s*$", body, re.M):
+        return None, (f"'{heading[:34]}' holds a table, and a compare figure of it would show the "
+                      "table twice. Keep the table, or draft this as cards.")
+    groups = [(lead, items) for lead, items in list_groups(body) if len(items) >= 2]
+    if len(groups) < 2:
+        return None, (f"a compare figure needs two labelled lists under '{heading[:34]}' "
+                      "(a line naming each side, then its points)")
+    (a, ai), (b, bi) = groups[:2]
+    return {"slug": f"{slug}-compare-{index}", "type": "compare", "section": heading,
+            "title": heading, "items": [{"t": a, "points": ai[:6]}, {"t": b, "points": bi[:6]}],
+            "alt": spec.get("alt", ""), "bg": spec.get("bg"), "h": None}, None
+
+
 def draft_figure(md, spec, slug, index):
     """A starting spec for one planned figure, or (None, reason)."""
     heading = spec["placement_section"]
     body = section_body(md, heading)
     if not body.strip():
         return None, f"section '{heading[:40]}' is not in the draft"
+    if spec["type"] == "compare":
+        return draft_compare(body, heading, slug, spec, index)
     h3s = list(re.finditer(r"^###\s+(.+)$", body, re.M))
     steps = [m for m in h3s if re.match(r"^\d+[.)]\s", m.group(1))]
     if spec["type"] == "steps" and len(steps) >= 2:
@@ -202,7 +238,17 @@ def check_figure(fig, md):
     have = {_stem(w) for w in CONTENT.findall(body.lower())}
     nums = set(re.findall(r"\d[\d,.]*", body))
     n = len(fig.get("items") or [])
-    if not 2 <= n <= 6:
+    if fig.get("type") == "compare":
+        if n != 2:
+            errs.append(f"{fig['slug']}: a comparison has two sides, this has {n}")
+        for it in fig.get("items") or []:
+            if not 2 <= len(it.get("points") or []) <= 6:
+                errs.append(f"{fig['slug']}: '{it.get('t', '')[:30]}' has {len(it.get('points') or [])} "
+                            "point(s). Each side holds 2 to 6.")
+    elif fig.get("type") == "checklist":
+        if not 3 <= n <= 8:
+            errs.append(f"{fig['slug']}: {n} item(s). A checklist holds 3 to 8.")
+    elif not 2 <= n <= 6:
         errs.append(f"{fig['slug']}: {n} card(s). A figure holds 2 to 6, or it is not a figure.")
     if len(fig.get("title", "")) > 70:
         errs.append(f"{fig['slug']}: the title runs {len(fig['title'])} characters. A figure title is "
@@ -210,20 +256,24 @@ def check_figure(fig, md):
     listed = {re.sub(r"\W+", " ", x).strip().lower()
               for x in re.findall(r"^\s*(?:[-*+]|\d+\.)\s+(.+)$", body, re.M)}
     heads = [re.sub(r"\W+", " ", it.get("t", "")).strip().lower() for it in fig.get("items", [])]
-    if heads and all(h in listed for h in heads) and not any(it.get("b") for it in fig.get("items", [])):
+    if fig.get("type") not in ("compare", "checklist") and heads and all(h in listed for h in heads) \
+            and not any(it.get("b") for it in fig.get("items", [])):
         errs.append(f"{fig['slug']}: every card repeats a bullet already in the section. A figure that "
                     "restates the list beside it is worse than no figure: show what the prose says.")
     if fig.get("title", "").strip().lower() == fig.get("section", "").strip().lower():
         errs.append(f"{fig['slug']}: the title is the section heading. Say what the figure shows: "
                     "a heading over a list of exclusions reads as the opposite of the text.")
-    for part in [fig.get("title", "")] + [x for it in fig.get("items", []) for x in (it.get("t", ""), it.get("b", ""))]:
+    parts = [fig.get("title", "")] + [x for it in fig.get("items", [])
+                                      for x in (it.get("t", ""), it.get("b", ""), *(it.get("points") or []))]
+    for part in parts:
         if DASH.search(part):
             errs.append(f"{fig['slug']}: a dash in '{part[:40]}'")
         for num in re.findall(r"\d[\d,.]*", part):
             if num.rstrip(".,") not in {x.rstrip(".,") for x in nums}:
                 errs.append(f"{fig['slug']}: '{num}' in '{part[:40]}' is not in the section")
     for it in fig.get("items", []):
-        words = [_stem(w) for w in CONTENT.findall((it.get("t", "") + " " + it.get("b", "")).lower())]
+        said = " ".join([it.get("t", ""), it.get("b", ""), *(it.get("points") or [])])
+        words = [_stem(w) for w in CONTENT.findall(said.lower())]
         if not words:
             errs.append(f"{fig['slug']}: an empty card")
             continue
@@ -232,7 +282,7 @@ def check_figure(fig, md):
             missing = sorted({w for w in words if w not in have})[:5]
             errs.append(f"{fig['slug']}: card '{it.get('t', '')[:30]}' says things its section does not "
                         f"({', '.join(missing)})")
-        if not it.get("b"):
+        if not it.get("b") and fig.get("type") not in ("compare", "checklist"):
             warns.append(f"{fig['slug']}: card '{it.get('t', '')[:30]}' has no body line")
     return errs, warns
 
@@ -267,8 +317,30 @@ def render(spec, out_path, colors, title, items, table):
 
     t = spec["type"]
     probe = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    if t in ("compare", "checklist"):
+        title_lines = wrap(probe, title, f_title, W - 140)[:2]
+        top = 70 + 14 + 48 * len(title_lines) + 30
     if t == "cover":
         height = H
+    elif t == "compare":
+        sides = (spec.get("items") or [])[:2]
+        cw = (W - 140 - 20) / 2
+        col_h = []
+        for side in sides:
+            h = 26 + 29 * len(wrap(probe, side.get("t", ""), f_h, cw - 48)) + 16
+            for pt in side.get("points") or []:
+                h += 25 * len(wrap(probe, pt, f_b, cw - 78)) + 14
+            col_h.append(h + 12)
+        need = max(col_h or [0])
+        height = top + need + 56
+    elif t == "checklist":
+        rows_h = []
+        for head, body in items:
+            h = 18 + 29 * len(wrap(probe, head, f_h, W - 140 - 96))
+            if body:
+                h += 6 + 25 * len(wrap(probe, body, f_b, W - 140 - 96))
+            rows_h.append(h + 18)
+        height = top + sum(rows_h) + 10 * max(0, len(rows_h) - 1) + 56
     else:
         title_lines = wrap(probe, title, f_title, W - 140)[:2]
         top = 70 + 14 + 48 * len(title_lines) + 30
@@ -301,6 +373,47 @@ def render(spec, out_path, colors, title, items, table):
             d.text(((pad + 48) * S, (y + i * 76) * S), line, font=f_cover, fill=text)
         d.rounded_rectangle([(pad + 48) * S, (y + block + 18) * S, (pad + 198) * S, (y + block + 27) * S],
                             radius=5 * S, fill=accent)
+    elif t == "compare":
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        for i, line in enumerate(title_lines):
+            d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
+        for c, side in enumerate(sides):
+            x = 70 + c * (cw + 20)
+            d.rectangle([x * S, top * S, (x + cw) * S, (top + need) * S], fill=card, outline=edge, width=S)
+            d.rectangle([x * S, top * S, (x + cw) * S, (top + 5) * S], fill=accent)
+            y = top + 26
+            for line in wrap(d, side.get("t", ""), f_h, cw - 48):
+                d.text(((x + 24) * S, y * S), line, font=f_h, fill=text)
+                y += 29
+            y += 16
+            for pt in side.get("points") or []:
+                d.ellipse([(x + 26) * S, (y + 8) * S, (x + 34) * S, (y + 16) * S], fill=accent)
+                for line in wrap(d, pt, f_b, cw - 78):
+                    d.text(((x + 50) * S, y * S), line, font=f_b, fill=muted if dark else text)
+                    y += 25
+                y += 14
+    elif t == "checklist":
+        d.rounded_rectangle([70 * S, 70 * S, 130 * S, 76 * S], radius=3 * S, fill=accent)
+        for i, line in enumerate(title_lines):
+            d.text((70 * S, (84 + i * 48) * S), line, font=f_title, fill=text)
+        y0 = top
+        for (head, body), rh in zip(items, rows_h):
+            d.rectangle([70 * S, y0 * S, (W - 70) * S, (y0 + rh) * S], fill=card, outline=edge, width=S)
+            bx, by = 94, y0 + 20
+            d.rounded_rectangle([bx * S, by * S, (bx + 26) * S, (by + 26) * S], radius=6 * S, fill=accent)
+            # A tick drawn as two strokes, so it needs no glyph the font may lack.
+            d.line([((bx + 6) * S, (by + 13) * S), ((bx + 11) * S, (by + 19) * S),
+                    ((bx + 20) * S, (by + 7) * S)], fill=card, width=3 * S, joint="curve")
+            y = y0 + 18
+            for line in wrap(d, head, f_h, W - 140 - 96):
+                d.text((142 * S, y * S), line, font=f_h, fill=text)
+                y += 29
+            if body:
+                y += 6
+                for line in wrap(d, body, f_b, W - 140 - 96):
+                    d.text((142 * S, y * S), line, font=f_b, fill=muted)
+                    y += 25
+            y0 += rh + 10
     elif t == "table" and table and len(table) > 1:
         top = 150
         cols_t = len(table[0])

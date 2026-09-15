@@ -84,5 +84,64 @@ fails({"items": [{"t": "Banking", "b": ""}, {"t": "Insurance", "b": ""}]},
       "repeats a bullet", "cards that only repeat the adjacent list fail")
 fails({"items": [good["items"][0]]}, "2 to 6", "one card is not a figure")
 
+print("\nA COMPARISON AND A CHECKLIST ARE DRAWN FROM THE DRAFT TOO")
+TWO = """# x
+
+## Mainland or free zone
+
+Both let a foreign founder own the company outright in most activities.
+
+Mainland company:
+- Trades anywhere in Qatar
+- Registers with the Ministry of Commerce and Industry
+
+Free zone company:
+- Trades inside its zone
+- Registers with the zone authority
+- Carries the zone's tax incentives
+
+## Documents to prepare
+
+Have these ready before the application:
+
+- **Passport copies** of every partner
+- **A trade name** reserved with the ministry
+- **A lease** for the registered office
+"""
+fig, why = draft_figure(TWO, {"type": "compare", "placement_section": "Mainland or free zone"}, "s", 1)
+check(fig and [i["t"] for i in fig["items"]] == ["Mainland company", "Free zone company"]
+      and len(fig["items"][1]["points"]) == 3, "two labelled lists become the two sides", str(fig or why))
+fig["title"] = "Where each kind of company can trade"
+errs, _ = check_figure(fig, TWO)
+check(not errs, "and pass their check", str(errs))
+bad = {**fig, "items": fig["items"] + [{"t": "Third", "points": ["a", "b"]}]}
+check(any("two sides" in e for e in check_figure(bad, TWO)[0]), "a comparison with three sides fails")
+bad = {**fig, "items": [fig["items"][0], {"t": "Free zone company", "points": ["Pays no tax at all, ever", "Needs no licence"]}]}
+check(any("says things" in e for e in check_figure(bad, TWO)[0]), "a side saying what the section does not fails")
+tabled = TWO.replace("Mainland company:", "| a | b |\n|---|---|\n| 1 | 2 |\n\nMainland company:")
+fig2, why = draft_figure(tabled, {"type": "compare", "placement_section": "Mainland or free zone"}, "s", 1)
+check(fig2 is None and "table twice" in why, "a section holding a table gets no picture of it", str(why))
+
+fig, why = draft_figure(TWO, {"type": "checklist", "placement_section": "Documents to prepare"}, "s", 2)
+check(fig and fig["type"] == "checklist" and len(fig["items"]) == 3, "a list becomes a checklist", str(fig or why))
+fig["title"] = "Three things to have first"
+check(not check_figure(fig, TWO)[0], "which passes its check without body lines", str(check_figure(fig, TWO)[0]))
+check(any("3 to 8" in e for e in check_figure({**fig, "items": fig["items"][:2]}, TWO)[0]),
+      "a two item checklist fails")
+
+import os
+import tempfile
+from PIL import Image
+from stages.media import NEUTRAL, render
+with tempfile.TemporaryDirectory() as t:
+    c = render({"type": "compare", "items": [{"t": "A", "points": ["one point", "two points"]},
+                                             {"t": "B", "points": ["three", "four", "five"]}]},
+               os.path.join(t, "c.png"), dict(NEUTRAL), "A title", [], None)
+    k = render({"type": "checklist"}, os.path.join(t, "k.png"), dict(NEUTRAL), "A title",
+               [("First", "why"), ("Second", ""), ("Third", "why")], None)
+    ci, ki = Image.open(c), Image.open(k)
+    check(ci.width == 1200 and 250 < ci.height < 700, f"the built-in renderer draws a comparison ({ci.size})")
+    check(ki.width == 1200 and 300 < ki.height < 800, f"and a checklist, sized to its rows ({ki.size})")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)

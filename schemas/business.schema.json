@@ -485,6 +485,11 @@
             "command": {
               "type": "string",
               "description": "Shell command with {specs} (a JSON array of {slug, type, title, items:[{t,b}], bg, h}) and {out} (the directory to write images into)."
+            },
+            "types": {
+              "type": "array",
+              "items": {"enum": ["steps", "cards", "checklist", "compare", "table"]},
+              "description": "The figure types this renderer draws. Unset means steps and cards, the {t, b} shape; the planner only plans types listed here. compare items are {t, points: [..]}, two of them; checklist items are {t, b}."
             }
           }
         },

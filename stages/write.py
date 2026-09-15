@@ -116,6 +116,18 @@ def exemplar_text(ref):
         return ""
 
 
+# What a figure is drawn from, so the writer puts it in the section. A figure is
+# built from the draft, never invented, and a section with nothing to draw from
+# ships without one.
+FIGURE_SOURCE = {
+    "steps": "numbered subheads (### 1. ...), one per step, each followed by a sentence",
+    "cards": "a short list whose items open with a bold lead, then a sentence",
+    "checklist": "a list of the things to have or do, three to eight, each with a bold lead",
+    "compare": "two labelled lists, a line naming each side then its points. Not a table",
+    "table": "the rows the figure shows, written out as a list",
+}
+
+
 # ── prompt ────────────────────────────────────────────────────────────────
 def length_text(bar):
     """The length instruction, and on a long SERP, what to cover instead."""
@@ -207,7 +219,8 @@ def build_prompt(b, voice_text, exemplars):
     opt = [s["keyword"] for s in k["secondaries"] if not s.get("required", True)]
     links = "\n".join(f"  - /{l['target_slug']} ({l['anchor_intent']}) [{l['target_status']}]"
                       for l in b["links"]["internal"]) or "  (none)"
-    images = "\n".join(f"  - [IMAGE: {i['type']} | Alt: {i['alt']}] under \"{i['placement_section']}\""
+    images = "\n".join(f"  - [IMAGE: {i['type']} | Alt: {i['alt']}] under \"{i['placement_section']}\"\n"
+                       f"      the section needs {FIGURE_SOURCE.get(i['type'], 'the content the figure shows')}"
                        for i in b["media"].get("inline", [])) or "  (none)"
 
     r = bar.get("rhythm") or {}

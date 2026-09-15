@@ -121,6 +121,13 @@ sets `layout` (contents, key takeaways, subheads, no long runs of prose). Cover 
 under `word_ceiling`, and break the page up the way `layout` says. Figures come from what the
 outline can carry, not from how many images the rivals show.
 
+**A figure is the kind its section calls for.** Steps for a sequence, compare for two sides (two
+labelled lists, never a picture of a table the page already has), checklist for things to have or
+do, cards otherwise. Two figures of one type never sit back to back, and no type is swapped in for
+variety: a section that would repeat gets no figure, and the prose breaks carry it. Write each
+section the way its image marker says, since the figure is drawn from that content. A site
+renderer is only given the types it lists in `brand.renderer.types` (steps and cards if unset).
+
 **A check reporting zero units examined is a failure, not a pass.**
 
 **A file still containing `TODO:` cannot be confirmed.** `validate.py` rejects it.
