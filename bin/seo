@@ -30,6 +30,7 @@ yours.
     seo media prompts <slug>          stage 4  prompts for generated art
     seo media collect <slug> --from d stage 4  place what a model generated
     seo publish <slug> [--dry-run]    stage 6
+    seo live <slug> [--record r.json] stage 7  the live page shows its content at desktop and phone width
     seo links scan | pending <slug>   the internal link graph
     seo audit basic|full <domain>     technical audit of a live site
     seo prompts build | check         the LLM prompt set
@@ -49,7 +50,7 @@ DIRECT = {
     "context": ("stages.context", []), "keywords": ("stages.keywords", []),
     "plan": ("stages.plan", []), "review": ("stages.review", []),
     "write": ("stages.write", []), "media": ("stages.media", ["render"]),
-    "publish": ("stages.publish", []),
+    "publish": ("stages.publish", []), "live": ("stages.live", []),
     "competitors": ("stages.competitors", []),
     "links": ("stages.links", []),
     "audit": ("stages.audit", []),
@@ -112,6 +113,10 @@ def state():
             continue
     s["drafts"] = [os.path.basename(os.path.dirname(f))
                    for f in sorted(glob.glob(p("drafts/*/content.md")))]
+    s["live"] = {}
+    for f in sorted(glob.glob(p("drafts/*/live-check.json"))):
+        d = jload(os.path.relpath(f, WORK)) or {}
+        s["live"][os.path.basename(os.path.dirname(f))] = d.get("passed")
     # Facts go stale: a vendor price in 14 days, a law in a year. Reported here so
     # nobody finds out from a refusal at publish time.
     s["stale"] = {}
@@ -154,6 +159,13 @@ def cmd_status():
     else:
         print("  2 plan       no briefs yet")
     print(f"  3 write      {len(s['drafts'])} draft(s)" if s["drafts"] else "  3 write      no drafts yet")
+    if s["live"]:
+        ok = sum(1 for v in s["live"].values() if v is True)
+        bad = [k for k, v in s["live"].items() if v is False]
+        unver = [k for k, v in s["live"].items() if v is None]
+        print(f"  7 live       {ok} page(s) confirmed visible"
+              + (f", FAILING: {', '.join(bad)}" if bad else "")
+              + (f", not verified: {', '.join(unver)}" if unver else ""))
     for slug, old in s["stale"].items():
         print(f"  facts        {slug}: {len(old)} stale ({old[0][1]}). "
               f"seo facts check {slug} --verify")

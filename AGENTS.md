@@ -57,6 +57,7 @@ seo media <slug>              draw them (the site's renderer if brand.renderer i
 seo check                     every checker
    GATE 4  a person reads what the checks flagged, plus a sample
 seo publish <slug>            one page a day
+seo live <slug>               once deployed: every passage visible at 1280 and 375 wide
 ```
 
 ### Using Ubersuggest instead of DataForSEO

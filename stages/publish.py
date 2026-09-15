@@ -107,7 +107,10 @@ def main():
         if not os.path.exists(src):
             sys.exit(f"no draft at {src}")
         repo = os.path.expanduser(tech.get("repo_path") or ".")
-        return custom(a.slug, brief, open(src, encoding="utf-8").read(), business, repo, a.dry_run) or 0
+        rc = custom(a.slug, brief, open(src, encoding="utf-8").read(), business, repo, a.dry_run) or 0
+        if not rc and not a.dry_run:
+            print(f"\n  once it is deployed:  seo live {a.slug}")
+        return rc
 
     stack = tech.get("stack")
     if stack not in ADAPTERS:
@@ -194,7 +197,8 @@ def main():
         os.makedirs(img_dest, exist_ok=True)
         for name in images:
             shutil.copy2(os.path.join(img_src, name), os.path.join(img_dest, name))
-    print(f"\n  published. Build the site, verify {url_prefix}{a.slug}, then commit.")
+    print(f"\n  published. Build the site and commit, then once it is deployed:  seo live {a.slug}")
+    print("  A 200 is not a visible page: that command checks the content can be seen.")
     return 0
 
 

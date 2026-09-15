@@ -56,6 +56,7 @@ as code over every page, not a sample.
 | **GATE 4** | you read the flagged pages and a sample | per batch |
 | 5 links | `seo links pending <slug>` | before each publish |
 | 6 publish | `seo publish <slug>` | one a day |
+| 7 live | `seo live <slug>` | once deployed: the content is visible at desktop and phone width |
 
 GATE 3 is the one that matters. Thirty briefs take about twenty minutes to read, and nothing has
 been written yet, so it is the cheapest place to kill a page.
