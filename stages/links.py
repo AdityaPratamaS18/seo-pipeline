@@ -155,7 +155,10 @@ def build(business, briefs_dir, drafts_dir):
     # what briefs and drafts intend to link to
     for slug, b in briefs.items():
         src = f"{prefix}/{slug}"
-        intended = {norm(f"{prefix}/{l['target_slug']}") for l in b["links"]["internal"]}
+        # A live target is already a full site path; a pending one is a sibling slug
+        # that will publish under the prefix.
+        intended = {norm(f"/{l['target_slug']}" if l["target_status"] == "live"
+                         else f"{prefix}/{l['target_slug']}") for l in b["links"]["internal"]}
         md = os.path.join(drafts_dir, slug, "content.md")
         if os.path.exists(md):
             intended |= links_on(md)

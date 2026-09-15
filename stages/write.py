@@ -65,6 +65,29 @@ def gate(b):
                  "Writing an unapproved brief wastes the gate.")
 
 
+def exemplar_text(ref):
+    """An exemplar's words, from a local file or a published URL.
+
+    Only local paths were read, so a site listing its live articles as exemplars
+    got "No exemplar pages were supplied" and a writer working from description
+    alone, which is exactly what exemplars exist to prevent."""
+    if not ref.startswith(("http://", "https://")):
+        return open(ref, encoding="utf-8").read() if os.path.exists(ref) else ""
+    try:
+        from bs4 import BeautifulSoup
+        from stages.facts import UA
+        from stages.web import urlopen
+        from urllib.request import Request
+        with urlopen(Request(ref, headers={"User-Agent": UA}), timeout=20) as r:
+            soup = BeautifulSoup(r.read().decode("utf-8", "replace"), "html.parser")
+        for junk in soup.select("script, style, noscript, nav, header, footer"):
+            junk.decompose()
+        body = soup.find("article") or soup.find("main") or soup.body or soup
+        return re.sub(r"\n\s*\n+", "\n\n", body.get_text("\n", strip=True))
+    except Exception:                                               # noqa: BLE001
+        return ""
+
+
 # ── prompt ────────────────────────────────────────────────────────────────
 def build_prompt(b, voice_text, exemplars):
     p, k, bar, ang, ev = b["page"], b["keywords"], b["the_bar"], b["angle"], b["evidence"]
@@ -331,10 +354,10 @@ def main():
                       if os.path.exists(vpath) else
                       "(no voice guide found: write plainly and directly, no em-dashes, "
                       "no marketing language, no AI filler phrases)")
-        ex = [e for e in b["voice"].get("exemplars", []) if os.path.exists(e)]
+        ex = [(e, exemplar_text(e)) for e in b["voice"].get("exemplars", []) if e]
+        ex = [(e, t) for e, t in ex if t]
         exemplars = ("Match the voice of these published pages more than the description above:\n"
-                     + "\n".join(f"\n--- {e} ---\n" + open(e, encoding="utf-8").read()[:2500]
-                                 for e in ex)) if ex else \
+                     + "\n".join(f"\n--- {e} ---\n" + t[:2500] for e, t in ex)) if ex else \
                     "No exemplar pages were supplied. Voice drifts faster from description " \
                     "than from example, so follow the guide above closely."
         print(build_prompt(b, voice_text, exemplars))

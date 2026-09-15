@@ -220,16 +220,27 @@ def extractable_for(cluster, business, bar, promptset):
 
     subjects = [t for t in [brand, ident.get("domain", "").split(".")[0]] if t]
     subjects += [s for s in (business.get("identity", {}).get("aliases") or []) if s]
+    defined = headline_case(topic(prim), business, cluster.get("_acronyms", ()))
+    if defined[:2] != defined[:2].upper():
+        defined = defined[0].lower() + defined[1:]
+    # The page's own subject stands a claim up as well as the brand does. On a page
+    # explaining a law, "An LLC in Qatar can have up to 50 partners" is the claim,
+    # and requiring "Mavensmark" in it would push the brand into sentences about
+    # the Commercial Companies Law.
+    subjects.append(defined)
+    # "mavensmark" and "Mavensmark" are one subject, listed once.
+    seen = set()
+    subjects = [s for s in subjects if not (s.lower() in seen or seen.add(s.lower()))]
     return {
         "definition": {
-            "term": topic(prim),
+            "term": defined,
             "must_appear_by_word": 120,
             "note": "Write it as '<term> is ...'. This sentence is the one most often "
                     "lifted verbatim, so it has to stand up with nothing around it.",
         },
         "direct_answers": questions[:6],
         "comparison_table": table,
-        "subject_terms": sorted(set(subjects)) or ["the product"],
+        "subject_terms": subjects or ["the product"],
     }
 
 
@@ -677,7 +688,10 @@ def main():
             if n:
                 scored.append((n, route))
         scored.sort(reverse=True)
-        internal = [{"target_slug": r.strip("/").split("/")[-1],
+        # The full path, not its last segment. Mavensmark's free zone page lives at
+        # /services/qatar-free-zone-company-formation, and the prompt told the
+        # writer to link /qatar-free-zone-company-formation, a 404.
+        internal = [{"target_slug": r.strip("/"),
                      "anchor_intent": f"the existing page on {', '.join(sorted(words & set(re.findall(r'[a-z]{4,}', r.replace('-', ' '))))[:2])}",
                      "target_status": "live"} for _n, r in scored[:3]]
         siblings = [slugify(x["primary"]["keyword"]) for x in todo
@@ -685,7 +699,7 @@ def main():
         internal += [{"target_slug": sb, "anchor_intent": "the related page in this batch",
                       "target_status": "pending"} for sb in siblings]
         # which live pages should gain a link TO this one when it ships
-        inbound = [r.strip("/").split("/")[-1] for _n, r in scored[:3]]
+        inbound = [r.strip("/") for _n, r in scored[:3]]
         links = {"internal": internal, "inbound_from": inbound}
 
         brief = make_brief(c, business, tpl, bar, find_gaps(ok, tpl), batch, avoid,

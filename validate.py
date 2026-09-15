@@ -43,7 +43,10 @@ def infer_kind(path):
     for k in KINDS:
         if k in base:
             return k
-    return None
+    # Briefs are saved as briefs/<slug>.json, so the name alone never said
+    # "brief" and no real brief was ever validated without --schema.
+    parent = os.path.basename(os.path.dirname(os.path.abspath(path))).lower()
+    return {"briefs": "brief", "research": "facts"}.get(parent)
 
 
 def now():
