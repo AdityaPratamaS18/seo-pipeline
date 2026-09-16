@@ -8,7 +8,7 @@ site repo. That separation is the point: the tooling is shared, the data is
 yours.
 
     seo doctor              is this machine set up
-    seo status              where this site is in the pipeline
+    seo status [--fix]      where this site is, what disagrees, and repair what is mechanical
     seo next                the one command to run now
 
     seo init --domain d               scaffold this folder, draft business.json
@@ -138,7 +138,14 @@ def state():
     return s
 
 
-def cmd_status():
+def cmd_status(args=()):
+    sys.path.insert(0, HOME)
+    from stages import consistency
+    if "--fix" in args:
+        changed = consistency.fix(WORK)
+        print(f"  fixed {len(changed)} cluster status(es): {', '.join(changed)}" if changed
+              else "  nothing mechanical to fix")
+        print()
     s = state()
     print(f"  working dir  {WORK}")
     print(f"  pipeline     {HOME}\n")
@@ -171,6 +178,13 @@ def cmd_status():
     for slug, old in s["stale"].items():
         print(f"  facts        {slug}: {len(old)} stale ({old[0][1]}). "
               f"seo facts check {slug} --verify")
+    found = consistency.issues(WORK)
+    if found:
+        print(f"\n  {len(found)} thing(s) disagree:")
+        for i in found:
+            print(f"    {'fixable' if i['fixable'] else 'check  '}  {i['message']}")
+        if any(i["fixable"] for i in found):
+            print("  seo status --fix repairs the fixable ones.")
     print()
     cmd_next(quiet=True)
     return 0
@@ -298,7 +312,7 @@ def main(argv):
         return 0
     cmd, rest = argv[0], argv[1:]
     if cmd == "status":
-        return cmd_status()
+        return cmd_status(rest)
     if cmd == "next":
         return cmd_next()
     if cmd == "doctor":
