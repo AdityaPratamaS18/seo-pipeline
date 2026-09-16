@@ -135,6 +135,10 @@ on the model automatically:
 /plugin install seo-pipeline@humandspark
 ```
 
+**Already using it?** Update with `claude plugin update seo-pipeline@humandspark` (or `git pull`),
+then follow the upgrade steps in [CHANGELOG.md](CHANGELOG.md) from your site folder. Your files
+keep working; a few one-time commands tidy what older versions left behind.
+
 Either way, work from the site's own folder, not from the clone:
 
 ```bash
@@ -194,7 +198,7 @@ scaled content abuse.
 ## Tests
 
 ```bash
-python3 test_validate.py && python3 test_clustering.py && python3 test_page_type.py
+for t in test_*.py; do python3 "$t" > /dev/null || { echo "FAILED: $t"; break; }; done
 ```
 
 Every check ships with a test that deliberately breaks it, plus fixtures that must NOT trip
@@ -203,9 +207,9 @@ ignored, which is worse than no checker at all.
 
 ## Honest limitations
 
-- **The DataForSEO client has never run against the live API.** Its parser is tested against a
-  saved response and fails loudly rather than returning an empty dataset, but verify the field
-  names on your first real call before trusting a bill.
+- **The DataForSEO clients are tested against saved responses.** Both have run live (SERPs and
+  ranked keywords), and both fail loudly rather than returning an empty dataset, but the API
+  changes; check the first response of a new run before trusting a bill.
 - **Default clustering uses competitor overlap, not full SERP overlap.** A keyword's URL set is
   every tracked competitor page ranking for it, which the keyword pull already paid for. That is
   the same principle observed through your competitor set rather than the whole index, and it is
