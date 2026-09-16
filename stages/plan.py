@@ -182,6 +182,16 @@ def load_prompt_set(path="llm/prompts.json"):
         return None
 
 
+def restates(topic_text, cluster):
+    """True when a coverage topic is the page's own subject in other words."""
+    from stages.keywords import kw_key
+    mine = kw_key(cluster["primary"]["keyword"])
+    for s in cluster.get("secondaries", []):
+        mine |= kw_key(s["keyword"])
+    key = kw_key(topic_text)
+    return bool(key) and len(key & mine) >= max(1, round(len(kw_key(cluster["primary"]["keyword"])) * 2 / 3))
+
+
 def plural_term(term):
     head = re.split(r"\s+(for|with|in|of|to|on)\s+", term)[0].split()[-1]
     return head.endswith("s") and not head.endswith(("ss", "us", "is"))
@@ -771,7 +781,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
             # single line a human accepts or kills the page on, so a generic
             # sentence here wastes the gate.
             "why_this_page_exists": (
-                (why_for(cluster) + " ") if len(cluster["opportunity"]["why"]) > 90
+                (why_for(cluster, bar) + " ") if len(cluster["opportunity"]["why"]) > 90
                 else f"{gaps[0]}. ")
             + (f"Targets {prim}: {cluster['opportunity']['total_volume']:,} combined volume "
                f"at difficulty {cluster['opportunity']['max_difficulty']}."),
@@ -796,9 +806,20 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
     }
 
 
-def why_for(cluster):
-    """The cluster's reason, corrected for a format a person has since chosen."""
+def why_for(cluster, bar=None):
+    """The cluster's reason, corrected for what planning has since learned.
+
+    The reason is written at clustering time from competitor overlap. By the time
+    a page is planned a person may have chosen the format, and the measured bar may
+    not contain the rivals the reason names: the Doot planner brief cited three
+    "product competitors" the real results page did not rank."""
     why = cluster["opportunity"]["why"]
+    if bar:
+        measured = {re.sub(r"^www\.", "", c["url"].split("/")[2]) for c in bar.get("competitors", [])
+                    if "://" in c["url"]}
+        named = re.search(r"Including \d+ product competitor\(s\) \(([^)]*)\)[^.]*\.\s*", why)
+        if named and not {d.strip() for d in named.group(1).split(",")} & measured:
+            why = why.replace(named.group(0), "")
     if cluster.get("page_type_source") == "human":
         why = re.sub(r"The SERP is mixed \(confidence [\d.]+\), so the format needs a human eye",
                      f"The SERP is mixed, and a person chose a {cluster['page_type'].replace('_', ' ')}",
@@ -974,6 +995,9 @@ def main():
             continue
 
         bar = build_bar(ok, tpl)
+        # A heading repeating the page's own subject ("Executive Function Planners
+        # and ADHD") is a category or nav label, not something the page must cover.
+        bar["coverage"] = [t for t in bar["coverage"] if not restates(t["topic"], c)]
         if bar["needs_table"]:
             bar["table_compares"] = "the options, their cost, and who each suits"
         if bar["needs_video"]:
@@ -1028,6 +1052,8 @@ def main():
 
         brief = make_brief(c, business, tpl, bar, find_gaps(ok, tpl), batch, avoid,
                            links, promptset)
+        import validate as V
+        brief_warnings = [w for w in V.review_brief(brief)[1]]
         path = os.path.join(a.out, f"{slug}.json")
         json.dump(brief, open(path, "w"), indent=2)
         written.append((slug, bar, len(ok), failed))
@@ -1036,6 +1062,8 @@ def main():
             tw["status"] = "rejected"
             tw["rejected_reason"] = (f"the same query as '{prim}', folded into /{slug} as a "
                                      "secondary. Two pages on one query split the authority.")
+        for w in brief_warnings:
+            print(f"    {slug}: check at GATE 3: {w}")
         if twins:
             print(f"    {slug}: folded {len(twins)} same-query cluster(s) in as secondaries: "
                   + ", ".join(tw["primary"]["keyword"] for tw in twins))

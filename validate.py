@@ -88,6 +88,45 @@ def sentinels(doc):
     return [(p, v) for p, v in walk_strings(doc) if TODO.match(v)]
 
 
+def review_brief(b):
+    """What a person catches reading a brief closely, as checks.
+
+    Every one of these reached a real brief with every other check passing, and was
+    found only by reading it: the page's own keyword in its avoid list, a reason
+    naming rivals the measured results do not contain, a navigation label listed as
+    a topic to cover, a headline that is just the keyword, the default CTA."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from stages.keywords import kw_key, same_query
+    errs, warns = [], []
+    k = b["keywords"]
+    prim = k["primary"]["keyword"]
+    own = [prim] + [s["keyword"] for s in k.get("secondaries", [])]
+    for a in k.get("avoid", []):
+        if any(same_query(a, o) for o in own):
+            errs.append(f"'{a}' is in avoid but is this page's own query. The writer would be told to "
+                        "avoid its keyword.")
+    bar = b["the_bar"]
+    measured = {re.sub(r"^www\.", "", c["url"].split("/")[2]) for c in bar.get("competitors", [])
+                if "://" in c.get("url", "")}
+    angle = " ".join(str(b["angle"].get(f) or "") for f in ("why_this_page_exists", "differentiation"))
+    stale = sorted({d for d in re.findall(r"\b([a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|io|co|app|so|qa|in|uk|ai))\b",
+                                          angle.lower()) if d.removeprefix("www.") not in measured})
+    if stale:
+        warns.append(f"the angle names {', '.join(stale)}, which the measured bar does not contain. It was "
+                     "written from older evidence; check it still holds.")
+    key = kw_key(prim)
+    for t in bar.get("coverage") or []:
+        if len(kw_key(t["topic"]) & key) >= max(1, round(len(key) * 2 / 3)):
+            warns.append(f"coverage topic '{t['topic']}' is this page's own subject, probably a category or "
+                         "navigation heading rather than something to cover.")
+    h1 = re.sub(r"[^a-z0-9 ]", "", b["page"]["h1"].lower()).split()
+    if kw_key(" ".join(h1)) == key and len(h1) <= len(prim.split()) + 1:
+        warns.append(f"the H1 is the keyword ('{b['page']['h1']}'). Write the headline at GATE 3.")
+    if (b["structure"].get("cta") or {}).get("label") == "Try it":
+        warns.append("the CTA label is the default 'Try it'. Set identity.cta_label in business.json.")
+    return errs, warns
+
+
 def semantic(kind, doc):
     """Checks JSON Schema cannot express. Returns (errors, warnings)."""
     errs, warns = [], []
@@ -236,6 +275,9 @@ def semantic(kind, doc):
             warns.append("not approved yet. The writer refuses this page until it is.")
 
     if kind == "brief":
+        e, w = review_brief(doc)
+        errs += e
+        warns += w
         m = doc["meta"]
         if m.get("decision") == "approved" and not m.get("approved_at"):
             errs.append("decision is approved but approved_at is null.")

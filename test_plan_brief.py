@@ -122,5 +122,43 @@ check('"An LLC in Qatar is ...")' in t, "and 'An LLC in Qatar is' for a singular
 t = define_text({"term": "brain dump", "must_appear_by_word": 120})
 check('"A brain dump is ...")' in t, "and 'A brain dump is' for a singular word", t)
 
+print("\nTHE BRIEF IS READ THE WAY A PERSON READS IT")
+import validate as V
+brief = copy.deepcopy(json.load(open(os.path.join(HOME, "examples", "brief.json"))))
+brief["keywords"]["primary"]["keyword"] = "planners for executive functioning"
+brief["keywords"]["secondaries"] = [{"keyword": "executive functioning planner", "volume": 170, "required": True}]
+brief["page"]["h1"] = "Planners for executive functioning"
+brief["keywords"]["avoid"] = ["executive functioning planners", "adhd and food"]
+brief["angle"]["why_this_page_exists"] = "Including 3 product competitor(s) (erincondren.com, laureldenise.com)."
+brief["the_bar"]["competitors"][0]["url"] = "https://effectivestudents.com/articles/executive-function-planner/"
+brief["the_bar"]["coverage"] = [{"topic": "Executive Function Planners and ADHD", "pages": 3},
+                                {"topic": "Paper or digital", "pages": 2}]
+brief["structure"]["cta"]["label"] = "Try it"
+errs, warns = V.review_brief(brief)
+check(any("executive functioning planners" in e for e in errs), "the page's own query in avoid is an error", str(errs))
+check(not any("adhd and food" in e for e in errs), "an unrelated avoid entry is not")
+check(any("erincondren.com" in w for w in warns), "a reason naming rivals the bar does not contain is flagged")
+check(any("Executive Function Planners and ADHD" in w for w in warns) and not any("Paper or digital" in w for w in warns),
+      "a coverage topic that is the page's own subject is flagged, a real topic is not")
+check(any("H1 is the keyword" in w for w in warns), "an H1 that is just the keyword is flagged")
+check(any("Try it" in w for w in warns), "the default CTA is flagged")
+brief["page"]["h1"] = "Planners for executive functioning: what yours has to do differently"
+check(not any("H1 is the keyword" in w for w in V.review_brief(brief)[1]), "a written headline is not")
+check(any("executive functioning planners" in e for e in V.semantic("brief", brief)[0]),
+      "validate.py runs these on every brief")
+
+print("\nAND FIXED AT THE SOURCE WHERE IT CAN BE")
+cl = {"primary": {"keyword": "planners for executive functioning"}, "secondaries": [],
+      "page_type": "how_to_guide", "page_type_source": "human",
+      "opportunity": {"why": "1,900 volume. Including 3 product competitor(s) (erincondren.com, laureldenise.com), "
+                             "so the query has proven commercial intent. Difficulty 0."}}
+bar = {"competitors": [{"url": "https://effectivestudents.com/x"}]}
+check("erincondren" not in plan.why_for(cl, bar) and "Difficulty 0." in plan.why_for(cl, bar),
+      "the reason drops rivals the measured results do not contain", plan.why_for(cl, bar))
+bar["competitors"].append({"url": "https://www.erincondren.com/y"})
+check("erincondren" in plan.why_for(cl, bar), "and keeps them when they are measured")
+check(plan.restates("Executive Function Planners and ADHD", cl) and not plan.restates("Paper or digital", cl),
+      "a coverage topic restating the page is dropped from the bar")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
