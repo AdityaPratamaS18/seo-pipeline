@@ -101,6 +101,14 @@ def cta_label(business):
 
 def publisher(business):
     """The profile's publish function for tech.publisher, or None."""
+    mod = publisher_module(business)
+    return mod.publish if mod else None
+
+
+def publisher_module(business):
+    """The profile's publisher module for tech.publisher, or None. A publisher may
+    define rendered(slug, business, root) -> path, the output it produced, so the
+    engine can verify it against the draft."""
     name = ((business or {}).get("tech") or {}).get("publisher")
     d = directory(business)
     if not name:
@@ -113,4 +121,4 @@ def publisher(business):
     spec = importlib.util.spec_from_file_location(f"seo_profile_publisher_{name}", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return mod.publish
+    return mod

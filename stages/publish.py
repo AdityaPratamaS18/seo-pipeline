@@ -22,6 +22,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 import sys
 
 FRONT = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
@@ -107,8 +108,23 @@ def main():
         if not os.path.exists(src):
             sys.exit(f"no draft at {src}")
         repo = os.path.expanduser(tech.get("repo_path") or ".")
-        rc = custom(a.slug, brief, open(src, encoding="utf-8").read(), business, repo, a.dry_run) or 0
-        if not rc and not a.dry_run:
+        draft_md = open(src, encoding="utf-8").read()
+        module = profiles.publisher_module(business)
+        # Every publish is a verified dry run first. A publisher's output is read
+        # against the draft, and a page whose render moved a figure or lost a
+        # heading never reaches the real run.
+        rc = custom(a.slug, brief, draft_md, business, repo, True) or 0
+        if rc:
+            return rc
+        if not hasattr(module, "rendered"):
+            print(f"\n  warn  this publisher does not say where its output is (no rendered()), so "
+                  "its render cannot be verified")
+        elif verified(a.slug, draft_md, a.drafts, module.rendered(a.slug, business, repo)):
+            return 1
+        if a.dry_run:
+            return 0
+        rc = custom(a.slug, brief, draft_md, business, repo, False) or 0
+        if not rc:
             print(f"\n  once it is deployed:  seo live {a.slug}")
         return rc
 
@@ -171,6 +187,10 @@ def main():
     out_path = os.path.join(content_dir, a.slug, out_name) if dir_per_slug \
         else os.path.join(content_dir, out_name)
     doc = render_front(fields, order) + body.lstrip("\n")
+    with tempfile.NamedTemporaryFile("w", suffix=f".{ext}", delete=False, encoding="utf-8") as tmp_out:
+        tmp_out.write(doc)
+    if verified(a.slug, open(src, encoding="utf-8").read(), a.drafts, tmp_out.name):
+        return 1
 
     print(f"  stack     {stack}")
     print(f"  page      {url_prefix}{a.slug}")
@@ -199,6 +219,20 @@ def main():
             shutil.copy2(os.path.join(img_src, name), os.path.join(img_dest, name))
     print(f"\n  published. Build the site and commit, then once it is deployed:  seo live {a.slug}")
     print("  A 200 is not a visible page: that command checks the content can be seen.")
+    return 0
+
+
+def verified(slug, draft_md, drafts, rendered_path):
+    """Read a publisher's output against the draft. Returns 1 when it fails."""
+    from stages.verify import load_figures, report, verify
+    if not rendered_path or not os.path.exists(rendered_path):
+        print(f"\n  FAIL  the publisher's output is not at {rendered_path}, so it cannot be verified")
+        return 1
+    errs, warns = verify(draft_md, load_figures(drafts, slug), open(rendered_path, encoding="utf-8").read())
+    print()
+    if report(slug, errs, warns, rendered_path):
+        print("  Nothing published. Fix the publisher, not the page: the draft is what was approved.")
+        return 1
     return 0
 
 

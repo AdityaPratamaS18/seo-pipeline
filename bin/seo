@@ -31,6 +31,7 @@ yours.
     seo media prompts <slug>          stage 4  prompts for generated art
     seo media collect <slug> --from d stage 4  place what a model generated
     seo publish <slug> [--dry-run]    stage 6
+    seo verify <slug> --file|--url    stage 6  a publisher's output read against the draft
     seo live <slug> [--record r.json] stage 7  the live page shows its content at desktop and phone width
     seo links scan | pending <slug>   the internal link graph
     seo audit basic|full <domain>     technical audit of a live site
@@ -51,7 +52,7 @@ DIRECT = {
     "context": ("stages.context", []), "keywords": ("stages.keywords", []),
     "plan": ("stages.plan", []), "review": ("stages.review", []),
     "write": ("stages.write", []), "media": ("stages.media", ["render"]),
-    "publish": ("stages.publish", []), "live": ("stages.live", []),
+    "publish": ("stages.publish", []), "live": ("stages.live", []), "verify": ("stages.verify", []),
     "competitors": ("stages.competitors", []),
     "links": ("stages.links", []),
     "audit": ("stages.audit", []),

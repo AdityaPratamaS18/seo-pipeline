@@ -182,7 +182,9 @@ seo check              # all of them, on every draft
 | `check_claims.py` | any price, percentage or quantity not in the brief's evidence |
 | `check_batch.py` | thirty pages that open, move and close the same way |
 | `stages/write.py check` | missing sections, thin coverage, cannibalisation, no FAQ |
-| `validate.py` | every artifact against its schema, plus the semantic rules |
+| `validate.py` | every artifact against its schema, plus the semantic rules and a close read of each brief |
+| `stages/verify.py` | a publisher's render against the draft: headings, figure placement, FAQ, sources, leaked markdown |
+| `stages/consistency.py` | artifacts that disagree, via `seo status` (`--fix` repairs stale statuses) |
 | `stages/links.py` | dead internal links, orphan pages, missing reciprocal links |
 
 `check_batch.py` is the one no per-page check can replace. Every draft can pass everything else

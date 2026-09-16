@@ -187,7 +187,7 @@ def http_check(url, probes, h1):
         junk.decompose()
     text = norm(soup.get_text(" ", strip=True))
     page_h1 = soup.find("h1")
-    return {"status": status,
+    return {"status": status, "_html": html,
             "h1": page_h1.get_text(" ", strip=True) if page_h1 else None,
             "h1_matches": bool(page_h1 and h1 and norm(page_h1.get_text(" ", strip=True)) == norm(h1)),
             "probes_in_html": sum(1 for p in probes if norm(p) in text)}
@@ -305,6 +305,7 @@ def main():
         http = None
     else:
         http = http_check(url, probes, h1)
+        served = http.pop("_html", None)
         record["http"] = http
         print(f"  {url}")
         if http.get("error") or http.get("status") != 200:
@@ -316,6 +317,14 @@ def main():
             if http["probes_in_html"] < len(probes) / 2:
                 warns.append("most passages are not in the served HTML, so the page renders them "
                              "in the browser. The browser check is the one that counts.")
+            else:
+                # The served page read against the draft: every heading in order,
+                # every figure under its own section, every FAQ question.
+                from stages.verify import load_figures, verify
+                v_errs, v_warns = verify(md, load_figures(a.drafts, a.slug), served)
+                errs += v_errs
+                warns += v_warns
+                print(f"  structure: {'ok' if not v_errs else str(len(v_errs)) + ' problem(s)'}")
         results, via = (None, None)
         if not errs and not a.no_browser:
             print("  checking in a browser at 1280 and 375 wide ...")

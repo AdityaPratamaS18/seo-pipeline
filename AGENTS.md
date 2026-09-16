@@ -57,7 +57,7 @@ seo media check <slug>        every figure's words and numbers are in its sectio
 seo media <slug>              draw them (the site's renderer if brand.renderer is set)
 seo check                     every checker
    GATE 4  a person reads what the checks flagged, plus a sample
-seo publish <slug>            one page a day
+seo publish <slug>            one page a day; verifies the publisher's render against the draft first
 seo live <slug>               once deployed: every passage visible at 1280 and 375 wide
 ```
 
@@ -128,6 +128,12 @@ do, cards otherwise. Two figures of one type never sit back to back, and no type
 variety: a section that would repeat gets no figure, and the prose breaks carry it. Write each
 section the way its image marker says, since the figure is drawn from that content. A site
 renderer is only given the types it lists in `brand.renderer.types` (steps and cards if unset).
+
+**Never publish around the verifier.** `seo publish` dry-runs, reads what the publisher rendered
+against the draft (headings in order, every figure under its own section, FAQ questions, sources,
+no markdown on the page) and refuses on any failure. When it fails, fix the publisher, not the
+draft: the draft is what was approved. A site publisher must define `rendered()` so its output can
+be read; `seo live` runs the same check on the served page.
 
 **A check reporting zero units examined is a failure, not a pass.**
 

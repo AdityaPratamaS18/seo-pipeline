@@ -118,6 +118,7 @@ class Site(BaseHTTPRequestHandler):
     def do_GET(self):
         body = ("<html><body><h1>LLC in Qatar: ownership and setup</h1>"
                 "<p>An LLC in Qatar is the most common structure for a foreign founder.</p>"
+                + ("" if self.path.startswith("/insights/broken") else "<h2>Who can own one</h2>") +
                 "<p>Ownership rules come from the Commercial Companies Law, and most sectors.</p>"
                 "<p>Every fact above was checked against the ministry's own guidance.</p></body></html>")
         self.send_response(200 if self.path.startswith("/insights/") else 404)
@@ -149,6 +150,10 @@ with tempfile.TemporaryDirectory() as t:
     check(os.path.exists(os.path.join(t, "drafts", "llc", "live-probe.js")),
           "and the probe is written to run in a browser elsewhere")
     check("3 of 3 passages in the HTML" in r.stdout, "the served HTML is read for the passages", r.stdout)
+
+    r = run("--url", f"{base}/insights/broken", "--no-browser")
+    check(r.returncode == 1 and "Who can own one" in r.stdout,
+          "a served page that lost a heading fails on structure, before any browser", r.stdout)
 
     r = run("--url", f"{base}/missing/llc", "--no-browser")
     check(r.returncode == 1 and "did not load" in r.stdout, "a 404 fails outright", r.stdout)
