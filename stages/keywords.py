@@ -168,6 +168,67 @@ def cluster_id(keyword, taken=()):
     return cid
 
 
+# Extra words that leave a query unchanged. A longer query merges into a shorter
+# one only when every extra word is one of these, or the site's own topic word.
+# An allowlist, because the words that DO change a page cannot be listed: a
+# format ("digital"), an audience ("students"), and brands ("Future ADHD planner",
+# "Happy Planner") all read as one ordinary extra word.
+NEUTRAL_WORDS = {stem(w) for w in (
+    "people", "person", "someone", "somebody", "good", "great", "rated", "recommended", "ideal",
+    "help", "helpful", "need", "needs", "use", "using", "work", "works", "really", "actually",
+    "functioning", "function")}
+
+
+def topic_words(keywords, share=0.4):
+    """Words in at least `share` of a site's keywords: its topic ("adhd", "qatar").
+    Adding the topic to a query does not change the query on that site."""
+    keys = [kw_key(k) for k in keywords]
+    if not keys:
+        return set()
+    counts = {}
+    for k in keys:
+        for w in k:
+            counts[w] = counts.get(w, 0) + 1
+    return {w for w, n in counts.items() if n / len(keys) >= share}
+
+
+def same_query(a, b, topic=()):
+    """True when two keywords are one query, so one page.
+
+    The same word set is always the same query. A strict subset of at least two
+    words is too, when every extra word is neutral or the site's topic word.
+    Competitor-overlap clustering cannot see this: two long-tail keywords with no
+    shared tracked rival land in separate clusters however identical they read."""
+    ka, kb = kw_key(a), kw_key(b)
+    if not ka or not kb:
+        return False
+    if ka == kb:
+        return True
+    small, big = (ka, kb) if len(ka) < len(kb) else (kb, ka)
+    return len(small) >= 2 and small < big and (big - small) <= (NEUTRAL_WORDS | set(topic))
+
+
+def merge_twins(clusters):
+    """Fold clusters whose primaries are the same query into the stronger one.
+
+    Clusters arrive in pivot order, highest volume first, so the first of a pair
+    keeps the primary. Returns (clusters, [(merged primary, kept primary)])."""
+    topic = topic_words([c["primary"]["keyword"] for c in clusters])
+    kept, merged = [], []
+    for c in clusters:
+        home = next((k for k in kept if same_query(k["primary"]["keyword"], c["primary"]["keyword"], topic)), None)
+        if not home:
+            kept.append(c)
+            continue
+        have = {home["primary"]["keyword"]} | {s["keyword"] for s in home["secondaries"]}
+        for s in [c["primary"]] + c["secondaries"]:
+            if s["keyword"] not in have:
+                home["secondaries"].append(s)
+                have.add(s["keyword"])
+        merged.append((c["primary"]["keyword"], home["primary"]["keyword"]))
+    return kept, merged
+
+
 def lookup(keyword, table):
     """The slug in `table` targeting this query, matched exactly or by kw_key."""
     k = keyword.lower()
@@ -381,6 +442,11 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
         print(f"           Try --threshold 2, or add more competitors, or use real SERP data.")
 
     clusters, dropped = cluster(folded, threshold, min_volume, max_difficulty)
+    clusters, merged = merge_twins(clusters)
+    if merged:
+        print(f"  merged {len(merged)} cluster(s) that were the same query in other words:")
+        for gone, into in merged[:8]:
+            print(f"    '{gone}' into '{into}'")
 
     out, ids = [], set()
     for c in clusters:

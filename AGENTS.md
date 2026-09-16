@@ -48,6 +48,7 @@ seo pull <domains>            their keywords, narrowed to the page that ranked
 seo keywords keywords/dataset.csv     cluster them
    GATE 2  a person approves keywords/clusters.json and sets meta.confirmed_at
 seo retype                    mixed clusters in the next batch: the SERPs they need, then --apply
+seo dedupe                    clusters that are one query in other words: merge them, then --apply
 seo plan                      one brief per page, from the pages that rank now
    GATE 3  seo review build, a person decides, seo review apply decisions.json
 seo write prompt <slug>       the complete instruction for one page

@@ -285,8 +285,9 @@ def fold_twins(cluster, clusters, slug=None):
     belongs on this page as a secondary, never on a page of its own. A near miss
     shares most words and is only reported, since "function disorder" may be a
     different reader."""
-    from stages.keywords import kw_key
+    from stages.keywords import kw_key, same_query, topic_words
     key = kw_key(cluster["primary"]["keyword"])
+    topic = topic_words([x["primary"]["keyword"] for x in clusters])
     twins, near = [], []
     for x in clusters:
         # A twin closed by an earlier plan of this same page is folded again, or a
@@ -295,7 +296,7 @@ def fold_twins(cluster, clusters, slug=None):
         if x is cluster or not (x["status"] == "idea" or ours):
             continue
         k = kw_key(x["primary"]["keyword"])
-        if k == key or (len(k) >= 2 and k < key):
+        if same_query(x["primary"]["keyword"], cluster["primary"]["keyword"], topic):
             twins.append(x)
         elif k and len(k & key) >= 2 and len(k & key) / len(k | key) >= 0.4:
             near.append(x)
