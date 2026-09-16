@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.4.1 (2026-09-16)
+
+Found taking a startup funding site through stage 1 on Ubersuggest data.
+
+### Upgrading from 0.4.0
+
+1. **Update.** `claude plugin update seo-pipeline@humandspark`, then restart. From a clone: `git pull`.
+2. **If your clusters are not approved yet, run `seo keywords` again** and read the new
+   `removed most:` line. If a word there is your subject, add `constraints.exclude_topics` to
+   business.json and run it again. Approved clusters are unaffected until you rebuild them.
+
+### Fixed
+
+- **The keyword filter threw away the subject.** Every `do_not_claim` sentence was split into
+  words and each word excluded, so a rule like "legal or tax advice for the reader's specific
+  situation" removed every keyword containing tax or legal. On a funding site only 70 keywords
+  survived. A `do_not_claim` line now excludes only when it is short (four content words or
+  fewer, before any colon). `not_for` lines work as before.
+- Datasets built from India-scoped Ubersuggest responses said "worldwide index". The location
+  is now read from the response.
+
+### Added
+
+- **`constraints.exclude_topics`** in business.json: the exact words that disqualify a keyword.
+  When set, nothing is derived from `not_for` or `do_not_claim`.
+- **Every `seo keywords` run prints which excluded words removed the most keywords**, so a
+  filter quietly discarding the subject shows up in the output.
+- **`seo ubersuggest keywords` reads `match_keywords` responses**, to widen a thin keyword pool.
+  A suggestion is placed from its own saved SERP, or its seed's when it is the same query
+  reworded. The rest go to `keywords/serp-needed.txt` with the cost of fetching them, never a
+  borrowed SERP: identical URLs always cluster, and a first version fused a city query, a how-to
+  and a list query into one page.
+
+### Changed
+
+- One `do_not_claim` rule on an existing site can stop excluding, if it is a long sentence. Its
+  topic is still excluded when `not_for` names it. Check the `removed most:` line on your next
+  rebuild.
+
 ## 0.4.0 (2026-09-16)
 
 Tested end to end on two more real sites, a corporate services firm and a SaaS product, each

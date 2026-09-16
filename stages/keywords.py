@@ -109,17 +109,54 @@ def exclude_terms(business):
     opportunities for a planner app whose do_not_claim forbids anything
     resembling diagnosis. Relevance is two sided: what this is about, AND what
     it is emphatically not.
+
+    constraints.exclude_topics, when present, is the whole answer. Nothing is
+    derived, because derivation cannot tell a topic from the prose around it.
+
+    Without it, not_for lines are split into words as before, but a do_not_claim
+    line only counts when it is short: the part before any colon, four content
+    words at most. do_not_claim is written as sentences explaining a claim, and
+    splitting those banned the subject. On a real startup funding site, "legal or
+    tax advice for the reader's specific situation" and "a business loan" removed
+    every keyword containing tax, legal or business, and 70 keywords survived.
     """
+    explicit = business.get("constraints", {}).get("exclude_topics")
+    if explicit is not None:
+        return {w for t in explicit for w in re.findall(r"[a-z0-9]{2,}", (t or "").lower())
+                if w not in STOPW and w not in SHORT}
+
+    def words(text):
+        return [w for w in re.findall(r"[a-z]{3,}", (text or "").lower())
+                if w not in STOPW and w not in SHORT and
+                w not in ("that", "anyone", "looking", "people", "want", "anything")]
+
     out = set()
     aud = business.get("audience", {})
     # Three letters, not four: the four-letter floor meant "VAT" in a do_not_claim
     # line never excluded anything. Safe now that exclusion matches whole words.
-    for t in aud.get("not_for", []) + business.get("constraints", {}).get("do_not_claim", []):
-        for w in re.findall(r"[a-z]{3,}", (t or "").lower()):
-            if w not in STOPW and w not in SHORT and \
-                    w not in ("that", "anyone", "looking", "people", "want"):
-                out.add(w)
+    for t in aud.get("not_for", []):
+        out.update(words(t))
+    for t in business.get("constraints", {}).get("do_not_claim", []):
+        head = words((t or "").split(":", 1)[0])
+        if len(head) <= MAX_CLAIM_WORDS:
+            out.update(head)
     return out
+
+
+# A do_not_claim line longer than this is an explained claim, not a topic.
+MAX_CLAIM_WORDS = 4
+
+
+def exclusion_hits(keywords, exclude):
+    """How many keywords each excluded word removed, largest first. Printed so a
+    word that is quietly throwing away the subject shows up in the run output."""
+    banned = {stem(x): x for x in exclude}
+    hits = {}
+    for k in keywords:
+        for w in {stem(w) for w in re.findall(r"[a-z]+", k.lower())}:
+            if w in banned:
+                hits[banned[w]] = hits.get(banned[w], 0) + 1
+    return sorted(hits.items(), key=lambda x: -x[1])
 
 
 def is_relevant(keyword, terms, must=None, exclude=()):
@@ -401,12 +438,19 @@ def build(rows, threshold, min_volume, max_difficulty, competitors, expires_days
                   f"the subject: {', '.join(sorted(overlap))}")
             excl -= overlap
         before = len(folded)
+        hits = exclusion_hits([k["keyword"] for k in folded], excl)
         folded = [k for k in folded if is_relevant(k["keyword"], terms, must, excl)]
         print(f"  relevance: kept {len(folded):,} of {before:,} keywords "
               f"({before - len(folded):,} off topic or excluded)")
         if excl:
             print(f"             excluded on: {', '.join(sorted(excl)[:10])}"
                   + (" ..." if len(excl) > 10 else ""))
+        if hits:
+            print("             removed most: "
+                  + ", ".join(f"{w} ({n})" for w, n in hits[:8]))
+            if business and business.get("constraints", {}).get("exclude_topics") is None:
+                print("             derived from not_for and do_not_claim. If a word above is "
+                      "your subject, set constraints.exclude_topics to the exact list.")
         if not folded:
             sys.exit("every keyword was filtered out as irrelevant. Widen --must-match, "
                      "or check that business.json describes what you think it does.")

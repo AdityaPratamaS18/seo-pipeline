@@ -429,6 +429,13 @@
         "reading_level": {
           "type": "string",
           "description": "e.g. 'grade 8'. Optional."
+        },
+        "exclude_topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Words or short phrases that disqualify a keyword at clustering, e.g. [\"loan\", \"credit\"]. When set, this is the whole exclusion list and nothing is derived from not_for or do_not_claim, whose prose can name the subject itself."
         }
       }
     },

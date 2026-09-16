@@ -65,6 +65,35 @@ check(is_relevant("courtesy visa qatar", {"qatar"}, None, {"court"}),
 check(not is_relevant("court fee qatar", {"qatar"}, None, {"fees"}),
       "but 'fees' does exclude 'fee', its singular")
 
+print("\nA do_not_claim SENTENCE DOES NOT BAN ITS OWN WORDS")
+FUNDING = {
+    "identity": {"category": "grant writing service"},
+    "product": {"core_jobs": ["win a research grant"], "features": []},
+    "audience": {"segments": [{"name": "early career researchers", "pains": []}]},
+    "constraints": {"do_not_claim": [
+        "that clients RAISE more grant money than they would alone: it only edits the application",
+        "legal or tax advice for the reader's specific situation",
+        "that a review shortens fundraising by any amount of time",
+        "fees: none are published"]},
+}
+ex = exclude_terms(FUNDING)
+for w in ("raise", "tax", "legal", "fundraising", "time"):
+    check(w not in ex, f"'{w}' from a long explained claim is not an exclusion")
+check("fees" in ex, "a short topic line before a colon still excludes")
+
+print("\nexclude_topics IS THE WHOLE LIST WHEN SET")
+explicit = dict(FUNDING, audience={"segments": [], "not_for": ["people looking for a business loan"]},
+                constraints=dict(FUNDING["constraints"], exclude_topics=["loan", "quick credit"]))
+ex = exclude_terms(explicit)
+check(ex == {"loan", "quick", "credit"}, f"only the listed words -> {sorted(ex)}")
+check(is_relevant("investors for business", {"investor"}, None, ex),
+      "'business' from not_for no longer excludes once the list is explicit")
+check(not is_relevant("business loan for startup", {"startup"}, None, ex), "a listed word still does")
+
+from stages.keywords import exclusion_hits                            # noqa: E402
+check(exclusion_hits(["tax advice", "tax audit", "loan"], {"tax", "loan"}) == [("tax", 2), ("loan", 1)],
+      "the run reports how many keywords each exclusion removed")
+
 print("\nA LIVE PAGE'S KEYWORDS ARE RECOGNISED IN ANY WORDING")
 from stages.keywords import build, kw_key, lookup                    # noqa: E402
 check(kw_key("starting a business in qatar") == kw_key("starting business qatar"),

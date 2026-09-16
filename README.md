@@ -82,6 +82,10 @@ page holds instead of everything its domain happens to rank for. That is the def
 Give `seo serp` ten or twelve seeds, not three. Clustering groups keywords that share a results
 page, so with too few seeds nothing overlaps and every cluster comes out a singleton.
 
+Keywords naming what the business is not for are dropped, and the run prints which words
+removed the most. When a word from that list is your subject, set
+`constraints.exclude_topics` in business.json to the exact words to exclude.
+
 Difficulty scores are **not comparable between providers**, so pick your ceiling against the
 data in front of you. `seo keywords` warns when the distribution says your ceiling is filtering
 nothing.

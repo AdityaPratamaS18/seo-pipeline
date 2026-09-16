@@ -70,14 +70,27 @@ you, not a script, so save each response as a JSON file and import the files:
 serp_analysis per seed        -> save to serps/raw/ubersuggest/, then  seo ubersuggest serp serps/raw/ubersuggest/*.json
 domain_keywords per rival     -> save to keywords/raw/ubersuggest/
 page_keywords per big rival's ranking page, same folder
+match_keywords per seed        -> same folder, to widen a thin pool (broad heads return the most)
 seo ubersuggest keywords keywords/raw/ubersuggest/*.json --require <market terms>
 ```
+
+Suggestions have no ranking URLs, and clustering needs them. A suggestion is placed from its own
+saved SERP, or from its seed's when it is the same query reworded. Everything else is written to
+`keywords/serp-needed.txt` with its cost. Trim that list to what is on topic, fetch those SERPs
+(`seo serp --from-file`, or `serp_analysis` then `seo ubersuggest serp`), and import again. Never
+lend a seed's SERP to a query that is merely close to it: identical URLs always cluster, so the
+variants fuse into one page that looks like the strongest evidence in the file.
 
 For a single-country site Ubersuggest usually has no data scoped to that country, so call it
 without `locId` and pass `--require` with the words that name the market (for example
 `qatar,doha`), or the dataset fills with worldwide keywords. For global firms use
 `page_keywords` on their pages for that market, since a domain pull returns their biggest
 markets first. Save every row a response returned; never trim or edit the data you save.
+
+`seo keywords` throws out keywords containing words from `audience.not_for` and short
+`constraints.do_not_claim` lines, and prints which words removed the most. If one of those words
+is the subject ("business", "tax" on a funding site), set `constraints.exclude_topics` in
+business.json to the exact list. When it is set, nothing else is derived.
 
 Run `seo audit basic <domain>` and `seo links scan` whenever you like. They are independent of
 writing and cost nothing.
