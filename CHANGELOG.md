@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.4.2 (2026-09-17)
+
+Found on a SaaS site: four product feature sentences from business.json appeared nearly word for word
+in all three drafts of a batch, and on a page already live. `check_batch.py` warned, but only after
+every page was written, and `check_claims.py` cannot see wording at all.
+
+### Upgrading
+
+1. **Update.** `claude plugin update seo-pipeline@humandspark`, then restart. From a clone: `git pull`.
+2. **Unpublished drafts can now fail `seo check`.** A draft that copied its facts shows under REUSE with
+   the copied sentence and its line. Rewrite those sentences in the page's own words. Published pages
+   show as warnings.
+3. **Consider `identity.one_liner`.** It now becomes `evidence.identity_line`, the one sentence a page
+   may repeat word for word. Keep it short and deliberate.
+4. **Approved briefs keep every feature until they are planned again.** Run
+   `seo plan --replan --cluster <id>` for a page you want planned under the new rule.
+
+### Changed
+
+- **A brief carries only the features its page needs.** Two by default, three for comparison and
+  alternatives pages. Features that share a word with the cluster's keywords come first; where the
+  keywords point at nothing, a stable order keyed on the cluster id decides, so a batch does not give
+  every page the same two. Every feature keeps its `product.features[i]` source.
+- **The writing prompt says the facts are not copy**, directly under the list of facts, and names the
+  identity line as the one sentence that may repeat.
+
+### Added
+
+- **`check_reuse.py`**, run by `seo check` as REUSE. Fails a draft that states a product fact using five
+  or more of the fact's own words in a row, and reports the whole copied stretch with its line. Five, not
+  four, because good paraphrases in the same batch still shared four word fragments with the facts. The
+  product's name is not counted toward the five: writers name the product as the subject, so counting it
+  would fail "<name> lays the day out". Pricing, text in code fences and the writer's MISSING EVIDENCE
+  notes are left alone; the identity line is allowed once and warned on a second use.
+- **A published page is reported, not failed.** `seo check` reads `keywords/clusters.json`, and a draft
+  whose cluster is published gets its copies as warnings. One live page would otherwise fail every
+  later batch; rewriting it is a separate decision.
+- `evidence.identity_line` in the brief schema, optional, filled from `identity.one_liner`.
+- `test_reuse.py` and `test_evidence.py`, each break verified by deliberately mutating the code.
+
 ## 0.4.1 (2026-09-16)
 
 Found taking a startup funding site through stage 1 on Ubersuggest data.

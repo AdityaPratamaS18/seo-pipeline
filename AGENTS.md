@@ -111,7 +111,10 @@ draft leaves the same hole in the other twenty-nine pages.
 
 **`brief.evidence` is the complete set of facts the page may assert.** Every price, percentage,
 multiplier and quantity traces back to it. If a section needs a fact you were not given, write
-the section without it and note what was missing. Never estimate, round, or infer a statistic.
+the section without it and note what was missing. Never estimate, round, or infer a statistic. The facts
+are facts, not copy: restate them in the page's own words, because `check_reuse.py` fails a draft that
+lifts five or more words of one in a row. `evidence.identity_line` is the one sentence allowed to
+repeat, once a page.
 
 **A page that explains a law or a rule needs researched facts.** `business.json` only knows the
 business. Run `seo facts init <slug>`, fill `research/<slug>.facts.json` from primary sources

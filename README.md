@@ -188,6 +188,7 @@ seo check              # all of them, on every draft
 |---|---|
 | `check_voice.py` | dashes, staccato framing, AI filler, hedging, bullet-heavy drafts |
 | `check_claims.py` | any price, percentage or quantity not in the brief's evidence |
+| `check_reuse.py` | a product fact stated in the brief's own sentence, so every page describes the product in the same words |
 | `check_batch.py` | thirty pages that open, move and close the same way |
 | `stages/write.py check` | missing sections, thin coverage, cannibalisation, no FAQ |
 | `validate.py` | every artifact against its schema, plus the semantic rules and a close read of each brief |

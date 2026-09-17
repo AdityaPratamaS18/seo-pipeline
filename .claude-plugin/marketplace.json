@@ -9,7 +9,7 @@
     {
       "name": "seo-pipeline",
       "source": "./",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "description": "A staged SEO content system for founders, plus a technical auditor. Research once a quarter, plan a batch of pages against the pages that currently rank, write to a brief, and check with scripts rather than judgement.",
       "author": {
         "name": "Aditya Pratap Singh"

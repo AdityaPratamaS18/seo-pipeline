@@ -720,6 +720,10 @@
             "type": "string"
           },
           "description": "Points the research found unsettled. The writer must not assert them."
+        },
+        "identity_line": {
+          "type": "string",
+          "description": "The one sentence a page may repeat word for word, copied from business.json identity.one_liner. Everything in product_facts is a fact to restate in the page's own words; this is the only line meant to read the same on every page, so answer engines learn which product is meant. check_reuse.py allows it once per page."
         }
       }
     },

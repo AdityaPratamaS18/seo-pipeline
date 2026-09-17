@@ -20,6 +20,7 @@ Refuses to run on unconfirmed or expired inputs. Building a batch on stale
 clusters is how thirty pages end up chasing dead keywords.
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -505,10 +506,52 @@ def find_gaps(ok, template):
 
 
 # ── the brief ─────────────────────────────────────────────────────────────
-def evidence_for(business, page_type):
+# How many product features one page may state. Every brief used to carry every
+# feature, and a writer told these were the only facts it could assert stated all of
+# them, in the same words, on every page: four sentences from business.json appeared
+# nearly verbatim in all three drafts of one real batch, and on a page already live.
+# A page needs the features its argument uses, not the whole product sheet.
+# Comparison pages set the product against a rival feature by feature, so they get one more.
+FEATURES_PER_PAGE = {"comparison": 3, "alternatives": 3}
+DEFAULT_FEATURES_PER_PAGE = 2
+FEATURE_STOP = {"and", "the", "for", "with", "your", "you", "that", "this", "from", "into",
+                "than", "rather", "instead", "can", "one", "out", "not", "all", "any", "are",
+                "its", "their", "them", "what", "when", "which", "who", "how", "why", "use"}
+
+
+def feature_terms(text):
+    return {w for w in re.findall(r"[a-z]+", text.lower())
+            if len(w) > 2 and w not in FEATURE_STOP}
+
+
+def features_for(business, cluster, page_type):
+    """The features this page may state, as (index, feature) in business.json order.
+
+    Relevance first: a feature sharing a word with the cluster's keywords earns its
+    place ("adhd day planner" picks the feature about laying out the day). Where the
+    keywords point at nothing, a stable order keyed on the cluster id breaks the tie,
+    so a batch does not hand every page the same two features. Without a cluster the
+    old behaviour stands: every feature."""
+    feats = [(i, f) for i, f in enumerate(business.get("product", {}).get("features", []))
+             if f.get("source", {}).get("type") != "inferred"]
+    k = FEATURES_PER_PAGE.get(page_type, DEFAULT_FEATURES_PER_PAGE)
+    if cluster is None or len(feats) <= k:
+        return feats
+    words = [cluster["primary"]["keyword"]] + [s["keyword"] for s in cluster.get("secondaries", [])]
+    wanted = feature_terms(" ".join(words))
+
+    def rank(item):
+        i, f = item
+        overlap = len(feature_terms(f"{f.get('name', '')} {f['does']}") & wanted)
+        tie = hashlib.sha1(f"{cluster.get('id', '')}:{f.get('name', i)}".encode()).hexdigest()
+        return (-overlap, tie)
+
+    return sorted(sorted(feats, key=rank)[:k], key=lambda item: item[0])
+
+
+def evidence_for(business, page_type, cluster=None):
     prod = [{"claim": f["does"], "source": f"product.features[{i}]"}
-            for i, f in enumerate(business.get("product", {}).get("features", []))
-            if f.get("source", {}).get("type") != "inferred"]
+            for i, f in features_for(business, cluster, page_type)]
     pricing = business.get("pricing") or {}
     if pricing.get("tiers"):
         parts = []
@@ -539,7 +582,11 @@ def evidence_for(business, page_type):
                              "competitor": a["competitor"],
                              "source_url": src if src.startswith("http") else f"positioning.against[{i}]",
                              "retrieved_at": iso(now())})
-    return {"product_facts": prod, "competitor_facts": comp, "stats": []}
+    ev = {"product_facts": prod, "competitor_facts": comp, "stats": []}
+    line = (business.get("identity") or {}).get("one_liner")
+    if line:
+        ev["identity_line"] = line.strip()
+    return ev
 
 
 def sections_from(template, bar, cluster, business):
@@ -798,7 +845,7 @@ def make_brief(cluster, business, template, bar, gaps, batch, avoid, links,
                     "label": PROFILES.cta_label(business)},
         },
         "extractable": extractable_for(cluster, business, bar, promptset),
-        "evidence": evidence_for(business, cluster["page_type"]),
+        "evidence": evidence_for(business, cluster["page_type"], cluster),
         "links": links,
         "media": media,
         "layout": layout_for(bar, template, business),

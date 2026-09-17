@@ -204,6 +204,18 @@ def build_prompt(b, voice_text, exemplars):
                       for c in bar["competitors"])
     gaps = "\n".join(f"  - {g}" for g in ang["gaps_to_exploit"])
     facts = "\n".join(f"  - {e['claim']}" for e in ev["product_facts"] + ev["competitor_facts"])
+    # The facts arrive as sentences, and a writer told they are the only things it may
+    # assert treats the sentence as the safe version of the fact. Every page then states
+    # the product in the same words. Say plainly that they are facts, not copy, and name
+    # the one line that is meant to repeat.
+    line = ev.get("identity_line")
+    not_copy = ("\nThese are facts, not copy. State each one in words that fit this page's "
+                "argument, and\nnever more strongly than it is written here. Do not reuse a "
+                "fact's sentence: five or\nmore of its words in a row fails `seo check`, "
+                "because the same sentence on every page\nreads as a template.\n")
+    if line:
+        not_copy += ("\nThe one line you may use word for word, once, is the product's identity "
+                     f"sentence:\n  \"{line}\"\n")
     stats = "\n".join(f"  - {e['claim']}  [{e['source_url']}]" for e in ev["stats"])
     topic = "\n".join(f"  - {e['claim']}\n      source: {e['source_url']}  [{naming(e)}]\n"
                       f"      its words: \"{e['quote']}\""
@@ -333,7 +345,7 @@ not write it. Do not estimate, do not round, do not infer a statistic.
 
 {facts or '  (no product facts supplied)'}
 {stats}{topic}
-
+{not_copy}
 If a section needs a fact you do not have, write the section without it and note
 what was missing at the end of your output under "MISSING EVIDENCE".
 

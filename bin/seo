@@ -37,7 +37,7 @@ yours.
     seo audit basic|full <domain>     technical audit of a live site
     seo prompts build | check         the LLM prompt set
     seo visibility run | report       are you named, and who is named instead
-    seo check [<slug>]                every checker: voice, claims, batch
+    seo check [<slug>]                every checker: voice, claims, reuse, batch
 """
 import os
 import subprocess
@@ -296,6 +296,8 @@ def cmd_check(args):
                                           drafts + ["--briefs", p("briefs")])
     print("\n  CLAIMS"); rc |= script("check_claims.py", drafts + ["--briefs", p("briefs"),
                                                                   "--business", p("context/business.json")])
+    print("\n  REUSE"); rc |= script("check_reuse.py", drafts + ["--briefs", p("briefs"),
+                                                                 "--clusters", p("keywords/clusters.json")])
     if len(drafts) > 1:
         print("\n  BATCH"); rc |= script("check_batch.py", drafts + ["--briefs", p("briefs")])
     else:

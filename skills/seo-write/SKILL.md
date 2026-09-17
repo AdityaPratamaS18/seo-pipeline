@@ -41,6 +41,12 @@ was missing at the end under `MISSING EVIDENCE`. Never estimate, never round, ne
 statistic, never describe a competitor capability you were not told about. `check_claims.py`
 enforces this and it will find you.
 
+**The facts are not copy.** They arrive as sentences, and the sentence is not the safe version
+of the fact. State each one in words that fit the page's argument, never more strongly than it
+is written. Five or more of a fact's words in a row fails `check_reuse.py`, because the same
+sentence on every page is what makes a batch read as a template. The brief's `identity_line`,
+when it has one, is the only sentence meant to repeat, and only once per page.
+
 ## Beating the bar
 
 The brief carries a median word count measured from the pages that actually rank. Beat it by
